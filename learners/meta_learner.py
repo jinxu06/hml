@@ -5,13 +5,13 @@ import numpy as np
 import tensorflow as tf
 from misc.optimizers import adam_updates
 
-def sort_x(x, y):
+def cosort_x(x, y):
     p = np.argsort(x)
     return x[p], y[p]
 
 class MetaLearner(object):
 
-    def __init__(self, session, parallel_models, optimize_op, train_set=None, eval_set=None, variables=None, lr=0.001, device_type='gpu', save_dir="test"):
+    def __init__(self, session, parallel_models, optimize_op, train_set=None, eval_set=None, variables=None, lr=0.001, device_type='gpu', tags=["test"]):
 
         self.session = session
         self.parallel_models = parallel_models
@@ -26,7 +26,7 @@ class MetaLearner(object):
         self.eval_set = eval_set
 
         self.lr = lr
-        self.save_dir = save_dir
+        self.save_dir = self.train_set.dataset_name + "-" + "-".join(tags)
 
         grads = []
         for i in range(self.nr_model):
