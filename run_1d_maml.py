@@ -39,7 +39,7 @@ for i in range(args.nr_model):
     with tf.device('/'+ args.device_type +':%d' % (i%args.nr_gpu)):
         model(models[i], **model_opt)
 
-tags = ["test"]
+tags = ["test", 'small-period']
 learner = MAMLLearner(session=None, parallel_models=models, optimize_op=None, train_set=train_set, eval_set=val_set, variables=tf.trainable_variables(), lr=args.learning_rate, device_type=args.device_type, tags=tags)
 
 initializer = tf.global_variables_initializer()
