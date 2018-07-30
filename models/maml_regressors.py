@@ -122,7 +122,8 @@ def mlp5(X, params=None, nonlinearity=None, bn=True, kernel_initializer=None, ke
             else:
                 outputs = dense(outputs, 1, nonlinearity=None)
             outputs = tf.reshape(outputs, shape=(batch_size,))
-            assert len(params)==0, "{0}: feed-in parameter list is not empty".format(name)
+            if params is not None:
+                assert len(params)==0, "{0}: feed-in parameter list is not empty".format(name)
             return outputs
 
 
