@@ -2,10 +2,7 @@ import sys
 import random
 import numpy as np
 import tensorflow as tf
-from learners.learner import Learner
-from blocks.optimizers import adam_updates
-import matplotlib.pyplot as plt
-plt.style.use("ggplot")
+from misc.optimizers import adam_updates
 
 class MetaLearner(object):
 
