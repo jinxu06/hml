@@ -17,7 +17,7 @@ args = prepare_args(args)
 from data.load_data import load
 train_set, val_set = load(dataset_name=args.dataset_name)
 
-from models.maml_regressor import MAMLRegressor, mlp5
+from models.maml_regressors import MAMLRegressor, mlp5
 from learners.maml_learner import MAMLLearner
 models = [MAMLRegressor(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
