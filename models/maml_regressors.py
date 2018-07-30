@@ -128,5 +128,35 @@ def mlp5(X, params=None, nonlinearity=None, bn=True, kernel_initializer=None, ke
 
 
 @add_arg_scope
-def mlp2():
-    pass
+def mlp2(X, params=None, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+    "Replicate Finn's MAML paper"
+    name = get_name("mlp2", counters)
+    print("construct", name, "...")
+    if params is not None:
+        params.reverse()
+    with tf.variable_scope(name):
+        default_args = {
+            "nonlinearity": nonlinearity,
+            "bn": bn,
+            "kernel_initializer": kernel_initializer,
+            "kernel_regularizer": kernel_regularizer,
+            "is_training": is_training,
+            "counters": counters,
+        }
+        with arg_scope([dense], **default_args):
+            batch_size = tf.shape(X)[0]
+            size = 40
+            outputs = X
+            for k in range(2):
+                if params is not None:
+                    outputs = dense(outputs, size, W=params.pop(), b=params.pop())
+                else:
+                    outputs = dense(outputs, size)
+            if params is not None:
+                outputs = dense(outputs, 1, nonlinearity=None, W=params.pop(), b=params.pop())
+            else:
+                outputs = dense(outputs, 1, nonlinearity=None)
+            outputs = tf.reshape(outputs, shape=(batch_size,))
+            if params is not None:
+                assert len(params)==0, "{0}: feed-in parameter list is not empty".format(name)
+            return outputs

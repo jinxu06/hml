@@ -8,21 +8,22 @@ import time
 import numpy as np
 import tensorflow as tf
 from tensorflow.python import debug as tf_debug
-
 from args import argument_parser, prepare_args
+from data.load_data import load
+from models.maml_regressors import MAMLRegressor, mlp5, mlp2
+from learners.maml_learner import MAMLLearner
+
+
 parser = argument_parser()
 args = parser.parse_args()
 args = prepare_args(args)
 
-from data.load_data import load
 train_set, val_set = load(dataset_name=args.dataset_name)
 
-from models.maml_regressors import MAMLRegressor, mlp5
-from learners.maml_learner import MAMLLearner
 models = [MAMLRegressor(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
 model_opt = {
-    "regressor": mlp5,
+    "regressor": mlp2,
     "error_func": tf.losses.mean_squared_error,
     "obs_shape": [1],
     "alpha": 0.01,
@@ -38,7 +39,7 @@ for i in range(args.nr_model):
     with tf.device('/'+ args.device_type +':%d' % (i%args.nr_gpu)):
         model(models[i], **model_opt)
 
-save_dir = "/data/ziz/jxu/maml/test-{0}-testing".format(args.dataset_name)
+save_dir = "/data/ziz/jxu/maml/test-{0}-{1}".format(args.dataset_name, "testing")
 learner = MAMLLearner(session=None, parallel_models=models, optimize_op=None, train_set=train_set, eval_set=val_set, variables=tf.trainable_variables(), lr=args.learning_rate, device_type=args.device_type, save_dir=save_dir)
 
 initializer = tf.global_variables_initializer()

@@ -59,7 +59,7 @@ class MAMLLearner(MetaLearner):
                 print("    Eval Loss: ", v)
             if epoch % save_interval == 0:
                 print("\tsave figure")
-                self.visualise("results/test/test.pdf", num_figures, num_shots, test_shots)
+                self.visualise("results/test/test.pdf", 12, num_shots, test_shots)
                 print("\tsave checkpoint")
                 saver.save(self.session, self.save_dir + '/params.ckpt')
             sys.stdout.flush()
