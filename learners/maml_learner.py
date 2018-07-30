@@ -78,7 +78,7 @@ class MAMLLearner(MetaLearner):
         ckpt_file = self.checkpoint_dir + '/params.ckpt'
         print('restoring parameters from', ckpt_file)
         saver.restore(self.session, ckpt_file)
-
+        m = self.parallel_models[0]
         evals = []
         for _ in range(num_func):
             sampler = self.eval_set.sample(1)[0]
