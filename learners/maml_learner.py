@@ -45,7 +45,11 @@ class MAMLLearner(MetaLearner):
 
 
     def run_train(self, num_epoch, eval_interval, save_interval, eval_samples, meta_batch, num_shots, test_shots, load_params=False):
-        super().run_train(load_params=load_params)
+        saver = tf.train.Saver(var_list=self.variables)
+        if load_params:
+            ckpt_file = self.save_dir + '/params.ckpt'
+            print('restoring parameters from', ckpt_file)
+            saver.restore(self.session, ckpt_file)
         self.visualise("results/test/test.pdf", 12, num_shots, test_shots)
 
         for epoch in range(1, num_epoch+1):

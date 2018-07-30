@@ -94,9 +94,5 @@ class MetaLearner(object):
     def visualise(self, save_name):
         pass
 
-    def run_train(self, load_params=False):
-        saver = tf.train.Saver(var_list=self.variables)
-        if load_params:
-            ckpt_file = self.save_dir + '/params.ckpt'
-            print('restoring parameters from', ckpt_file)
-            saver.restore(self.session, ckpt_file)
+    def run_train(self):
+        pass
