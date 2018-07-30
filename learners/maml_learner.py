@@ -1,6 +1,6 @@
 import sys
 import random
-import time 
+import time
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -46,7 +46,7 @@ class MAMLLearner(MetaLearner):
 
     def run_train(self, num_epoch, eval_interval, save_interval, eval_samples, meta_batch, num_shots, test_shots, load_params=False):
         super().run_train(load_params=load_params)
-        self.visualise("fig/test.pdf", num_figures, num_shots, test_shots)
+        self.visualise("fig/test.pdf", 12, num_shots, test_shots)
 
         for epoch in range(1, num_epoch+1):
             self.qclock()
