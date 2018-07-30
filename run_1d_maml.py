@@ -18,7 +18,7 @@ parser = argument_parser()
 args = parser.parse_args()
 args = prepare_args(args)
 
-train_set, val_set = load(dataset_name=args.dataset_name)
+train_set, val_set = load(dataset_name=args.dataset_name, period_range=[0.5*np.pi, 0.5*np.pi])
 
 models = [MAMLRegressor(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
