@@ -22,7 +22,7 @@ class MAMLLearner(MetaLearner):
             sampler = self.eval_set.sample(1)[0]
             c = [5, 10]
             num_shots = c[(i%2)]
-            X_value, y_value = sampler.sample(num_shots+test_shots)
+            X_value, y_value = sampler.sample(num_shots)
             X_c_value, X_t_value = X_value[:num_shots], X_value[num_shots:]
             y_c_value, y_t_value = y_value[:num_shots], y_value[num_shots:]
             m = self.parallel_models[0]
