@@ -1,9 +1,13 @@
 import sys
 import random
-import time 
+import time
 import numpy as np
 import tensorflow as tf
 from misc.optimizers import adam_updates
+
+def sort_x(x, y):
+    p = np.argsort(x)
+    return x[p], y[p]
 
 class MetaLearner(object):
 

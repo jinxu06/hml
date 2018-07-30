@@ -1,11 +1,11 @@
 import sys
-import time 
+import time
 import random
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 plt.style.use("ggplot")
-from .meta_learner import MetaLearner
+from .meta_learner import MetaLearner, sort_x
 
 class NPLearner(MetaLearner):
 
