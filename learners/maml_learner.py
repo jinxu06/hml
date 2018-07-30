@@ -46,7 +46,7 @@ class MAMLLearner(MetaLearner):
 
     def run_train(self, num_epoch, eval_interval, save_interval, eval_samples, meta_batch, num_shots, test_shots, load_params=False):
         super().run_train(load_params=load_params)
-        self.visualise("fig/test.pdf", 12, num_shots, test_shots)
+        self.visualise("results/test/test.pdf", 12, num_shots, test_shots)
 
         for epoch in range(1, num_epoch+1):
             self.qclock()
@@ -59,7 +59,7 @@ class MAMLLearner(MetaLearner):
                 print("    Eval Loss: ", v)
             if epoch % save_interval == 0:
                 print("\tsave figure")
-                self.visualise("fig/test.pdf", num_figures, num_shots, test_shots)
+                self.visualise("results/test/test.pdf", num_figures, num_shots, test_shots)
                 print("\tsave checkpoint")
                 saver.save(self.session, self.save_dir + '/params.ckpt')
             sys.stdout.flush()
