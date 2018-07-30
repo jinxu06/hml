@@ -17,7 +17,7 @@ def load_omniglot():
 
 def load_sinusoid():
     from data.sinusoid import Sinusoid
-    train_set = Sinusoid(amp_range=[0.1, 5.0], phase_range=[0, np.pi], period_range=[2*np.pi, 2*np.pi], input_range=[-5., 5.], dataset_name=args.dataset_name)
+    train_set = Sinusoid(amp_range=[0.1, 5.0], phase_range=[0, np.pi], period_range=[2*np.pi, 2*np.pi], input_range=[-5., 5.], dataset_name="sinusoid")
     val_set = train_set
     return train_set, val_set
 
