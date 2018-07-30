@@ -3,9 +3,9 @@ import numpy as np
 
 def load(dataset_name, **kwargs):
     if dataset_name == 'gpsamples':
-        return load_gpsamples(**kwards)
+        return load_gpsamples(**kwargs)
     elif dataset_name == 'sinusoid':
-        return load_sinusoid(**kwards)
+        return load_sinusoid(**kwargs)
     elif dataset_name == 'omniglot':
         return load_omniglot(**kwargs)
     else:
