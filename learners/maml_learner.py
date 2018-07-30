@@ -90,3 +90,5 @@ class MAMLLearner(MetaLearner):
         eval = np.nanmean(evals)
         print(".......... EVAL : num_func {0} num_shots {1} test_shots {2} step {3} ............".format(num_func, num_shots, test_shots, step))
         print("\t{0}".format(eval))
+
+        self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, "eval")))
