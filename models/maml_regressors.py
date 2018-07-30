@@ -62,7 +62,9 @@ class MAMLRegressor(object):
                 return y_hat_t_arr[self.inner_iters]
 
     def _loss(self):
-        return self.error_func(labels=self.y_t, predictions=self.y_hat)
+        self.losses = [self.error_func(labels=self.y_t, predictions=y_hat) for y_hat in self.eval_y_hats]
+        return self.losses[1]
+        #return self.error_func(labels=self.y_t, predictions=self.y_hat)
 
 
     def predict(self, sess, X_c_value, y_c_value, X_t_value, step=None):
@@ -80,7 +82,7 @@ class MAMLRegressor(object):
         return preds
 
 
-    def compute_loss(self, sess, X_c_value, y_c_value, X_t_value, y_t_value, is_training):
+    def compute_loss(self, sess, X_c_value, y_c_value, X_t_value, y_t_value, is_training, step=None):
         feed_dict = {
             self.X_c: X_c_value,
             self.y_c: y_c_value,
@@ -88,7 +90,10 @@ class MAMLRegressor(object):
             self.y_t: y_t_value,
             self.is_training: is_training,
         }
-        l = sess.run(self.loss, feed_dict=feed_dict)
+        if step is None:
+            l = sess.run(self.loss, feed_dict=feed_dict)
+        else:
+            l = sess.run(self.losses[step], feed_dict=feed_dict)
         return l
 
 

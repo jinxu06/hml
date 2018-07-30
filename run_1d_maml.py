@@ -67,4 +67,6 @@ with tf.Session(config=config) as sess:
     if args.user_mode == 'train':
         learner.run_train(**run_params)
     elif args.user_mode == 'eval':
-        pass
+        learner.run_eval(num_shots=10, test_shots=50, step=1)
+        learner.run_eval(num_shots=10, test_shots=50, step=5)
+        learner.run_eval(num_shots=10, test_shots=50, step=10)

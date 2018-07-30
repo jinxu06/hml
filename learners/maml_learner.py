@@ -72,3 +72,21 @@ class MAMLLearner(MetaLearner):
                 print("\tsave checkpoint")
                 saver.save(self.session, self.checkpoint_dir + '/params.ckpt')
             sys.stdout.flush()
+
+    def run_eval(self, num_func, num_shots, test_shots, step=1):
+        saver = tf.train.Saver(var_list=self.variables)
+        ckpt_file = self.checkpoint_dir + '/params.ckpt'
+        print('restoring parameters from', ckpt_file)
+        saver.restore(self.session, ckpt_file)
+
+        evals = []
+        for _ in range(num_func):
+            sampler = self.eval_set.sample(1)[0]
+            X_value, y_value = sampler.sample(num_shots+test_shots)
+            X_c_value, X_t_value = X_value[:num_shots], X_value[num_shots:]
+            y_c_value, y_t_value = y_value[:num_shots], y_value[num_shots:]
+            l = m.compute_loss(self.get_session(), X_c_value, y_c_value, X_value, y_value, is_training=False, step=step)
+            evals.append(l)
+        eval = np.nanmean(evals)
+        print(".......... EVAL : num_func {0} num_shots {1} test_shots {2} step {3} ............".format(num_func, num_shots, test_shots, step))
+        print("\t{0}".format(eval))
