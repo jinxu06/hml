@@ -18,7 +18,8 @@ parser = argument_parser()
 args = parser.parse_args()
 args = prepare_args(args)
 
-train_set, val_set = load(dataset_name=args.dataset_name, period_range=[0.5*np.pi, 0.5*np.pi])
+# train_set, val_set = load(dataset_name=args.dataset_name, period_range=[0.5*np.pi, 0.5*np.pi])
+train_set, val_set = load(dataset_name=args.dataset_name)
 
 models = [MAMLRegressor(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
@@ -39,7 +40,8 @@ for i in range(args.nr_model):
     with tf.device('/'+ args.device_type +':%d' % (i%args.nr_gpu)):
         model(models[i], **model_opt)
 
-tags = ["test", 'small-period']
+#tags = ["test", 'small-period']
+tags = ["test"]
 learner = MAMLLearner(session=None, parallel_models=models, optimize_op=None, train_set=train_set, eval_set=val_set, variables=tf.trainable_variables(), lr=args.learning_rate, device_type=args.device_type, tags=tags)
 
 initializer = tf.global_variables_initializer()
