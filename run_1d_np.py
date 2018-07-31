@@ -44,7 +44,7 @@ for i in range(args.nr_model):
 
 tags = ["test"]
 # save_dir = "/data/ziz/jxu/neural_processes/test-{0}".format(args.dataset_name)
-learner = NPLearner(session=None, parallel_models=models, optimize_op=None, train_set=train_set, eval_set=val_set, variables=tf.trainable_variables(), lr=args.learning_rate, device_type=args.device_type, tags=tags)
+learner = NPLearner(session=None, parallel_models=models, optimize_op=None, train_set=train_set, eval_set=val_set, variables=tf.trainable_variables(), lr=args.learning_rate, device_type=args.device_type, tags=tags, cdir="", rdir="")
 
 
 initializer = tf.global_variables_initializer()
