@@ -76,7 +76,7 @@ class MetaLearner(object):
 
 
 
-    def evaluate(self, eval_samples, num_shots=None, test_shots=None, step=None):
+    def evaluate(self, eval_samples, num_shots=None, test_shots=None):
         m = self.parallel_models[0]
         ls = []
         for _ in range(eval_samples):
@@ -87,7 +87,7 @@ class MetaLearner(object):
             X_value, y_value = self.eval_set.sample(1)[0].sample(num_shots+test_shots)
             X_c_value, X_t_value = X_value[:num_shots], X_value[num_shots:]
             y_c_value, y_t_value = y_value[:num_shots], y_value[num_shots:]
-            l = m.compute_loss(self.get_session(), X_c_value, y_c_value, X_value, y_value, is_training=False, step=step)
+            l = m.compute_loss(self.get_session(), X_c_value, y_c_value, X_value, y_value, is_training=False)
             ls.append(l)
         return np.mean(ls)
 
