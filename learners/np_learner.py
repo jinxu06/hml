@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 plt.style.use("ggplot")
-from .meta_learner import MetaLearner, sort_x
+from .meta_learner import MetaLearner, cosort_x
 
 class NPLearner(MetaLearner):
 
