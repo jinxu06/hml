@@ -6,6 +6,7 @@ from misc.layers import conv2d, deconv2d, dense
 from misc.samplers import gaussian_sampler
 from misc.helpers import int_shape, get_name
 from misc.estimators import compute_2gaussian_kld
+from misc.losses import mean_squared_error
 
 
 
