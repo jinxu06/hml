@@ -18,6 +18,9 @@ parser = argument_parser()
 args = parser.parse_args()
 args = prepare_args(args)
 
+checkpoint_dir = "/data/ziz/jxu"
+result_dir = "results"
+
 train_set, val_set = load(dataset_name=args.dataset_name)
 
 models = [NeuralProcess(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
@@ -44,7 +47,7 @@ for i in range(args.nr_model):
 
 tags = ["test"]
 # save_dir = "/data/ziz/jxu/neural_processes/test-{0}".format(args.dataset_name)
-learner = NPLearner(session=None, parallel_models=models, optimize_op=None, train_set=train_set, eval_set=val_set, variables=tf.trainable_variables(), lr=args.learning_rate, device_type=args.device_type, tags=tags, cdir="", rdir="")
+learner = NPLearner(session=None, parallel_models=models, optimize_op=None, train_set=train_set, eval_set=val_set, variables=tf.trainable_variables(), lr=args.learning_rate, device_type=args.device_type, tags=tags, cdir=checkpoint_dir, rdir=result_dir)
 
 
 initializer = tf.global_variables_initializer()
