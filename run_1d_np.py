@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python import debug as tf_debug
 from args import argument_parser, prepare_args
+from data.load_data import load
 from models.neural_processes import NeuralProcess
 from learners.np_learner import NPLearner
 from models.neural_processes import fc_encoder, aggregator, conditional_decoder
