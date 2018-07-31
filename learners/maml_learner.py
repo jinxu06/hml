@@ -12,8 +12,8 @@ class MAMLLearner(MetaLearner):
 
     def __init__(self, session, parallel_models, optimize_op, train_set=None, eval_set=None, variables=None, lr=0.001, device_type='gpu', tags=["test"], cdir="", rdir=""):
         super().__init__(session, parallel_models, optimize_op, train_set, eval_set, variables, lr, device_type, tags)
-        self.checkpoint_dir = os.path.join([cdir, "maml", self.save_dir])
-        self.result_dir = os.path.join([rdir, "maml", self.save_dir])
+        self.checkpoint_dir = os.path.join(cdir, "maml", self.save_dir)
+        self.result_dir = os.path.join(rdir, "maml", self.save_dir)
         if not os.path.exists(self.checkpoint_dir):
             os.makedirs(self.checkpoint_dir)
         if not os.path.exists(self.result_dir):
