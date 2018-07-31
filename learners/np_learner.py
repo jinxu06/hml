@@ -10,7 +10,7 @@ from .meta_learner import MetaLearner, cosort_x
 
 class NPLearner(MetaLearner):
 
-    def __init__(self, session, parallel_models, optimize_op, train_set=None, eval_set=None, variables=None, lr=0.001, device_type='gpu', tags=["test"], cdir="", rdir=""):):
+    def __init__(self, session, parallel_models, optimize_op, train_set=None, eval_set=None, variables=None, lr=0.001, device_type='gpu', tags=["test"], cdir="", rdir=""):
         super().__init__(session, parallel_models, optimize_op, train_set, eval_set, variables, lr, device_type, tags)
         self.checkpoint_dir = os.path.join([cdir, "neural_processes", self.save_dir])
         self.result_dir = os.path.join([rdir, "neural_processes", self.save_dir])
