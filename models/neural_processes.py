@@ -93,7 +93,7 @@ class NeuralProcess(object):
             self.use_z_ph: True,
             self.z_ph: z_pr,
         })
-        preds= sess.run(self.preds, feed_dict=feed_dict)
+        preds= sess.run(self.y_hat, feed_dict=feed_dict)
         return preds
 
     def manipulate_z(self, sess, z_value, X_t_value):
@@ -103,7 +103,7 @@ class NeuralProcess(object):
             self.X_t: X_t_value,
             self.is_training: False,
         }
-        preds= sess.run(self.preds, feed_dict=feed_dict)
+        preds= sess.run(self.y_hat, feed_dict=feed_dict)
         return preds
 
     def compute_loss(self, sess, X_c_value, y_c_value, X_t_value, y_t_value, is_training):
