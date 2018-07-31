@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow.contrib.framework.python.ops import arg_scope, add_arg_scope
 from misc.layers import conv2d, deconv2d, dense
 from misc.samplers import gaussian_sampler
-from misc.helpers import int_shape, get_name
+from misc.helpers import int_shape, get_name, get_trainable_variables
 from misc.estimators import compute_2gaussian_kld
 from misc.losses import mean_squared_error
 
