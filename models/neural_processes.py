@@ -125,7 +125,7 @@ def omniglot_conv_encoder(inputs, r_dim, is_training, nonlinearity=None, bn=True
     name = get_name("omniglot_conv_encoder", counters)
     print("construct", name, "...")
     with tf.variable_scope(name):
-        with arg_scope([conv2d, dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training):
+        with arg_scope([conv2d, dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
             outputs = inputs
             outputs = conv2d(outputs, 64, 3, 1, "SAME")
             outputs = conv2d(outputs, 64, 3, 2, "SAME")
@@ -144,7 +144,7 @@ def fc_encoder(X, y, r_dim, nonlinearity=None, bn=True, kernel_initializer=None,
     name = get_name("fc_encoder", counters)
     print("construct", name, "...")
     with tf.variable_scope(name):
-        with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training):
+        with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
             size = 256
             outputs = dense(inputs, size)
             outputs = nonlinearity(dense(outputs, size, nonlinearity=None) + dense(inputs, size, nonlinearity=None))
@@ -160,7 +160,7 @@ def aggregator(r, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=Tru
     name = get_name("aggregator", counters)
     print("construct", name, "...")
     with tf.variable_scope(name):
-        with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training):
+        with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
             r_pr = method(r[:num_c], axis=0, keepdims=True)
             r = method(r, axis=0, keepdims=True)
             r = tf.concat([r_pr, r], axis=0)
@@ -177,7 +177,7 @@ def conditional_decoder(x, z, nonlinearity=None, bn=True, kernel_initializer=Non
     name = get_name("conditional_decoder", counters)
     print("construct", name, "...")
     with tf.variable_scope(name):
-        with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training):
+        with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
             size = 256
             batch_size = tf.shape(x)[0]
             x = tf.tile(x, tf.stack([1, int_shape(z)[1]]))
