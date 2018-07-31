@@ -73,6 +73,8 @@ class MAMLLearner(MetaLearner):
                 saver.save(self.session, self.checkpoint_dir + '/params.ckpt')
             sys.stdout.flush()
 
+
+
     def run_eval(self, num_func, num_shots, test_shots, step=1):
         saver = tf.train.Saver(var_list=self.variables)
         ckpt_file = self.checkpoint_dir + '/params.ckpt'
