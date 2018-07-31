@@ -11,7 +11,7 @@ def cosort_x(x, y):
 
 class MetaLearner(object):
 
-    def __init__(self, session, parallel_models, optimize_op, train_set=None, eval_set=None, variables=None, lr=0.001, device_type='gpu', tags=["test"], cdir="", rdir=""):):
+    def __init__(self, session, parallel_models, optimize_op, train_set=None, eval_set=None, variables=None, lr=0.001, device_type='gpu', tags=["test"], cdir="", rdir=""):
 
         self.session = session
         self.parallel_models = parallel_models
