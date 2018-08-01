@@ -56,4 +56,4 @@ class SineWave(object):
         return xs[:num_shots], ys[:num_shots], xs[num_shots:], ys[num_shots:]
 
     def get_all_samples(self):
-        return self.sample(200)
+        return self.sample(200, 0)[:2]
