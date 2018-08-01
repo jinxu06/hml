@@ -12,8 +12,12 @@ def load(dataset_name, **kwargs):
         raise Exception("Dataset {0} not found".format(dataset_name))
 
 
-def load_omniglot():
-    pass
+def load_omniglot(num_classes):
+    import data.omniglot as og
+    train_set, val_set = og.load_omniglot("/data/ziz/not-backed-up/jxu/omniglot")
+    train_set = og.Omniglot(train_set, num_classes=num_classes, dataset_name='omniglot-c{0}'.format(num_classes))
+    val_set = og.Omniglot(val_set, num_classes=num_classes, dataset_name='omniglot-c{0}'.format(num_classes))
+    return train_set, val_set
 
 def load_sinusoid(amp_range=[0.1, 5.0], phase_range=[0, np.pi], period_range=[2*np.pi, 2*np.pi], input_range=[-5., 5.]):
     from data.sinusoid import Sinusoid

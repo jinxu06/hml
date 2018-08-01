@@ -44,7 +44,8 @@ class SineWave(object):
     #     np.random.shuffle(samples)
     #     return samples
 
-    def sample(self, num_samples, xs=None):
+    def sample(self, num_shots, test_shots, xs=None):
+        num_samples = num_shots + test_shots
         if xs is None:
             xs = np.random.uniform(self.input_range[0], self.input_range[1], [num_samples,1])
         ys = self.amp * np.sin( 2*np.pi*(xs[:, 0] - self.phase) / self.period )
@@ -52,7 +53,7 @@ class SineWave(object):
             p = np.random.permutation(num_samples)
             xs = xs[p]
             ys = ys[p]
-        return xs, ys
+        return xs[:num_shots], ys[:num_shots], xs[num_shots:], ys[num_shots:]
 
     def get_all_samples(self):
         return self.sample(200)

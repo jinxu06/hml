@@ -62,9 +62,9 @@ class MetaLearner(object):
             if test_shots is None:
                 test_shots = 20
 
-            X_value, y_value = task.sample(num_shots+test_shots)
-            X_c_value, X_t_value = X_value[:num_shots], X_value[num_shots:]
-            y_c_value, y_t_value = y_value[:num_shots], y_value[num_shots:]
+            X_c_value, y_c_value, X_t_value, y_t_value = task.sample(num_shots, test_shots)
+            X_value = np.concatenate([X_c_value, X_t_value], axis=0)
+            y_value = np.concatenate([y_c_value, y_t_value], axis=0)
             feed_dict.update({
                 self.parallel_models[i].X_c: X_c_value,
                 self.parallel_models[i].y_c: y_c_value,
@@ -84,9 +84,9 @@ class MetaLearner(object):
                 num_shots = np.random.randint(low=1, high=50)
             if test_shots is None:
                 test_shots = 20
-            X_value, y_value = self.eval_set.sample(1)[0].sample(num_shots+test_shots)
-            X_c_value, X_t_value = X_value[:num_shots], X_value[num_shots:]
-            y_c_value, y_t_value = y_value[:num_shots], y_value[num_shots:]
+            X_c_value, y_c_value, X_t_value, y_t_value = self.eval_set.sample(1)[0].sample(num_shots, test_shots)
+            X_value = np.concatenate([X_c_value, X_t_value], axis=0)
+            y_value = np.concatenate([y_c_value, y_t_value], axis=0)
             l = m.compute_loss(self.get_session(), X_c_value, y_c_value, X_value, y_value, is_training=False)
             ls.append(l)
         return np.mean(ls)

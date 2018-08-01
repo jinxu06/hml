@@ -45,10 +45,12 @@ class GPFunction(object):
         self.ys = ys
         self.num_samples = len(xs)
 
-    def sample(self, num_samples):
+    def sample(self, num_shots, test_shots):
+        num_samples = num_shots + test_shots
         assert num_samples <= self.num_samples, "num_samples exceed max_num_samples"
         p = np.random.choice(self.num_samples, size=(num_samples,), replace=False)
-        return self.xs[p][:,None], self.ys[p]
+        xs, ys = self.xs[p][:,None], self.ys[p]
+        return xs[:num_shots], ys[:num_shots], xs[num_shots:], ys[num_shots:]
 
     def get_all_samples(self):
         return self.xs[:,None], self.ys

@@ -26,9 +26,9 @@ class NPLearner(MetaLearner):
             sampler = self.eval_set.sample(1)[0]
             c = [1, 5, 10, 20]
             num_shots = c[(i%4)]
-            X_value, y_value = sampler.sample(num_shots)
-            X_c_value, X_t_value = X_value[:num_shots], X_value[num_shots:]
-            y_c_value, y_t_value = y_value[:num_shots], y_value[num_shots:]
+            X_c_value, y_c_value, X_t_value, y_t_value = sampler.sample(num_shots, test_shots)
+            X_value = np.concatenate([X_c_value, X_t_value], axis=0)
+            y_value = np.concatenate([y_c_value, y_t_value], axis=0)
             m = self.parallel_models[0]
             X_gt, y_gt = sampler.get_all_samples()
             ax.plot(*cosort_x(X_gt[:,0], y_gt), "-")
@@ -76,9 +76,9 @@ class NPLearner(MetaLearner):
         evals = []
         for _ in range(num_func):
             sampler = self.eval_set.sample(1)[0]
-            X_value, y_value = sampler.sample(num_shots+test_shots)
-            X_c_value, X_t_value = X_value[:num_shots], X_value[num_shots:]
-            y_c_value, y_t_value = y_value[:num_shots], y_value[num_shots:]
+            X_c_value, y_c_value, X_t_value, y_t_value = sampler.sample(num_shots, test_shots)
+            X_value = np.concatenate([X_c_value, X_t_value], axis=0)
+            y_value = np.concatenate([y_c_value, y_t_value], axis=0)
             l = m.compute_loss(self.get_session(), X_c_value, y_c_value, X_value, y_value, is_training=False)
             evals.append(l)
         eval = np.nanmean(evals)
