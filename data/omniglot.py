@@ -21,7 +21,7 @@ def load_omniglot(data_dir, num_train=1200, augment_train_set=True):
     return train_set, eval_set
 
 
-def Omniglot(object):
+class Omniglot(object):
 
     def __init__(self, chars, num_classes, dataset_name="omniglot"):
         self.dataset_name = dataset_name
