@@ -54,7 +54,7 @@ def read_dataset(data_dir):
         for char_name in sorted(os.listdir(alphabet_dir)):
             if not char_name.startswith('character'):
                 continue
-            yield Character(os.path.join(alphabet_dir, char_name), 0, tags={'alphabet': alphabet_name, 'character': char_name, 'rotation': 0})
+            yield Character(os.path.join(alphabet_dir, char_name), 0)
 
 def split_dataset(dataset, num_train=1200):
     """
