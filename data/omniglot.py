@@ -78,9 +78,7 @@ def augment_dataset(dataset):
     """
     for character in dataset:
         for rotation in [0, 90, 180, 270]:
-            tags = character.tags
-            tags.update({'rotation': rotation})
-            yield Character(character.dir_path, rotation=rotation, tags=tags)
+            yield Character(character.dir_path, rotation=rotation)
 
 class Characters:
 
