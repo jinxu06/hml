@@ -26,7 +26,7 @@ class NPLearner(MetaLearner):
             sampler = self.eval_set.sample(1)[0]
             c = [1, 5, 10, 20]
             num_shots = c[(i%4)]
-            X_c_value, y_c_value, X_t_value, y_t_value = sampler.sample(num_shots, test_shots)
+            X_c_value, y_c_value, X_t_value, y_t_value = sampler.sample(num_shots, test_shots=0)
             X_value = np.concatenate([X_c_value, X_t_value], axis=0)
             y_value = np.concatenate([y_c_value, y_t_value], axis=0)
             m = self.parallel_models[0]
