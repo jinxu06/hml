@@ -165,3 +165,21 @@ def mlp2(X, params=None, nonlinearity=None, bn=True, kernel_initializer=None, ke
             if params is not None:
                 assert len(params)==0, "{0}: feed-in parameter list is not empty".format(name)
             return outputs
+
+
+@add_arg_scope
+def omniglot_conv(X, params=None, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+    name = get_name("omniglot_conv", counters)
+    print("construct", name, "...")
+    with tf.variable_scope(name):
+        with arg_scope([conv2d, dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
+            outputs = X
+            outputs = conv2d(outputs, 64, filter_size=3, stride=1, pad="SAME")
+            outputs = conv2d(outputs, 64, 3, 2, "SAME")
+            outputs = conv2d(outputs, 128, 3, 1, "SAME")
+            outputs = conv2d(outputs, 128, 3, 2, "SAME")
+            outputs = conv2d(outputs, 256, 4, 1, "VALID")
+            outputs = conv2d(outputs, 256, 4, 1, "VALID")
+            outputs = tf.reshape(outputs, [-1, 256])
+            y = tf.dense(outputs, 1, nonlinearity=None, bn=False)
+            return y
