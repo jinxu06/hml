@@ -40,8 +40,7 @@ model_opt = {
     "bn": False,
     "kernel_initializer": tf.contrib.layers.xavier_initializer(uniform=False),
     "kernel_regularizer":None,
-
-    'inner_iters': 5,
+    'inner_iters': 1,
 }
 
 model = tf.make_template('model', MAMLRegressor.construct)
