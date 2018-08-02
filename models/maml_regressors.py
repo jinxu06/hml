@@ -11,12 +11,13 @@ class MAMLRegressor(object):
         self.counters = counters
         self.user_mode = user_mode
 
-    def construct(self, regressor, error_func, obs_shape, label_shape=[], alpha=0.01, inner_iters=1, eval_iters=10, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
+    def construct(self, regressor, error_func, obs_shape, label_shape=[], num_classes=1, alpha=0.01, inner_iters=1, eval_iters=10, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
 
         self.regressor = regressor
         self.error_func = error_func
         self.obs_shape = obs_shape
         self.label_shape = label_shape
+        self.num_classes = num_classes
         self.alpha = alpha
         self.inner_iters = inner_iters
         self.eval_iters = eval_iters
@@ -45,6 +46,7 @@ class MAMLRegressor(object):
             "kernel_regularizer": self.kernel_regularizer,
             "is_training": self.is_training,
             "counters": self.counters,
+            "num_classes": self.num_classes,
         }
         with arg_scope([self.regressor], **default_args):
             self.scope_name = get_name("maml_regressor", self.counters)
@@ -100,7 +102,7 @@ class MAMLRegressor(object):
 
 
 @add_arg_scope
-def mlp5(X, params=None, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+def mlp5(X, params=None, num_classes=1, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
     name = get_name("mlp5", counters)
     print("construct", name, "...")
     if params is not None:
@@ -134,7 +136,7 @@ def mlp5(X, params=None, nonlinearity=None, bn=True, kernel_initializer=None, ke
 
 
 @add_arg_scope
-def mlp2(X, params=None, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+def mlp2(X, params=None, num_classes=1, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
     "Replicate Finn's MAML paper"
     name = get_name("mlp2", counters)
     print("construct", name, "...")
@@ -169,7 +171,7 @@ def mlp2(X, params=None, nonlinearity=None, bn=True, kernel_initializer=None, ke
 
 
 @add_arg_scope
-def omniglot_conv(X, num_classes, params=None, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+def omniglot_conv(X, params=None, num_classes=1, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
     name = get_name("omniglot_conv", counters)
     print("construct", name, "...")
     if params is not None:

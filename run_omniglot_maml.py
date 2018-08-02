@@ -28,9 +28,10 @@ train_set, val_set = load(dataset_name=args.dataset_name, num_classes=args.num_c
 models = [MAMLRegressor(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
 model_opt = {
-    "regressor": functools.partial(omniglot_conv, num_classes=args.num_classes),
+    "regressor": omniglot_conv, num_classes=args.num_classes,
     "error_func": tf.losses.softmax_cross_entropy,
     "obs_shape": [28,28,1],
+    "num_classes": args.num_classes, 
     "label_shape": [args.num_classes],
     "alpha": 0.01,
     "nonlinearity": tf.nn.relu,
