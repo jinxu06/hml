@@ -30,6 +30,7 @@ def argument_parser():
     parser.add_argument('--img_size', type=int, default=28, help="size of input image")
     parser.add_argument('--num_shots', type=int, default=5, help="")
     parser.add_argument('--test_shots', type=int, default=5, help="")
+    parser.add_argument('--num_classes', type=int, default=5, help="")
     # parser.add_argument('--batch_size', type=int, default=100, help='Batch size during training per GPU')
     #
     parser.add_argument('--inner_batch', help='inner batch size', default=5, type=int)

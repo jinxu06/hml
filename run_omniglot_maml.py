@@ -5,6 +5,7 @@ import sys
 import json
 import argparse
 import time
+import functools
 import numpy as np
 import tensorflow as tf
 from tensorflow.python import debug as tf_debug
@@ -22,12 +23,12 @@ checkpoint_dir = "/data/ziz/jxu"
 result_dir = "results"
 
 # train_set, val_set = load(dataset_name=args.dataset_name, period_range=[0.5*np.pi, 0.5*np.pi])
-train_set, val_set = load(dataset_name=args.dataset_name, num_classes=5)
+train_set, val_set = load(dataset_name=args.dataset_name, num_classes=args.num_classes)
 
 models = [MAMLRegressor(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
 model_opt = {
-    "regressor": omniglot_conv,
+    "regressor": functools.partial(omniglot_conv, num_classes=args.num_classes),
     "error_func": tf.losses.softmax_cross_entropy,
     "obs_shape": [28,28,1],
     "label_shape": [5],
