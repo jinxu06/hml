@@ -25,7 +25,7 @@ result_dir = "results"
 # train_set, val_set = load(dataset_name=args.dataset_name, period_range=[0.5*np.pi, 0.5*np.pi])
 train_set, val_set = load(dataset_name=args.dataset_name, num_classes=args.num_classes)
 
-s = train_set.sample(1)[0].sample(1)[0]
+s = train_set.sample(1)[0].sample(1, 1)[0]
 print(s)
 print(s.shape)
 quit()
