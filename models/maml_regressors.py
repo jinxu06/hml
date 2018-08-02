@@ -4,6 +4,7 @@ import tensorflow as tf
 from tensorflow.contrib.framework.python.ops import arg_scope, add_arg_scope
 from misc.layers import conv2d, deconv2d, dense
 from misc.helpers import int_shape, get_name, get_trainable_variables
+from misc.metrics import accuracy
 
 class MAMLRegressor(object):
 
@@ -45,8 +46,8 @@ class MAMLRegressor(object):
         if self.task_type == 'classification':
             y_hat_arr = [tf.argmax(tf.nn.softmax(o), axis=1) for o in self.eval_outputs]
             self.y_hat = y_hat_arr[1]
-            self.acc = tf.reduce_mean(tf.cast(tf.argmax(self.y_t, 1)==tf.argmax(self.y_hat, 1), dtype=tf.float32))
-            self.accs = [tf.reduce_mean(tf.cast(tf.argmax(self.y_t, 1)==tf.argmax(y_hat, 1), dtype=tf.float32)) for y_hat in y_hat_arr]
+            self.acc = accuracy(self.y_t, self.y_hat)
+            self.accs = [accuracy(self.y_t, y_hat) for y_hat in y_hat_arr]
         elif self.task_type == 'regression':
             self.y_hat = self.outputs
 
