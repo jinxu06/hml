@@ -180,7 +180,7 @@ def omniglot_conv(X, params=None, nonlinearity=None, bn=True, kernel_initializer
                 outputs = conv2d(outputs, 128, filter_size=[3,3], stride=[1,1], pad="SAME")
                 outputs = conv2d(outputs, 128, filter_size=[3,3], stride=[2,2], pad="SAME")
                 outputs = conv2d(outputs, 256, filter_size=[4,4], stride=[1,1], pad="VALID")
-                outputs = conv2d(outputs, 256, filter_size=[4,4], stride=[1,1], "VALID")
+                outputs = conv2d(outputs, 256, filter_size=[4,4], stride=[1,1], pad="VALID")
                 outputs = tf.reshape(outputs, [-1, 256])
                 y = tf.dense(outputs, 1, nonlinearity=None, bn=False)
             else:
@@ -189,7 +189,7 @@ def omniglot_conv(X, params=None, nonlinearity=None, bn=True, kernel_initializer
                 outputs = conv2d(outputs, 128, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[1,1], pad="SAME")
                 outputs = conv2d(outputs, 128, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[2,2], pad="SAME")
                 outputs = conv2d(outputs, 256, W=params.pop(), b=params.pop(), filter_size=[4,4], stride=[1,1], pad="VALID")
-                outputs = conv2d(outputs, 256, W=params.pop(), b=params.pop(), filter_size=[4,4], stride=[1,1], "VALID")
+                outputs = conv2d(outputs, 256, W=params.pop(), b=params.pop(), filter_size=[4,4], stride=[1,1], pad="VALID")
                 outputs = tf.reshape(outputs, [-1, 256])
                 y = tf.dense(outputs, 1, W=params.pop(), b=params.pop(), nonlinearity=None, bn=False)
             return y
