@@ -24,9 +24,6 @@ result_dir = "results"
 # train_set, val_set = load(dataset_name=args.dataset_name, period_range=[0.5*np.pi, 0.5*np.pi])
 train_set, val_set = load(dataset_name=args.dataset_name)
 
-print(train_set.sample(1)[0].sample(1,1)[0].shape)
-quit()
-
 models = [MAMLRegressor(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
 model_opt = {
