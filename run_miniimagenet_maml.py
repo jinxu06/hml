@@ -11,7 +11,7 @@ import tensorflow as tf
 from tensorflow.python import debug as tf_debug
 from args import argument_parser, prepare_args
 from data.load_data import load
-from models.maml_regressors import MAMLRegressor, omniglot_conv
+from models.maml_regressors import MAMLRegressor, miniimagenet_conv
 from learners.maml_learner import MAMLLearner
 
 
@@ -29,7 +29,7 @@ train_set, val_set = load(dataset_name=args.dataset_name, num_classes=args.num_c
 models = [MAMLRegressor(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
 model_opt = {
-    "regressor": omniglot_conv,
+    "regressor": miniimagenet_conv,
     "task_type": "classification",
     # "error_func": tf.losses.softmax_cross_entropy,
     "obs_shape": [84,84,3],
@@ -40,7 +40,7 @@ model_opt = {
     "bn": False,
     "kernel_initializer": tf.contrib.layers.xavier_initializer(uniform=False),
     "kernel_regularizer":None,
-    'inner_iters': 1,
+    'inner_iters': 5,
 }
 
 model = tf.make_template('model', MAMLRegressor.construct)
