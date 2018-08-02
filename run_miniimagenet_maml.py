@@ -32,7 +32,7 @@ model_opt = {
     "regressor": omniglot_conv,
     "task_type": "classification",
     # "error_func": tf.losses.softmax_cross_entropy,
-    "obs_shape": [28,28,1],
+    "obs_shape": [84,84,3],
     "num_classes": args.num_classes,
     "label_shape": [args.num_classes],
     "alpha": 0.01,
@@ -41,7 +41,7 @@ model_opt = {
     "kernel_initializer": tf.contrib.layers.xavier_initializer(uniform=False),
     "kernel_regularizer":None,
 
-    'inner_iters': 5, 
+    'inner_iters': 5,
 }
 
 model = tf.make_template('model', MAMLRegressor.construct)
