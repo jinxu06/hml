@@ -64,7 +64,7 @@ with tf.Session(config=config) as sess:
     learner.set_session(sess)
 
     run_params = {
-        "num_epoch": 500,
+        "num_epoch": 100,
         "eval_interval": 1,
         "save_interval": args.save_interval,
         "eval_samples": 100,
