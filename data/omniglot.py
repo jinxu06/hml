@@ -33,7 +33,7 @@ class Omniglot(object):
         tasks = []
         for _ in range(num):
             idx = np.random.choice(self.num_char, size=self.num_classes).astype(np.int32)
-            tasks.append(Characters(self.chars[idx]))
+            tasks.append(Characters([self.chars[i] for i in idx]))
         return tasks
 
 
