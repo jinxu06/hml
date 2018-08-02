@@ -11,10 +11,16 @@ class MAMLRegressor(object):
         self.counters = counters
         self.user_mode = user_mode
 
-    def construct(self, regressor, error_func, obs_shape, label_shape=[], num_classes=1, alpha=0.01, inner_iters=1, eval_iters=10, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
+    def construct(self, regressor, task_type, obs_shape, label_shape=[], num_classes=1, alpha=0.01, inner_iters=1, eval_iters=10, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
 
         self.regressor = regressor
-        self.error_func = error_func
+        self.task_type = task_type
+        if task_type == 'classification':
+            self.error_func = tf.losses.softmax_cross_entropy
+        elif task_type == 'regression':
+            self.error_func = tf.losses.mean_squared_error
+        else:
+            raise Exception("Unknown task type")
         self.obs_shape = obs_shape
         self.label_shape = label_shape
         self.num_classes = num_classes
@@ -36,6 +42,14 @@ class MAMLRegressor(object):
         self.y_hat = self.outputs
         self.loss = self._loss()
 
+        if self.task_type == 'classification':
+            y_hat_arr = [tf.argmax(tf.nn.softmax(o), axis=1) for o in self.eval_outputs]
+            self.y_hat = y_hat_arr[1]
+            self.acc = tf.metrics.accuracy(self.y_t, self.y_hat)
+            self.accs = [tf.metrics.accuracy(self.y_t, y_hat) for y_hat in y_hat_arr]
+        elif self.task_type == 'regression':
+            self.y_hat = self.outputs
+
         self.grads = tf.gradients(self.loss, get_trainable_variables([self.scope_name]), colocate_gradients_with_ops=True)
 
     def _model(self):
@@ -51,21 +65,21 @@ class MAMLRegressor(object):
         with arg_scope([self.regressor], **default_args):
             self.scope_name = get_name("maml_regressor", self.counters)
             with tf.variable_scope(self.scope_name):
-                y_hat = self.regressor(self.X_c)
+                outputs = self.regressor(self.X_c)
                 vars = get_trainable_variables([self.scope_name])
-                y_hat_t_arr = [self.regressor(self.X_t, params=vars.copy())]
+                outputs_t_arr = [self.regressor(self.X_t, params=vars.copy())]
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
-                    loss = self.error_func(self.y_c, y_hat)
+                    loss = self.error_func(self.y_c, outputs)
                     grads = tf.gradients(loss, vars, colocate_gradients_with_ops=True)
                     vars = [v - self.alpha * g for v, g in zip(vars, grads)]
-                    y_hat = self.regressor(self.X_c, params=vars.copy())
-                    y_hat_t = self.regressor(self.X_t, params=vars.copy())
-                    y_hat_t_arr.append(y_hat_t)
-                self.eval_y_hats = y_hat_t_arr
-                return y_hat_t_arr[self.inner_iters]
+                    outputs = self.regressor(self.X_c, params=vars.copy())
+                    outputs_t = self.regressor(self.X_t, params=vars.copy())
+                    outputs_t_arr.append(outputs_t)
+                self.eval_outputs = outputs_t_arr
+                return outputs_t_arr[self.inner_iters]
 
     def _loss(self):
-        self.losses = [self.error_func(self.y_t, self.outputs) for y_hat in self.eval_y_hats]
+        self.losses = [self.error_func(self.y_t, o) for o in self.eval_outputs]
         return self.losses[1]
         #return self.error_func(labels=self.y_t, predictions=self.y_hat)
 
@@ -97,6 +111,20 @@ class MAMLRegressor(object):
             l = sess.run(self.loss, feed_dict=feed_dict)
         else:
             l = sess.run(self.losses[step], feed_dict=feed_dict)
+        return l
+
+    def compute_acc(self, sess, X_c_value, y_c_value, X_t_value, y_t_value, is_training, step=None):
+        feed_dict = {
+            self.X_c: X_c_value,
+            self.y_c: y_c_value,
+            self.X_t: X_t_value,
+            self.y_t: y_t_value,
+            self.is_training: is_training,
+        }
+        if step is None:
+            l = sess.run(self.acc, feed_dict=feed_dict)
+        else:
+            l = sess.run(self.accs[step], feed_dict=feed_dict)
         return l
 
 

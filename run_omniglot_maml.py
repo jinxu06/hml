@@ -29,7 +29,8 @@ models = [MAMLRegressor(counters={}, user_mode=args.user_mode) for i in range(ar
 
 model_opt = {
     "regressor": omniglot_conv,
-    "error_func": tf.losses.softmax_cross_entropy,
+    "task_type": "classification",
+    # "error_func": tf.losses.softmax_cross_entropy,
     "obs_shape": [28,28,1],
     "num_classes": args.num_classes,
     "label_shape": [args.num_classes],
