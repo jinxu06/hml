@@ -50,6 +50,9 @@ class MAMLRegressor(object):
             with tf.variable_scope(self.scope_name):
                 y_hat = self.regressor(self.X_c)
                 vars = get_trainable_variables([self.scope_name])
+                for v in vars:
+                    print(v)
+                quit()
                 y_hat_t_arr = [self.regressor(self.X_t, params=vars.copy())]
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
                     loss = self.error_func(labels=self.y_c, predictions=y_hat)
