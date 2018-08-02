@@ -28,7 +28,7 @@ models = [MAMLRegressor(counters={}, user_mode=args.user_mode) for i in range(ar
 
 model_opt = {
     "regressor": mlp2,
-    "error_func": lambda labels, outputs: tf.losses.mean_squared_error(labels=labels, predictions=outputs),
+    "error_func": tf.losses.mean_squared_error,
     "obs_shape": [1],
     "alpha": 0.01,
     "nonlinearity": tf.nn.relu,

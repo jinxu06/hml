@@ -63,7 +63,7 @@ class MAMLRegressor(object):
                 return y_hat_t_arr[self.inner_iters]
 
     def _loss(self):
-        self.losses = [self.error_func(labels=self.y_t, outputs=self.outputs) for y_hat in self.eval_y_hats]
+        self.losses = [self.error_func(self.y_t, self.outputs) for y_hat in self.eval_y_hats]
         return self.losses[1]
         #return self.error_func(labels=self.y_t, predictions=self.y_hat)
 
