@@ -8,9 +8,17 @@ def load(dataset_name, **kwargs):
         return load_sinusoid(**kwargs)
     elif dataset_name == 'omniglot':
         return load_omniglot(**kwargs)
+    elif dataset_name == 'miniimagenet':
+        return load_miniimagenet(**kwargs)
     else:
         raise Exception("Dataset {0} not found".format(dataset_name))
 
+def load_miniimagenet(num_classes=5):
+    from data.miniimagenet import Miniimagenet
+    data_dir = "/data/ziz/not-backed-up/datasets-ziz-only/processed_data/miniimagenet"
+    train_set = Miniimagenet(data_dir num_classes, 'train')
+    val_set = Miniimagenet(data_dir num_classes, 'val')
+    return train_set, val_set
 
 def load_omniglot(num_classes=5):
     import data.omniglot as og

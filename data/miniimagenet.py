@@ -12,16 +12,39 @@ import random
 from PIL import Image
 import numpy as np
 
-def read_dataset(data_dir):
-    """
-    Read the Mini-ImageNet dataset.
-    Args:
-      data_dir: directory containing Mini-ImageNet.
-    Returns:
-      A tuple (train, val, test) of sequences of
-        ImageNetClass instances.
-    """
-    return tuple(_read_classes(os.path.join(data_dir, x)) for x in ['train', 'val', 'test'])
+
+def load_omniglot(data_dir, num_train=1200, augment_train_set=True):
+    data = read_dataset(data_dir)
+    train_set, eval_set = split_dataset(data)
+    train_set = list(augment_dataset(train_set))
+    eval_set = list(eval_set)
+    return train_set, eval_set
+
+
+class Miniimagenet(object):
+
+    def __init__(self, data_dir, num_classes, which_set, dataset_name="miniimagenet"):
+        self.data_dir = data_dir
+        self.num_classes = num_classes
+        self.which_set = which_set
+        self.dataset_name = dataset_name
+
+        self.image_classes = read_dataset(self.data_dir, self.which_set)
+        self.num_image_classes = len(self.image_classes)
+
+    def sample(self, num):
+        tasks = []
+        for _ in range(num):
+            idx = np.random.choice(self.num_image_classes, size=self.num_classes).astype(np.int32)
+            tasks.append(ImageNetClasses([self.image_classes[i] for i in idx]))
+        return tasks
+
+def read_dataset(data_dir, which_set=None):
+
+    if which_set is None:
+        return tuple(_read_classes(os.path.join(data_dir, x)) for x in ['train', 'val', 'test'])
+    else:
+        return _read_classes(os.path.join(data_dir, which_set))
 
 def _read_classes(dir_path):
     """
@@ -29,6 +52,34 @@ def _read_classes(dir_path):
     """
     return [ImageNetClass(os.path.join(dir_path, f)) for f in os.listdir(dir_path)
             if f.startswith('n')]
+
+
+class ImageNetClasses:
+
+    def __init__(self, image_classes, one_hot=True):
+        self.image_classes = image_classes
+        self.num_image_classes = len(image_classes)
+        self.one_hot = one_hot
+
+    def sample(self, num_shots, test_shots):
+        total_shots = num_shots + test_shots
+        assert total_shots <= 20, "num_shots+test_shots={0}, but only have 20 instances in each class".format(total_shots)
+        xs_train, xs_test = [], []
+        ys_train, ys_test = [], []
+        for i, c in enumerate(self.image_classes):
+            s = c.sample(total_shots)
+            xs_train.append(s[:num_shots])
+            xs_test.append(s[num_shots:])
+            ys_train.append(np.ones(num_shots)*i)
+            ys_test.append(np.ones(test_shots)*i)
+        xs_train = np.concatenate(xs_train, axis=0)
+        xs_test = np.concatenate(xs_test, axis=0)
+        ys_train = np.concatenate(ys_train, axis=0)
+        ys_test = np.concatenate(ys_test, axis=0)
+        if self.one_hot:
+            ys_train = helpers.one_hot(ys_train, self.num_image_classes)
+            ys_test = helpers.one_hot(ys_test, self.num_image_classes)
+        return xs_train, ys_train, xs_test, ys_test
 
 # pylint: disable=R0903
 class ImageNetClass:
