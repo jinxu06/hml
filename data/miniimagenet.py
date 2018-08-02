@@ -6,11 +6,14 @@ Each of these three directories should contain one
 sub-directory per WordNet ID.
 """
 
+
 import os
 import random
 
 from PIL import Image
 import numpy as np
+import tensorflow as tf
+import misc.helpers as helpers
 
 
 class Miniimagenet(object):
