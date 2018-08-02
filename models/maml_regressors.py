@@ -174,8 +174,18 @@ def mlp2(X, params=None, nonlinearity=None, bn=True, kernel_initializer=None, ke
 def omniglot_conv(X, params=None, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
     name = get_name("omniglot_conv", counters)
     print("construct", name, "...")
+    if params is not None:
+        params.reverse()
     with tf.variable_scope(name):
-        with arg_scope([conv2d, dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
+        default_args = {
+            "nonlinearity": nonlinearity,
+            "bn": bn,
+            "kernel_initializer": kernel_initializer,
+            "kernel_regularizer": kernel_regularizer,
+            "is_training": is_training,
+            "counters": counters,
+        }
+        with arg_scope([conv2d, dense], **default_args):
             outputs = X
             if params is None:
                 outputs = conv2d(outputs, 64, filter_size=[3,3], stride=[1,1], pad="SAME")
