@@ -15,7 +15,7 @@ def load(dataset_name, **kwargs):
 
 def load_miniimagenet(num_classes=5):
     from data.miniimagenet import Miniimagenet
-    data_dir = "/data/ziz/not-backed-up/jxu/miniimagenet"
+    data_dir = r"/data/ziz/not-backed-up/jxu/miniimagenet"
     train_set = Miniimagenet(data_dir, num_classes, 'train')
     val_set = Miniimagenet(data_dir, num_classes, 'val')
     return train_set, val_set
