@@ -130,12 +130,13 @@ class Character:
         images = []
         for name in names[:num_images]:
             images.append(self._read_image(os.path.join(self.dir_path, name)))
-        return images[:, :, :, None]
+        return images
 
     def _read_image(self, path):
         if path in self._cache:
             return self._cache[path]
         with open(path, 'rb') as in_file:
             img = Image.open(in_file).resize((28, 28)).rotate(self.rotation)
+            img = img[:, :, None]
             self._cache[path] = np.array(img).astype('float32')
             return self._cache[path]
