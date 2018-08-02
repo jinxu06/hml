@@ -44,7 +44,7 @@ class MAMLRegressor(object):
         self.loss = self._loss()
 
         if self.task_type == 'classification':
-            y_hat_arr = [tf.argmax(tf.nn.softmax(o), axis=1) for o in self.eval_outputs]
+            y_hat_arr = [tf.nn.softmax(o) for o in self.eval_outputs]
             self.y_hat = y_hat_arr[1]
             self.acc = accuracy(self.y_t, self.y_hat)
             self.accs = [accuracy(self.y_t, y_hat) for y_hat in y_hat_arr]
