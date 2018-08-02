@@ -34,7 +34,7 @@ model_opt = {
     "obs_shape": [28,28,1],
     "num_classes": args.num_classes,
     "label_shape": [args.num_classes],
-    "alpha": 0.01,
+    "alpha": 0.4,
     "nonlinearity": tf.nn.relu,
     "bn": False,
     "kernel_initializer": tf.contrib.layers.xavier_initializer(uniform=False),

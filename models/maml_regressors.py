@@ -44,10 +44,7 @@ class MAMLRegressor(object):
         self.loss = self._loss()
 
         if self.task_type == 'classification':
-            y_hat_arr = [tf.nn.softmax(o) for o in self.eval_outputs]
-            self.y_hat = y_hat_arr[1]
-            self.acc = accuracy(self.y_t, self.y_hat)
-            self.accs = [accuracy(self.y_t, y_hat) for y_hat in y_hat_arr]
+            self._accuracy()
         elif self.task_type == 'regression':
             self.y_hat = self.outputs
 
@@ -84,6 +81,11 @@ class MAMLRegressor(object):
         return self.losses[1]
         #return self.error_func(labels=self.y_t, predictions=self.y_hat)
 
+    def _accuracy(self):
+        y_hat_arr = [tf.nn.softmax(o) for o in self.eval_outputs]
+        self.y_hat = y_hat_arr[1]
+        self.acc = accuracy(self.y_t, self.y_hat)
+        self.accs = [accuracy(self.y_t, y_hat) for y_hat in y_hat_arr]
 
     def predict(self, sess, X_c_value, y_c_value, X_t_value, step=None):
         feed_dict = {
