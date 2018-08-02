@@ -31,7 +31,7 @@ model_opt = {
     "regressor": functools.partial(omniglot_conv, num_classes=args.num_classes),
     "error_func": tf.losses.softmax_cross_entropy,
     "obs_shape": [28,28,1],
-    "label_shape": [5],
+    "label_shape": [args.num_classes],
     "alpha": 0.01,
     "nonlinearity": tf.nn.relu,
     "bn": False,
