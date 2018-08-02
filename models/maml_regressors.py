@@ -11,7 +11,7 @@ class MAMLRegressor(object):
         self.counters = counters
         self.user_mode = user_mode
 
-    def construct(self, regressor, error_func, obs_shape, alpha=0.01, inner_iters=1, eval_iters=10, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
+    def construct(self, regressor, error_func, obs_shape, label_shape=[], alpha=0.01, inner_iters=1, eval_iters=10, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
 
         self.regressor = regressor
         self.error_func = error_func
@@ -25,9 +25,9 @@ class MAMLRegressor(object):
         self.kernel_regularizer = kernel_regularizer
 
         self.X_c = tf.placeholder(tf.float32, shape=tuple([None,]+obs_shape))
-        self.y_c = tf.placeholder(tf.float32, shape=(None,))
+        self.y_c = tf.placeholder(tf.float32, shape=tuple([None,]+label_shape))
         self.X_t = tf.placeholder(tf.float32, shape=tuple([None,]+obs_shape))
-        self.y_t = tf.placeholder(tf.float32, shape=(None,))
+        self.y_t = tf.placeholder(tf.float32, shape=tuple([None,]+label_shape))
         self.is_training = tf.placeholder(tf.bool, shape=())
 
         self.outputs = self._model()

@@ -22,7 +22,7 @@ checkpoint_dir = "/data/ziz/jxu"
 result_dir = "results"
 
 # train_set, val_set = load(dataset_name=args.dataset_name, period_range=[0.5*np.pi, 0.5*np.pi])
-train_set, val_set = load(dataset_name=args.dataset_name)
+train_set, val_set = load(dataset_name=args.dataset_name, num_classes=5)
 
 models = [MAMLRegressor(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
@@ -30,6 +30,7 @@ model_opt = {
     "regressor": omniglot_conv,
     "error_func": tf.losses.mean_squared_error,
     "obs_shape": [28,28,1],
+    "label_shape": [5],
     "alpha": 0.01,
     "nonlinearity": tf.nn.relu,
     "bn": False,
