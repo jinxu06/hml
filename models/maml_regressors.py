@@ -238,3 +238,40 @@ def omniglot_conv(X, params=None, num_classes=1, nonlinearity=None, bn=True, ker
                 y = dense(outputs, num_classes, W=params.pop(), b=params.pop(), nonlinearity=None, bn=False)
                 assert len(params)==0, "{0}: feed-in parameter list is not empty".format(name)
             return y
+
+
+@add_arg_scope
+def miniimagenet_conv(X, params=None, num_classes=1, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+    name = get_name("miniimagenet_conv", counters)
+    print("construct", name, "...")
+    if params is not None:
+        params.reverse()
+    with tf.variable_scope(name):
+        default_args = {
+            "nonlinearity": nonlinearity,
+            "bn": bn,
+            "kernel_initializer": kernel_initializer,
+            "kernel_regularizer": kernel_regularizer,
+            "is_training": is_training,
+            "counters": counters,
+        }
+        with arg_scope([conv2d, dense], **default_args):
+            outputs = X
+            if params is None:
+                outputs = conv2d(outputs, 64, filter_size=[3,3], stride=[2,2], pad="SAME")
+                outputs = conv2d(outputs, 64, filter_size=[3,3], stride=[2,2], pad="SAME")
+                outputs = conv2d(outputs, 128, filter_size=[4,4], stride=[2,2], pad="VALID")
+                outputs = conv2d(outputs, 128, filter_size=[4,4], stride=[2,2], pad="VALID")
+                outputs = conv2d(outputs, 256, filter_size=[3,3], stride=[1,1], pad="VALID")
+                outputs = tf.reshape(outputs, [-1, 256])
+                y = dense(outputs, num_classes, nonlinearity=None, bn=False)
+            else:
+                outputs = conv2d(outputs, 64, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[2,2], pad="SAME")
+                outputs = conv2d(outputs, 64, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[2,2], pad="SAME")
+                outputs = conv2d(outputs, 128, W=params.pop(), b=params.pop(), filter_size=[4,4], stride=[2,2], pad="VALID")
+                outputs = conv2d(outputs, 128, W=params.pop(), b=params.pop(), filter_size=[4,4], stride=[2,2], pad="VALID")
+                outputs = conv2d(outputs, 256, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[1,1], pad="VALID")
+                outputs = tf.reshape(outputs, [-1, 256])
+                y = dense(outputs, num_classes, W=params.pop(), b=params.pop(), nonlinearity=None, bn=False)
+                assert len(params)==0, "{0}: feed-in parameter list is not empty".format(name)
+            return y
