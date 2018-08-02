@@ -92,7 +92,7 @@ class ImageNetClass:
           A sequence of 84x84x3 numpy arrays.
           Each pixel ranges from 0 to 1.
         """
-        names = [f for f in os.listdir(self.dir_path) if f.endswith('.JPEG')]
+        names = [f for f in os.listdir(self.dir_path) if f.endswith('.jpg')]
         random.shuffle(names)
         images = []
         for name in names[:num_images]:
