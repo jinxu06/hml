@@ -16,8 +16,8 @@ def load(dataset_name, **kwargs):
 def load_miniimagenet(num_classes=5):
     from data.miniimagenet import Miniimagenet
     data_dir = "/data/ziz/not-backed-up/datasets-ziz-only/processed_data/miniimagenet"
-    train_set = Miniimagenet(data_dir num_classes, 'train')
-    val_set = Miniimagenet(data_dir num_classes, 'val')
+    train_set = Miniimagenet(data_dir, num_classes, 'train')
+    val_set = Miniimagenet(data_dir, num_classes, 'val')
     return train_set, val_set
 
 def load_omniglot(num_classes=5):

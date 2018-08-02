@@ -13,14 +13,6 @@ from PIL import Image
 import numpy as np
 
 
-def load_omniglot(data_dir, num_train=1200, augment_train_set=True):
-    data = read_dataset(data_dir)
-    train_set, eval_set = split_dataset(data)
-    train_set = list(augment_dataset(train_set))
-    eval_set = list(eval_set)
-    return train_set, eval_set
-
-
 class Miniimagenet(object):
 
     def __init__(self, data_dir, num_classes, which_set, dataset_name="miniimagenet"):
