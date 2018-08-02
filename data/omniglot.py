@@ -130,7 +130,7 @@ class Character:
         images = []
         for name in names[:num_images]:
             images.append(self._read_image(os.path.join(self.dir_path, name)))
-        return images
+        return images[:, :, :, None]
 
     def _read_image(self, path):
         if path in self._cache:
