@@ -32,7 +32,7 @@ class Omniglot(object):
     def sample(self, num):
         tasks = []
         for _ in range(num):
-            idx = np.random.choice(self.num_char, size=self.num_classes)
+            idx = np.random.choice(self.num_char, size=self.num_classes, dtype=np.int32)
             tasks.append(Characters(self.chars[idx]))
         return tasks
 
