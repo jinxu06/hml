@@ -174,12 +174,22 @@ def omniglot_conv(X, params=None, nonlinearity=None, bn=True, kernel_initializer
     with tf.variable_scope(name):
         with arg_scope([conv2d, dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
             outputs = X
-            outputs = conv2d(outputs, 64, filter_size=3, stride=1, pad="SAME")
-            outputs = conv2d(outputs, 64, 3, 2, "SAME")
-            outputs = conv2d(outputs, 128, 3, 1, "SAME")
-            outputs = conv2d(outputs, 128, 3, 2, "SAME")
-            outputs = conv2d(outputs, 256, 4, 1, "VALID")
-            outputs = conv2d(outputs, 256, 4, 1, "VALID")
-            outputs = tf.reshape(outputs, [-1, 256])
-            y = tf.dense(outputs, 1, nonlinearity=None, bn=False)
+            if params is None:
+                outputs = conv2d(outputs, 64, filter_size=[3,3], stride=[1,1], pad="SAME")
+                outputs = conv2d(outputs, 64, filter_size=[3,3], stride=[2,2], pad="SAME")
+                outputs = conv2d(outputs, 128, filter_size=[3,3], stride=[1,1], pad="SAME")
+                outputs = conv2d(outputs, 128, filter_size=[3,3], stride=[2,2], pad="SAME")
+                outputs = conv2d(outputs, 256, filter_size=[4,4], stride=[1,1], pad="VALID")
+                outputs = conv2d(outputs, 256, filter_size=[4,4], stride=[1,1], "VALID")
+                outputs = tf.reshape(outputs, [-1, 256])
+                y = tf.dense(outputs, 1, nonlinearity=None, bn=False)
+            else:
+                outputs = conv2d(outputs, 64, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[1,1], pad="SAME")
+                outputs = conv2d(outputs, 64, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[2,2], pad="SAME")
+                outputs = conv2d(outputs, 128, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[1,1], pad="SAME")
+                outputs = conv2d(outputs, 128, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[2,2], pad="SAME")
+                outputs = conv2d(outputs, 256, W=params.pop(), b=params.pop(), filter_size=[4,4], stride=[1,1], pad="VALID")
+                outputs = conv2d(outputs, 256, W=params.pop(), b=params.pop(), filter_size=[4,4], stride=[1,1], "VALID")
+                outputs = tf.reshape(outputs, [-1, 256])
+                y = tf.dense(outputs, 1, W=params.pop(), b=params.pop(), nonlinearity=None, bn=False)
             return y

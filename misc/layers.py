@@ -34,7 +34,7 @@ def conv2d(inputs, num_filters, W=None, b=None, filter_size=[3,3], stride=[1,1],
     with tf.variable_scope(name):
 
         if W is None:
-            W = tf.get_variable('W', shape=filter_size+[int(x.get_shape()[-1]), num_filters], dtype=tf.float32, trainable=True, initializer=kernel_initializer, regularizer=kernel_regularizer)
+            W = tf.get_variable('W', shape=filter_size+[int(inputs.get_shape()[-1]), num_filters], dtype=tf.float32, trainable=True, initializer=kernel_initializer, regularizer=kernel_regularizer)
         if b is None:
             b = tf.get_variable('b', shape=[num_filters], dtype=tf.float32, trainable=True, initializer=tf.constant_initializer(0.), regularizer=None)
 
@@ -59,7 +59,7 @@ def deconv2d(inputs, num_filters, W=None, b=None, filter_size=[3,3], stride=[1,1
         target_shape = [xs[0], xs[1]*stride[0] + filter_size[0]-1, xs[2]*stride[1] + filter_size[1]-1, num_filters]
     with tf.variable_scope(name):
         if W is None:
-            W = tf.get_variable('W', shape=filter_size+[num_filters, int(x.get_shape()[-1])], dtype=tf.float32, trainable=True, initializer=kernel_initializer, regularizer=kernel_regularizer)
+            W = tf.get_variable('W', shape=filter_size+[num_filters, int(inputs.get_shape()[-1])], dtype=tf.float32, trainable=True, initializer=kernel_initializer, regularizer=kernel_regularizer)
         if b is None:
             b = tf.get_variable('b', shape=[num_filters], dtype=tf.float32, trainable=True, initializer=tf.constant_initializer(0.), regularizer=None)
 
