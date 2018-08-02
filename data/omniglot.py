@@ -137,6 +137,5 @@ class Character:
             return self._cache[path]
         with open(path, 'rb') as in_file:
             img = Image.open(in_file).resize((28, 28)).rotate(self.rotation)
-            img = img[:, :, None]
-            self._cache[path] = np.array(img).astype('float32')
+            self._cache[path] = np.array(img).astype('float32')[:, :, None]
             return self._cache[path]
