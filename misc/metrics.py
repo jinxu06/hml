@@ -6,5 +6,5 @@ flatten = tf.contrib.layers.flatten
 
 def accuracy(y, preds):
     cmp = tf.equal(tf.argmax(y, 1), tf.argmax(preds, 1))
-    cmp = tf.cast(cmp, tf.int64)
+    cmp = tf.cast(cmp, tf.float32)
     return tf.reduce_mean(cmp)
