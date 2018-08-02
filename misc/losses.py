@@ -5,7 +5,7 @@ from misc.helpers import log_prob_from_logits, int_shape, get_name, log_sum_exp
 flatten = tf.contrib.layers.flatten
 
 @add_arg_scope
-def mean_squared_error(labels, predictions, sigma):
+def mean_squared_error(labels, outputs, sigma):
     l = tf.reduce_sum(tf.pow((labels - predictions), 2), axis=0)
     return l / (2*sigma**2)
 

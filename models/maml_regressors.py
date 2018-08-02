@@ -16,6 +16,7 @@ class MAMLRegressor(object):
         self.regressor = regressor
         self.error_func = error_func
         self.obs_shape = obs_shape
+        self.label_shape = label_shape
         self.alpha = alpha
         self.inner_iters = inner_iters
         self.eval_iters = eval_iters
@@ -62,7 +63,7 @@ class MAMLRegressor(object):
                 return y_hat_t_arr[self.inner_iters]
 
     def _loss(self):
-        self.losses = [self.error_func(labels=self.y_t, predictions=y_hat) for y_hat in self.eval_y_hats]
+        self.losses = [self.error_func(labels=self.y_t, outputs=self.outputs) for y_hat in self.eval_y_hats]
         return self.losses[1]
         #return self.error_func(labels=self.y_t, predictions=self.y_hat)
 
@@ -168,7 +169,7 @@ def mlp2(X, params=None, nonlinearity=None, bn=True, kernel_initializer=None, ke
 
 
 @add_arg_scope
-def omniglot_conv(X, params=None, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+def omniglot_conv(X, num_classes, params=None, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
     name = get_name("omniglot_conv", counters)
     print("construct", name, "...")
     if params is not None:
@@ -192,7 +193,7 @@ def omniglot_conv(X, params=None, nonlinearity=None, bn=True, kernel_initializer
                 outputs = conv2d(outputs, 256, filter_size=[4,4], stride=[1,1], pad="VALID")
                 outputs = conv2d(outputs, 256, filter_size=[4,4], stride=[1,1], pad="VALID")
                 outputs = tf.reshape(outputs, [-1, 256])
-                y = dense(outputs, 1, nonlinearity=None, bn=False)
+                y = dense(outputs, num_classes, nonlinearity=None, bn=False)
             else:
                 outputs = conv2d(outputs, 64, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[1,1], pad="SAME")
                 outputs = conv2d(outputs, 64, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[2,2], pad="SAME")
@@ -201,5 +202,6 @@ def omniglot_conv(X, params=None, nonlinearity=None, bn=True, kernel_initializer
                 outputs = conv2d(outputs, 256, W=params.pop(), b=params.pop(), filter_size=[4,4], stride=[1,1], pad="VALID")
                 outputs = conv2d(outputs, 256, W=params.pop(), b=params.pop(), filter_size=[4,4], stride=[1,1], pad="VALID")
                 outputs = tf.reshape(outputs, [-1, 256])
-                y = dense(outputs, 1, W=params.pop(), b=params.pop(), nonlinearity=None, bn=False)
+                y = dense(outputs, num_classes, W=params.pop(), b=params.pop(), nonlinearity=None, bn=False)
+                assert len(params)==0, "{0}: feed-in parameter list is not empty".format(name)
             return y
