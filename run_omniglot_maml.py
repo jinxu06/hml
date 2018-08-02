@@ -24,12 +24,15 @@ result_dir = "results"
 # train_set, val_set = load(dataset_name=args.dataset_name, period_range=[0.5*np.pi, 0.5*np.pi])
 train_set, val_set = load(dataset_name=args.dataset_name)
 
+print(train_set.sample(1)[0].sample(1,1))
+quit()
+
 models = [MAMLRegressor(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
 model_opt = {
     "regressor": omniglot_conv,
     "error_func": tf.losses.mean_squared_error,
-    "obs_shape": [1],
+    "obs_shape": [28,28,1],
     "alpha": 0.01,
     "nonlinearity": tf.nn.relu,
     "bn": False,
