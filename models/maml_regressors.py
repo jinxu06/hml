@@ -233,7 +233,7 @@ def omniglot_conv(X, params=None, num_classes=1, nonlinearity=None, bn=True, ker
             "is_training": is_training,
             "counters": counters,
         }
-        num_filters = 64
+        num_filters = 256
         filter_size = [3, 3]
         stride = [2, 2]
         with arg_scope([conv2d, dense], **default_args):
