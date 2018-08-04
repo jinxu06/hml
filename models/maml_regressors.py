@@ -63,7 +63,7 @@ class MAMLRegressor(object):
                 vars = get_trainable_variables([self.scope_name])
                 vars = [v for v in vars if 'BatchNorm' not in v.name]
                 self.vars = vars
-                
+
                 self.outputs_sqs.append(self.regressor(self.X_t, params=vars.copy()))
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
                     loss = self.error_func(self.y_c, outputs)
@@ -223,7 +223,8 @@ def mlp2(X, params=None, num_classes=1, nonlinearity=None, bn=True, kernel_initi
 
 @add_arg_scope
 def omniglot_conv(X, params=None, num_classes=1, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
-    name = get_name("omniglot_conv", counters)
+    # name = get_name("omniglot_conv", counters)
+    name = "omniglot_conv"
     print("construct", name, "...")
     if params is not None:
         params.reverse()

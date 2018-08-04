@@ -20,13 +20,13 @@ def dense(inputs, num_outputs, W=None, b=None, nonlinearity=None, bn=False, kern
 
         outputs = tf.matmul(inputs, W) + tf.reshape(b, [1, num_outputs])
 
-    if bn:
-        # outputs = tf.layers.batch_normalization(outputs, training=is_training)
-        outputs = tf.contrib.layers.batch_norm(outputs, is_training=is_training)
-    if nonlinearity is not None:
-        outputs = nonlinearity(outputs)
-    print("    + dense", int_shape(inputs), int_shape(outputs), nonlinearity, bn)
-    return outputs
+        if bn:
+            # outputs = tf.layers.batch_normalization(outputs, training=is_training)
+            outputs = tf.contrib.layers.batch_norm(outputs, is_training=is_training)
+        if nonlinearity is not None:
+            outputs = nonlinearity(outputs)
+        print("    + dense", int_shape(inputs), int_shape(outputs), nonlinearity, bn)
+        return outputs
 
 @add_arg_scope
 def conv2d(inputs, num_filters, W=None, b=None, filter_size=[3,3], stride=[1,1], pad='SAME', nonlinearity=None, bn=False, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
@@ -41,13 +41,13 @@ def conv2d(inputs, num_filters, W=None, b=None, filter_size=[3,3], stride=[1,1],
 
         outputs = tf.nn.bias_add(tf.nn.conv2d(inputs, W, [1] + stride + [1], pad), b)
 
-    if bn:
-        # outputs = tf.layers.batch_normalization(outputs, training=is_training)
-        outputs = tf.contrib.layers.batch_norm(outputs, is_training=is_training)
-    if nonlinearity is not None:
-        outputs = nonlinearity(outputs)
-    print("    + conv2d", int_shape(inputs), int_shape(outputs), nonlinearity, bn)
-    return outputs
+        if bn:
+            # outputs = tf.layers.batch_normalization(outputs, training=is_training)
+            outputs = tf.contrib.layers.batch_norm(outputs, is_training=is_training)
+        if nonlinearity is not None:
+            outputs = nonlinearity(outputs)
+        print("    + conv2d", int_shape(inputs), int_shape(outputs), nonlinearity, bn)
+        return outputs
 
 
 @add_arg_scope
@@ -69,13 +69,13 @@ def deconv2d(inputs, num_filters, W=None, b=None, filter_size=[3,3], stride=[1,1
         outputs = tf.nn.conv2d_transpose(inputs, W, target_shape, [1] + stride + [1], padding=pad)
         outputs = tf.nn.bias_add(outputs, b)
 
-    if bn:
-        # outputs = tf.layers.batch_normalization(outputs, training=is_training)
-        outputs = tf.contrib.layers.batch_norm(outputs, is_training=is_training)
-    if nonlinearity is not None:
-        outputs = nonlinearity(outputs)
-    print("    + deconv2d", int_shape(inputs), int_shape(outputs), nonlinearity, bn)
-    return outputs
+        if bn:
+            # outputs = tf.layers.batch_normalization(outputs, training=is_training)
+            outputs = tf.contrib.layers.batch_norm(outputs, is_training=is_training)
+        if nonlinearity is not None:
+            outputs = nonlinearity(outputs)
+        print("    + deconv2d", int_shape(inputs), int_shape(outputs), nonlinearity, bn)
+        return outputs
 
 
 
