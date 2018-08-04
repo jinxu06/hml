@@ -76,23 +76,54 @@ class MetaLearner(object):
 
 
 
-    def evaluate(self, eval_samples, num_shots=None, test_shots=None, metric="acc"):
-        m = self.parallel_models[0]
-        ls = []
-        for _ in range(eval_samples):
+    def evaluate(self, eval_samples, num_shots=None, test_shots=None):
+        evals = []
+        eval_meta_batch = eval_samples // self.nr_model
+        for i in range(eval_meta_batch):
+            tasks = self.eval_set.sample(self.nr_model)
             if num_shots is None:
                 num_shots = np.random.randint(low=1, high=50)
             if test_shots is None:
                 test_shots = 20
-            X_c_value, y_c_value, X_t_value, y_t_value = self.eval_set.sample(1)[0].sample(num_shots, test_shots)
-            X_value = np.concatenate([X_c_value, X_t_value], axis=0)
-            y_value = np.concatenate([y_c_value, y_t_value], axis=0)
-            if metric == 'loss':
-                l = m.compute_loss(self.get_session(), X_c_value, y_c_value, X_value, y_value, is_training=False)
-            elif metric == 'acc':
-                l = m.compute_acc(self.get_session(), X_c_value, y_c_value, X_value, y_value, is_training=False)
-            ls.append(l)
-        return np.mean(ls)
+
+            run_ops, feed_dict = [], {}
+            for k, task in enumerate(tasks):
+                X_c_value, y_c_value, X_t_value, y_t_value = task.sample(num_shots, test_shots)
+                X_value = np.concatenate([X_c_value, X_t_value], axis=0)
+                y_value = np.concatenate([y_c_value, y_t_value], axis=0)
+                ## !! training data is not included in the evaluation, different from neural process
+                ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value, step=1)
+                run_ops.append(ops)
+                feed_dict.update(d)
+                ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value, step=5)
+                run_ops.append(ops)
+                feed_dict.update(d)
+                ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value, step=10)
+                run_ops.append(ops)
+                feed_dict.update(d)
+            ls = np.array(self.get_session().run(run_ops, feed_dict=feed_dict))
+            ls = np.reshape(ls, (self.nr_model, len(ls)//self.nr_model))
+            ls = np.mean(ls, axis=0)
+            evals.append(ls)
+        return np.mean(evals, axis=0)
+
+
+        # m = self.parallel_models[0]
+        # ls = []
+        # for _ in range(eval_samples):
+        #     if num_shots is None:
+        #         num_shots = np.random.randint(low=1, high=50)
+        #     if test_shots is None:
+        #         test_shots = 20
+        #     X_c_value, y_c_value, X_t_value, y_t_value = self.eval_set.sample(1)[0].sample(num_shots, test_shots)
+        #     X_value = np.concatenate([X_c_value, X_t_value], axis=0)
+        #     y_value = np.concatenate([y_c_value, y_t_value], axis=0)
+        #     if metric == 'loss':
+        #         l = m.compute_loss(self.get_session(), X_c_value, y_c_value, X_value, y_value, is_training=False)
+        #     elif metric == 'acc':
+        #         l = m.compute_acc(self.get_session(), X_c_value, y_c_value, X_value, y_value, is_training=False)
+        #     ls.append(l)
+        # return np.mean(ls)
 
     def visualise(self, save_name):
         pass

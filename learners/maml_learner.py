@@ -65,7 +65,7 @@ class MAMLLearner(MetaLearner):
             print("Epoch {0}: {1:0.3f}s ...................".format(epoch, train_time))
             if epoch % eval_interval == 0:
                 v = self.evaluate(eval_samples, num_shots, test_shots)
-                print("    Eval Loss: ", v)
+                print("    Eval: ", v)
             if epoch % save_interval == 0:
                 print("\tsave figure")
                 #self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, epoch)))

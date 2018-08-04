@@ -18,8 +18,10 @@ class MAMLRegressor(object):
         self.task_type = task_type
         if task_type == 'classification':
             self.error_func = tf.losses.softmax_cross_entropy
+            self.pred_func = lambda x: tf.nn.softmax(x)
         elif task_type == 'regression':
             self.error_func = tf.losses.mean_squared_error
+            self.pred_func = lambda x: x
         else:
             raise Exception("Unknown task type")
         self.obs_shape = obs_shape
@@ -39,15 +41,10 @@ class MAMLRegressor(object):
         self.y_t = tf.placeholder(tf.float32, shape=tuple([None,]+label_shape))
         self.is_training = tf.placeholder(tf.bool, shape=())
 
-        self.outputs = self._model()
-        self.y_hat = self.outputs
+        if self.task_type == 'classification'
+
+        self._model()
         self.loss = self._loss()
-
-        if self.task_type == 'classification':
-            self._accuracy()
-        elif self.task_type == 'regression':
-            self.y_hat = self.outputs
-
         self.grads = tf.gradients(self.loss, get_trainable_variables([self.scope_name]), colocate_gradients_with_ops=True)
 
     def _model(self):
@@ -60,75 +57,97 @@ class MAMLRegressor(object):
             "counters": self.counters,
             "num_classes": self.num_classes,
         }
+        self.outputs_sqs = []
         with arg_scope([self.regressor], **default_args):
             self.scope_name = get_name("maml_regressor", self.counters)
             with tf.variable_scope(self.scope_name):
                 outputs = self.regressor(self.X_c)
                 vars = get_trainable_variables([self.scope_name])
-                outputs_t_arr = [self.regressor(self.X_t, params=vars.copy())]
+                self.outputs_sqs.append(self.regressor(self.X_t, params=vars.copy()))
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
                     loss = self.error_func(self.y_c, outputs)
                     grads = tf.gradients(loss, vars, colocate_gradients_with_ops=True)
                     vars = [v - self.alpha * g for v, g in zip(vars, grads)]
                     outputs = self.regressor(self.X_c, params=vars.copy())
                     outputs_t = self.regressor(self.X_t, params=vars.copy())
-                    outputs_t_arr.append(outputs_t)
-                self.eval_outputs = outputs_t_arr
-                return outputs_t_arr[self.inner_iters]
+                    self.outputs_sqs.append(outputs_t)
+
+                self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
+                self.loss_sqs = [self.error_func(self.y_t, o) for o in self.outputs_sqs]
+                if self.task_type == 'classification':
+                    self.acc_sqs = [accuracy(self.y_t, y_hat) for y_hat in self.y_hat_sqs]
 
     def _loss(self):
-        self.losses = [self.error_func(self.y_t, o) for o in self.eval_outputs]
-        return self.losses[self.inner_iters]
-        #return self.error_func(labels=self.y_t, predictions=self.y_hat)
+        return self.loss_sqs[self.inner_iters]
 
-    def _accuracy(self):
-        y_hat_arr = [tf.nn.softmax(o) for o in self.eval_outputs]
-        self.y_hat = y_hat_arr[self.inner_iters]
-        self.acc = accuracy(self.y_t, self.y_hat)
-        self.accs = [accuracy(self.y_t, y_hat) for y_hat in y_hat_arr]
-
-    def predict(self, sess, X_c_value, y_c_value, X_t_value, step=None):
+    def predict(self, X_c_value, y_c_value, X_t_value, step=None):
         feed_dict = {
             self.X_c: X_c_value,
             self.y_c: y_c_value,
             self.X_t: X_t_value,
-            # self.y_t: np.zeros((X_t_value.shape[0],)),
             self.is_training: False,
         }
         if step is None:
-            preds= sess.run(self.y_hat, feed_dict=feed_dict)
-        else:
-            preds= sess.run(self.eval_y_hats[step], feed_dict=feed_dict)
-        return preds
+            step = self.eval_iters:
+        return [self.y_hat_sqs[step]], feed_dict
 
-
-    def compute_loss(self, sess, X_c_value, y_c_value, X_t_value, y_t_value, is_training, step=None):
+    def evaluate_metrics(self, X_c_value, y_c_value, X_t_value, y_t_value, step=None):
         feed_dict = {
             self.X_c: X_c_value,
             self.y_c: y_c_value,
             self.X_t: X_t_value,
             self.y_t: y_t_value,
-            self.is_training: is_training,
+            self.is_training: False,
         }
         if step is None:
-            l = sess.run(self.loss, feed_dict=feed_dict)
-        else:
-            l = sess.run(self.losses[step], feed_dict=feed_dict)
-        return l
+            step = self.eval_iters
+        if self.task_type == 'classification'
+            return [self.loss_sqs[step], self.acc_sqs[step]], feed_dict
+        return [self.loss_sqs[step]], feed_dict
 
-    def compute_acc(self, sess, X_c_value, y_c_value, X_t_value, y_t_value, is_training, step=None):
-        feed_dict = {
-            self.X_c: X_c_value,
-            self.y_c: y_c_value,
-            self.X_t: X_t_value,
-            self.y_t: y_t_value,
-            self.is_training: is_training,
-        }
-        if step is None:
-            l = sess.run(self.acc, feed_dict=feed_dict)
-        else:
-            l = sess.run(self.accs[step], feed_dict=feed_dict)
-        return l
+
+    # def predict(self, sess, X_c_value, y_c_value, X_t_value, step=None):
+    #     feed_dict = {
+    #         self.X_c: X_c_value,
+    #         self.y_c: y_c_value,
+    #         self.X_t: X_t_value,
+    #         # self.y_t: np.zeros((X_t_value.shape[0],)),
+    #         self.is_training: False,
+    #     }
+    #     if step is None:
+    #         preds= sess.run(self.y_hat, feed_dict=feed_dict)
+    #     else:
+    #         preds= sess.run(self.eval_y_hats[step], feed_dict=feed_dict)
+    #     return preds
+    #
+    #
+    # def compute_loss(self, sess, X_c_value, y_c_value, X_t_value, y_t_value, is_training, step=None):
+    #     feed_dict = {
+    #         self.X_c: X_c_value,
+    #         self.y_c: y_c_value,
+    #         self.X_t: X_t_value,
+    #         self.y_t: y_t_value,
+    #         self.is_training: is_training,
+    #     }
+    #     if step is None:
+    #         l = sess.run(self.loss, feed_dict=feed_dict)
+    #     else:
+    #         l = sess.run(self.losses[step], feed_dict=feed_dict)
+    #     return l
+    #
+    # def compute_acc(self, sess, X_c_value, y_c_value, X_t_value, y_t_value, is_training, step=None):
+    #     feed_dict = {
+    #         self.X_c: X_c_value,
+    #         self.y_c: y_c_value,
+    #         self.X_t: X_t_value,
+    #         self.y_t: y_t_value,
+    #         self.is_training: is_training,
+    #     }
+    #     if step is None:
+    #         l = sess.run(self.acc, feed_dict=feed_dict)
+    #     else:
+    #         l = sess.run(self.accs[step], feed_dict=feed_dict)
+    #     return l
 
 
 
@@ -216,25 +235,26 @@ def omniglot_conv(X, params=None, num_classes=1, nonlinearity=None, bn=True, ker
             "is_training": is_training,
             "counters": counters,
         }
+        num_filters = 64
+        filter_size = [3, 3]
+        stride = [2, 2]
         with arg_scope([conv2d, dense], **default_args):
             outputs = X
             if params is None:
-                outputs = conv2d(outputs, 64, filter_size=[3,3], stride=[1,1], pad="SAME")
-                outputs = conv2d(outputs, 64, filter_size=[3,3], stride=[2,2], pad="SAME")
-                outputs = conv2d(outputs, 128, filter_size=[3,3], stride=[1,1], pad="SAME")
-                outputs = conv2d(outputs, 128, filter_size=[3,3], stride=[2,2], pad="SAME")
-                outputs = conv2d(outputs, 256, filter_size=[4,4], stride=[1,1], pad="VALID")
-                outputs = conv2d(outputs, 256, filter_size=[4,4], stride=[1,1], pad="VALID")
-                outputs = tf.reshape(outputs, [-1, 256])
+                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = tf.reduce_mean(outputs, [1, 2])
+                outputs = tf.reshape(outputs, [-1, num_filters])
                 y = dense(outputs, num_classes, nonlinearity=None, bn=False)
             else:
-                outputs = conv2d(outputs, 64, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[1,1], pad="SAME")
-                outputs = conv2d(outputs, 64, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[2,2], pad="SAME")
-                outputs = conv2d(outputs, 128, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[1,1], pad="SAME")
-                outputs = conv2d(outputs, 128, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[2,2], pad="SAME")
-                outputs = conv2d(outputs, 256, W=params.pop(), b=params.pop(), filter_size=[4,4], stride=[1,1], pad="VALID")
-                outputs = conv2d(outputs, 256, W=params.pop(), b=params.pop(), filter_size=[4,4], stride=[1,1], pad="VALID")
-                outputs = tf.reshape(outputs, [-1, 256])
+                outputs = conv2d(outputs, num_filters, W=params.pop(), b=params.pop(), filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = conv2d(outputs, num_filters, W=params.pop(), b=params.pop(), filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = conv2d(outputs, num_filters, W=params.pop(), b=params.pop(), filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = conv2d(outputs, num_filters, W=params.pop(), b=params.pop(), filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = tf.reduce_mean(outputs, [1, 2])
+                outputs = tf.reshape(outputs, [-1, num_filters])
                 y = dense(outputs, num_classes, W=params.pop(), b=params.pop(), nonlinearity=None, bn=False)
                 assert len(params)==0, "{0}: feed-in parameter list is not empty".format(name)
             return y
@@ -255,23 +275,24 @@ def miniimagenet_conv(X, params=None, num_classes=1, nonlinearity=None, bn=True,
             "is_training": is_training,
             "counters": counters,
         }
+        num_filters = 32
         with arg_scope([conv2d, dense], **default_args):
             outputs = X
             if params is None:
-                outputs = conv2d(outputs, 64, filter_size=[3,3], stride=[2,2], pad="SAME")
-                outputs = conv2d(outputs, 64, filter_size=[3,3], stride=[2,2], pad="SAME")
-                outputs = conv2d(outputs, 128, filter_size=[4,4], stride=[2,2], pad="VALID")
-                outputs = conv2d(outputs, 128, filter_size=[4,4], stride=[2,2], pad="VALID")
-                outputs = conv2d(outputs, 256, filter_size=[3,3], stride=[1,1], pad="VALID")
-                outputs = tf.reshape(outputs, [-1, 256])
+                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = tf.reduce_mean(outputs, [1, 2])
+                outputs = tf.reshape(outputs, [-1, num_filters])
                 y = dense(outputs, num_classes, nonlinearity=None, bn=False)
             else:
-                outputs = conv2d(outputs, 64, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[2,2], pad="SAME")
-                outputs = conv2d(outputs, 64, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[2,2], pad="SAME")
-                outputs = conv2d(outputs, 128, W=params.pop(), b=params.pop(), filter_size=[4,4], stride=[2,2], pad="VALID")
-                outputs = conv2d(outputs, 128, W=params.pop(), b=params.pop(), filter_size=[4,4], stride=[2,2], pad="VALID")
-                outputs = conv2d(outputs, 256, W=params.pop(), b=params.pop(), filter_size=[3,3], stride=[1,1], pad="VALID")
-                outputs = tf.reshape(outputs, [-1, 256])
+                outputs = conv2d(outputs, num_filters, W=params.pop(), b=params.pop(), filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = conv2d(outputs, num_filters, W=params.pop(), b=params.pop(), filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = conv2d(outputs, num_filters, W=params.pop(), b=params.pop(), filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = conv2d(outputs, num_filters, W=params.pop(), b=params.pop(), filter_size=filter_size, stride=stride, pad="SAME")
+                outputs = tf.reduce_mean(outputs, [1, 2])
+                outputs = tf.reshape(outputs, [-1, num_filters])
                 y = dense(outputs, num_classes, W=params.pop(), b=params.pop(), nonlinearity=None, bn=False)
                 assert len(params)==0, "{0}: feed-in parameter list is not empty".format(name)
             return y
