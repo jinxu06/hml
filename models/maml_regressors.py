@@ -52,7 +52,7 @@ class MAMLRegressor(object):
             "kernel_initializer": self.kernel_initializer,
             "kernel_regularizer": self.kernel_regularizer,
             "is_training": self.is_training,
-            "counters": self.counters,
+            "counters": {}, #self.counters,
             "num_classes": self.num_classes,
         }
         self.outputs_sqs = []
