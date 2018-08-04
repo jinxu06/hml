@@ -43,7 +43,7 @@ def conv2d(inputs, num_filters, W=None, b=None, filter_size=[3,3], stride=[1,1],
 
         if bn:
             # outputs = tf.layers.batch_normalization(outputs, training=is_training)
-            outputs = tf.contrib.layers.batch_norm(outputs, is_training=is_training, reuse=True)
+            outputs = tf.contrib.layers.batch_norm(outputs, is_training=is_training, reuse=True, name=name+"-BN")
         if nonlinearity is not None:
             outputs = nonlinearity(outputs)
         print("    + conv2d", int_shape(inputs), int_shape(outputs), nonlinearity, bn)
@@ -71,7 +71,7 @@ def deconv2d(inputs, num_filters, W=None, b=None, filter_size=[3,3], stride=[1,1
 
         if bn:
             # outputs = tf.layers.batch_normalization(outputs, training=is_training)
-            outputs = tf.contrib.layers.batch_norm(outputs, is_training=is_training, reuse=True)
+            outputs = tf.contrib.layers.batch_norm(outputs, is_training=is_training, reuse=True, name=name+"-BN")
         if nonlinearity is not None:
             outputs = nonlinearity(outputs)
         print("    + deconv2d", int_shape(inputs), int_shape(outputs), nonlinearity, bn)
