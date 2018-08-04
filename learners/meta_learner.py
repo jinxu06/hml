@@ -95,10 +95,10 @@ class MetaLearner(object):
                 ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value, step=1)
                 run_ops += ops
                 feed_dict.update(d)
-                ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value, step=5)
+                ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value, step=2)
                 run_ops += ops
                 feed_dict.update(d)
-                ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value, step=8)
+                ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value, step=3)
                 run_ops += ops
                 feed_dict.update(d)
             ls = np.array(self.get_session().run(run_ops, feed_dict=feed_dict))

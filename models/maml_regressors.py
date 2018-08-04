@@ -61,6 +61,9 @@ class MAMLRegressor(object):
             with tf.variable_scope(self.scope_name):
                 outputs = self.regressor(self.X_c)
                 vars = get_trainable_variables([self.scope_name])
+                for v in vars:
+                    print(v.name)
+                    
                 self.outputs_sqs.append(self.regressor(self.X_t, params=vars.copy()))
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
                     loss = self.error_func(self.y_c, outputs)
@@ -233,7 +236,7 @@ def omniglot_conv(X, params=None, num_classes=1, nonlinearity=None, bn=True, ker
             "is_training": is_training,
             "counters": counters,
         }
-        num_filters = 256
+        num_filters = 64
         filter_size = [3, 3]
         stride = [2, 2]
         with arg_scope([conv2d, dense], **default_args):
