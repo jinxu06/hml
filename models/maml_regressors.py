@@ -61,9 +61,10 @@ class MAMLRegressor(object):
             with tf.variable_scope(self.scope_name):
                 outputs = self.regressor(self.X_c)
                 vars = get_trainable_variables([self.scope_name])
+                vars = [v for v in vars if 'batch_normalization' not in v.name]
                 for v in vars:
                     print(v.name)
-                    
+
                 self.outputs_sqs.append(self.regressor(self.X_t, params=vars.copy()))
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
                     loss = self.error_func(self.y_c, outputs)
