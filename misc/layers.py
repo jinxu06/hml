@@ -22,7 +22,7 @@ def dense(inputs, num_outputs, W=None, b=None, nonlinearity=None, bn=False, kern
 
         if bn:
             # outputs = tf.layers.batch_normalization(outputs, training=is_training)
-            outputs = tf.contrib.layers.batch_norm(outputs, is_training=is_training, reuse=True)
+            outputs = tf.contrib.layers.batch_norm(outputs, is_training=is_training, reuse=True, name=name+"-BN")
         if nonlinearity is not None:
             outputs = nonlinearity(outputs)
         print("    + dense", int_shape(inputs), int_shape(outputs), nonlinearity, bn)
