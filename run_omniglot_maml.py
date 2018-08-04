@@ -34,7 +34,7 @@ model_opt = {
     "obs_shape": [28,28,1],
     "num_classes": args.num_classes,
     "label_shape": [args.num_classes],
-    "alpha": 0.4,
+    "alpha": args.alpha,
     "nonlinearity": tf.nn.relu,
     "bn": False,
     "kernel_initializer": tf.contrib.layers.xavier_initializer(uniform=False),
@@ -69,7 +69,7 @@ with tf.Session(config=config) as sess:
         "save_interval": args.save_interval,
         "eval_samples": 100,
         "meta_batch": args.nr_model,
-        "num_shots": 5,
+        "num_shots": args.num_shots,
         "test_shots": 5,
         "load_params": args.load_params,
     }
