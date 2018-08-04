@@ -59,18 +59,18 @@ class MAMLRegressor(object):
         with arg_scope([self.regressor], **default_args):
             self.scope_name = get_name("maml_regressor", self.counters)
             with tf.variable_scope(self.scope_name):
-                outputs = self.regressor(self.X_c)
+                outputs = self.regressor(self.X_c, counters={})
                 vars = get_trainable_variables([self.scope_name])
                 vars = [v for v in vars if 'BatchNorm' not in v.name]
                 self.vars = vars
 
-                self.outputs_sqs.append(self.regressor(self.X_t, params=vars.copy()))
+                self.outputs_sqs.append(self.regressor(self.X_t, params=vars.copy(), counters={}))
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
                     loss = self.error_func(self.y_c, outputs)
                     grads = tf.gradients(loss, vars, colocate_gradients_with_ops=True)
                     vars = [v - self.alpha * g for v, g in zip(vars, grads)]
-                    outputs = self.regressor(self.X_c, params=vars.copy())
-                    outputs_t = self.regressor(self.X_t, params=vars.copy())
+                    outputs = self.regressor(self.X_c, params=vars.copy(), counters={})
+                    outputs_t = self.regressor(self.X_t, params=vars.copy(), counters={})
                     self.outputs_sqs.append(outputs_t)
 
                 self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
