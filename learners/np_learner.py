@@ -19,6 +19,29 @@ class NPLearner(MetaLearner):
         if not os.path.exists(self.result_dir):
             os.makedirs(self.result_dir)
 
+
+    def train(self, meta_batch, num_shots=None, test_shots=None):
+        assert meta_batch==self.nr_model, "nr_model != meta_batch"
+        tasks = self.train_set.sample(meta_batch)
+        feed_dict = {}
+        for i, task in enumerate(tasks):
+            if num_shots is None:
+                num_shots = np.random.randint(low=1, high=50)
+            if test_shots is None:
+                test_shots = 20
+
+            X_c_value, y_c_value, X_t_value, y_t_value = task.sample(num_shots, test_shots)
+            X_value = np.concatenate([X_c_value, X_t_value], axis=0)
+            y_value = np.concatenate([y_c_value, y_t_value], axis=0)
+            feed_dict.update({
+                self.parallel_models[i].X_c: X_c_value,
+                self.parallel_models[i].y_c: y_c_value,
+                self.parallel_models[i].X_t: X_value,
+                self.parallel_models[i].y_t: y_value,
+                self.parallel_models[i].is_training: True,
+            })
+        self.get_session().run(self.optimize_op, feed_dict=feed_dict)
+
     def visualise_1d(self, save_name):
         fig = plt.figure(figsize=(10, 10))
         for i in range(12):
