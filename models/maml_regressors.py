@@ -43,7 +43,7 @@ class MAMLRegressor(object):
 
         self._model()
         self.loss = self._loss()
-        self.grads = tf.gradients(self.loss, get_trainable_variables([self.scope_name]), colocate_gradients_with_ops=True)
+        self.grads = tf.gradients(self.loss, self.vars, colocate_gradients_with_ops=True)
 
     def _model(self):
         default_args = {
@@ -62,9 +62,7 @@ class MAMLRegressor(object):
                 outputs = self.regressor(self.X_c)
                 vars = get_trainable_variables([self.scope_name])
                 vars = [v for v in vars if 'batch_normalization' not in v.name]
-                for v in vars:
-                    print(v.name)
-
+                self.vars = vars
                 self.outputs_sqs.append(self.regressor(self.X_t, params=vars.copy()))
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
                     loss = self.error_func(self.y_c, outputs)
