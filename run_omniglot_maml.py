@@ -36,7 +36,7 @@ model_opt = {
     "label_shape": [args.num_classes],
     "alpha": args.alpha,
     "nonlinearity": tf.nn.relu,
-    "bn": False,
+    "bn": True,
     "kernel_initializer": tf.contrib.layers.xavier_initializer(uniform=False),
     "kernel_regularizer":None,
 }
