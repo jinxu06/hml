@@ -25,7 +25,7 @@ def argument_parser():
     parser.add_argument('--load_params', dest='load_params', action='store_true', help='Restore training from previous model checkpoint?')
     parser.add_argument('--dataset_name', help='name of dataset', default='gpsamples')
     #
-    parser.add_argument('--learning_rate', type=float, default=0.0001, help='Base learning rate')
+    parser.add_argument('--learning_rate', type=float, default=0.001, help='Base learning rate')
     parser.add_argument('--alpha', type=float, default=0.1, help='Inner step size')
     parser.add_argument('--nr_model', type=int, default=1, help='How many models are there with shared parameters?')
     parser.add_argument('--img_size', type=int, default=28, help="size of input image")
