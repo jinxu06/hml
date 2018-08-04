@@ -49,7 +49,7 @@ for i in range(args.nr_model):
 
 #tags = ["test", 'small-period']
 tags = ["test"]
-for v in tf.trainable_variables:
+for v in tf.trainable_variables():
     print(v)
 quit()
 learner = MAMLLearner(session=None, parallel_models=models, optimize_op=None, train_set=train_set, eval_set=val_set, variables=tf.trainable_variables(), lr=args.learning_rate, device_type=args.device_type, tags=tags, cdir=checkpoint_dir, rdir=result_dir)
