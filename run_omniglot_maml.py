@@ -36,7 +36,7 @@ model_opt = {
     "label_shape": [args.num_classes],
     "alpha": args.alpha,
     "nonlinearity": tf.nn.relu,
-    "bn": False,
+    "bn": True,
     "kernel_initializer": tf.contrib.layers.xavier_initializer(uniform=False),
     "kernel_regularizer":None,
 }
@@ -70,7 +70,7 @@ with tf.Session(config=config) as sess:
         "eval_samples": 100,
         "meta_batch": args.nr_model,
         "num_shots": args.num_shots,
-        "test_shots": 5,
+        "test_shots": 15,
         "load_params": args.load_params,
     }
     if args.user_mode == 'train':
