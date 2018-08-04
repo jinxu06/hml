@@ -41,8 +41,6 @@ class MAMLRegressor(object):
         self.y_t = tf.placeholder(tf.float32, shape=tuple([None,]+label_shape))
         self.is_training = tf.placeholder(tf.bool, shape=())
 
-        if self.task_type == 'classification'
-
         self._model()
         self.loss = self._loss()
         self.grads = tf.gradients(self.loss, get_trainable_variables([self.scope_name]), colocate_gradients_with_ops=True)
