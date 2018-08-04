@@ -86,7 +86,7 @@ class MAMLRegressor(object):
             self.is_training: False,
         }
         if step is None:
-            step = self.eval_iters:
+            step = self.eval_iters
         return [self.y_hat_sqs[step]], feed_dict
 
     def evaluate_metrics(self, X_c_value, y_c_value, X_t_value, y_t_value, step=None):
@@ -99,7 +99,7 @@ class MAMLRegressor(object):
         }
         if step is None:
             step = self.eval_iters
-        if self.task_type == 'classification'
+        if self.task_type == 'classification':
             return [self.loss_sqs[step], self.acc_sqs[step]], feed_dict
         return [self.loss_sqs[step]], feed_dict
 
