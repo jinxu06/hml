@@ -93,13 +93,13 @@ class MetaLearner(object):
                 y_value = np.concatenate([y_c_value, y_t_value], axis=0)
                 ## !! training data is not included in the evaluation, different from neural process
                 ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value, step=1)
-                run_ops.append(ops)
+                run_ops += ops
                 feed_dict.update(d)
                 ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value, step=5)
-                run_ops.append(ops)
+                run_ops += ops
                 feed_dict.update(d)
                 ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value, step=10)
-                run_ops.append(ops)
+                run_ops += ops
                 feed_dict.update(d)
             ls = np.array(self.get_session().run(run_ops, feed_dict=feed_dict))
             ls = np.reshape(ls, (self.nr_model, len(ls)//self.nr_model))
