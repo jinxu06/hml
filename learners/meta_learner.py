@@ -102,13 +102,9 @@ class MetaLearner(object):
                 run_ops += ops
                 feed_dict.update(d)
             ls = np.array(self.get_session().run(run_ops, feed_dict=feed_dict))
-            print(ls)
             ls = np.reshape(ls, (self.nr_model, len(ls)//self.nr_model))
-            print(ls)
             ls = np.mean(ls, axis=0)
-            print(ls)
             evals.append(ls)
-            quit()
         return np.mean(evals, axis=0)
 
 
