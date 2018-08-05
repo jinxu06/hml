@@ -25,7 +25,7 @@ result_dir = "results"
 # train_set, val_set = load(dataset_name=args.dataset_name, period_range=[0.5*np.pi, 0.5*np.pi])
 train_set, val_set = load(dataset_name=args.dataset_name, num_classes=args.num_classes)
 
-models = [NPLearner(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
+models = [NeuralProcess(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
 model_opt = {
     "sample_encoder": omniglot_conv_encoder,
