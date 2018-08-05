@@ -177,7 +177,7 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
         num_filters = 64
         filter_size = [3, 3]
         stride = [2, 2]
-        with arg_scope([conv2d, deconv2d, dense], **default_args):
+        with arg_scope([conv2d, dense], **default_args):
             outputs = X
             for _ in range(2):
                 outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
@@ -207,11 +207,13 @@ def omniglot_conv_conditional_decoder(inputs, z, num_classes, nonlinearity=None,
         num_filters = 64
         filter_size = [3, 3]
         stride = [2, 2]
-        with arg_scope([conv2d, deconv2d, dense], **default_args):
+        with arg_scope([conv2d, dense], **default_args):
             outputs = inputs
             for _ in range(2):
                 outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             # z = deconv2d(tf.reshape(z, [-1, 1, 1, int_shape(z)[-1]]), num_filters, filter_size=int_shape(outputs)[1:3], stride=[1, 1], pad='VALID')
+            print(int_shape(outputs))
+            print(int_shape(z))
             z = tf.tile(tf.reshape(z, [-1, 1, 1, int_shape(z)[-1]]), multiples=[1]+int_shape(outputs)[1:3]+[1])
             outputs = tf.concat([outputs, z], axis=-1)
             for _ in range(2):
