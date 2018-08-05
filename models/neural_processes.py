@@ -245,7 +245,7 @@ def omniglot_conv_conditional_decoder(inputs, z, num_classes, nonlinearity=None,
             outputs = tf.concat([outputs, z], axis=-1)
             outputs = dense(outputs, num_filters)
             y = dense(outputs, num_classes, nonlinearity=None, bn=False)
-            return
+            return y
 
             #
             # z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 28, 28, 1]))
