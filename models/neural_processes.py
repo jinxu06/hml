@@ -94,6 +94,7 @@ class NeuralProcess(object):
         self.reg = compute_2gaussian_kld(self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos)
         # self.nll = mean_squared_error(self.y_t, self.y_hat, sigma=y_sigma)
         self.nll = self.error_func(self.y_t, self.outputs) / (2*y_sigma**2)
+        beta = 0.00000001
         return self.nll + beta * self.reg
 
     def predict(self, X_c_value, y_c_value, X_t_value):
