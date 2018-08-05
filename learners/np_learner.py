@@ -58,7 +58,7 @@ class NPLearner(MetaLearner):
                 X_value = np.concatenate([X_c_value, X_t_value], axis=0)
                 y_value = np.concatenate([y_c_value, y_t_value], axis=0)
                 ## !! training data is not included in the evaluation, different from neural process
-                ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_c_value, y_c_value) 
+                ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_c_value, y_c_value)
                 run_ops += ops
                 feed_dict.update(d)
             ls = np.array(self.get_session().run(run_ops, feed_dict=feed_dict))
@@ -66,6 +66,33 @@ class NPLearner(MetaLearner):
             ls = np.mean(ls, axis=0)
             evals.append(ls)
         return np.mean(evals, axis=0)
+
+
+    def test(self, eval_samples, num_shots=None, test_shots=None):
+        m = self.parallel_models[0]
+        evals = []
+        for i in range(eval_samples):
+            task = self.eval_set.sample(1)[0]
+            if num_shots is None:
+                num_shots = np.random.randint(low=1, high=50)
+            if test_shots is None:
+                test_shots = 20
+
+            X_c_value, y_c_value, X_t_value, y_t_value = task.sample(num_shots, test_shots)
+            X_value = np.concatenate([X_c_value, X_t_value], axis=0)
+            y_value = np.concatenate([y_c_value, y_t_value], axis=0)
+            feed_dict = {}
+            feed_dict.update({
+                m.X_c: X_c_value,
+                m.y_c: y_c_value,
+                m.X_t: X_c_value,
+                m.y_t: y_c_value,
+                m.is_training: True,
+            })
+
+            v = self.get_session().run(m.z_mu_pos, feed_dict=feed_dict)
+            print(v)
+
 
     def visualise_1d(self, save_name):
         fig = plt.figure(figsize=(10, 10))
@@ -108,6 +135,8 @@ class NPLearner(MetaLearner):
             if epoch % eval_interval == 0:
                 v = self.evaluate(eval_samples, num_shots, test_shots)
                 print("    Eval Loss: ", v)
+                v = self.test(eval_samples, num_shots, test_shots)
+
             if epoch % save_interval == 0:
                 print("\tsave figure")
                 # self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, epoch)))
