@@ -41,7 +41,7 @@ model_opt = {
     "kernel_regularizer":None,
 }
 
-model = tf.make_template('model', MAMLRegressor.construct)
+model = tf.make_template('model', NeuralProcess.construct)
 
 for i in range(args.nr_model):
     with tf.device('/'+ args.device_type +':%d' % (i%args.nr_gpu)):
