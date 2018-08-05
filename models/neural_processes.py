@@ -78,7 +78,7 @@ class NeuralProcess(object):
                     num_c = tf.shape(self.X_c)[0]
                     X_ct = tf.concat([self.X_c, self.X_t], axis=0)
                     y_ct = tf.concat([self.y_c, self.y_t], axis=0)
-                    r_ct = self.sample_encoder(X_ct, y_ct, self.r_dim)
+                    r_ct = self.sample_encoder(X_ct, y_ct, self.r_dim, self.num_classes)
                     self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_ct, num_c, self.z_dim)
                     if self.user_mode == 'train':
                         z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
@@ -87,7 +87,7 @@ class NeuralProcess(object):
                     else:
                         raise Exception("unknown user_mode")
                     z = (1-self.use_z_ph) * z + self.use_z_ph * self.z_ph
-                    self.outputs = self.conditional_decoder(self.X_t, z)
+                    self.outputs = self.conditional_decoder(self.X_t, z, num_classes)
 
     def _loss(self, beta=1., y_sigma=1./np.sqrt(2)):
         self.reg = compute_2gaussian_kld(self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos)
@@ -116,7 +116,7 @@ class NeuralProcess(object):
         l = self.error_func(self.y_t, self.outputs)
         if self.task_type == 'classification':
             return [l, accuracy(self.y_t, self.pred_func(self.outputs))], feed_dict
-        return [l], feed_dict 
+        return [l], feed_dict
 
 
     # def predict(self, sess, X_c_value, y_c_value, X_t_value):
@@ -162,7 +162,7 @@ class NeuralProcess(object):
 
 
 @add_arg_scope
-def omniglot_conv_encoder(X, y, num_classes, r_dim, is_training, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, counters={}):
+def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, counters={}):
     name = get_name("omniglot_conv_encoder", counters)
     print("construct", name, "...")
     with tf.variable_scope(name):
@@ -191,7 +191,7 @@ def omniglot_conv_encoder(X, y, num_classes, r_dim, is_training, nonlinearity=No
 
 
 @add_arg_scope
-def omniglot_conv_conditional_decoder(inputs, z, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+def omniglot_conv_conditional_decoder(inputs, z, num_classes, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
     name = get_name("omniglot_conv_conditional_decoder", counters)
     print("construct", name, "...")
     with tf.variable_scope(name):
@@ -217,7 +217,7 @@ def omniglot_conv_conditional_decoder(inputs, z, nonlinearity=None, bn=True, ker
 
 
 @add_arg_scope
-def fc_encoder(X, y, r_dim, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+def fc_encoder(X, y, r_dim, num_classes=1, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
     inputs = tf.concat([X, y[:, None]], axis=1)
     name = get_name("fc_encoder", counters)
     print("construct", name, "...")
@@ -251,7 +251,7 @@ def aggregator(r, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=Tru
             return z_mu[:1], z_log_sigma_sq[:1], z_mu[1:], z_log_sigma_sq[1:]
 
 @add_arg_scope
-def conditional_decoder(x, z, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+def conditional_decoder(x, z, num_classes=1, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
     name = get_name("conditional_decoder", counters)
     print("construct", name, "...")
     with tf.variable_scope(name):
