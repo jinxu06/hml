@@ -190,7 +190,7 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
             outputs = tf.concat([outputs, y_tile], axis=-1)
             outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             #
-            y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 8, 8, 1]))
+            y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 7, 7, 1]))
             outputs = tf.concat([outputs, y_tile], axis=-1)
             outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             #
@@ -231,7 +231,7 @@ def omniglot_conv_conditional_decoder(inputs, z, num_classes, nonlinearity=None,
             outputs = tf.concat([outputs, z_tile], axis=-1)
             outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             #
-            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 8, 8, 1]))
+            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 7, 7, 1]))
             outputs = tf.concat([outputs, z_tile], axis=-1)
             outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             #
