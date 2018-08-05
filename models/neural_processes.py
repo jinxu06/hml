@@ -80,6 +80,7 @@ class NeuralProcess(object):
                     X_ct = tf.concat([self.X_c, self.X_t], axis=0)
                     y_ct = tf.concat([self.y_c, self.y_t], axis=0)
                     r_ct = self.sample_encoder(X_ct, y_ct, self.r_dim, self.num_classes)
+                    self.r_ct = r_ct 
                     self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_ct, num_c, self.z_dim)
                     if self.user_mode == 'train':
                         z = self.z_mu_pos

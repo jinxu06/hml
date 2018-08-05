@@ -91,7 +91,7 @@ class NPLearner(MetaLearner):
             })
 
             v = self.get_session().run(m.r_ct[0], feed_dict=feed_dict)
-            print(v)
+            #print(v)
 
 
     def visualise_1d(self, save_name):
