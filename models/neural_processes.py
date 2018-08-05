@@ -95,7 +95,7 @@ class NeuralProcess(object):
         self.nll = self.error_func(self.y_t, self.outputs) / (2*y_sigma**2)
         return self.nll + beta * self.reg
 
-    def predict(X_c_value, y_c_value, X_t_value):
+    def predict(self, X_c_value, y_c_value, X_t_value):
         feed_dict = {
             self.X_c: X_c_value,
             self.y_c: y_c_value,
@@ -105,7 +105,7 @@ class NeuralProcess(object):
         preds = self.pred_func(self.outputs)
         return [preds], feed_dict
 
-    def evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value):
+    def evaluate_metrics(self, X_c_value, y_c_value, X_t_value, y_t_value):
         feed_dict = {
             self.X_c: X_c_value,
             self.y_c: y_c_value,
@@ -183,10 +183,7 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
                 outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             # y = deconv2d(tf.reshape(y, [-1, 1, 1, num_classes]), num_filters, filter_size=int_shape(outputs)[1:3], stride=[1, 1], pad='VALID')
             y = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 7, 7, 1]))
-            print(int_shape(outputs))
-            print(int_shape(y))
             outputs = tf.concat([outputs, y], axis=-1)
-            print("w?")
             for _ in range(2):
                 outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             outputs = tf.reshape(outputs, [-1, num_filters])
@@ -215,8 +212,8 @@ def omniglot_conv_conditional_decoder(inputs, z, num_classes, nonlinearity=None,
             for _ in range(2):
                 outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             # z = deconv2d(tf.reshape(z, [-1, 1, 1, int_shape(z)[-1]]), num_filters, filter_size=int_shape(outputs)[1:3], stride=[1, 1], pad='VALID')
-            b, h, w = tf.shape(outputs)[0], tf.shape(outputs)[1], tf.shape(outputs)[2]
-            z = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([b, h, w, 1]))
+            b = tf.shape(outputs)[0]
+            z = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([b, 7, 7, 1]))
             outputs = tf.concat([outputs, z], axis=-1)
             for _ in range(2):
                 outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
