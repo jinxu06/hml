@@ -176,34 +176,45 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
             "is_training": is_training,
             "counters": counters,
         }
-        num_filters = 256
+        num_filters = 64
         filter_size = [3, 3]
         stride = [2, 2]
         bsize = tf.shape(X)[0]
         with arg_scope([conv2d, dense], **default_args):
             outputs = X
+
             #
-            y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 28, 28, 1]))
-            outputs = tf.concat([outputs, y_tile], axis=-1)
-            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            #
-            y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 14, 14, 1]))
-            outputs = tf.concat([outputs, y_tile], axis=-1)
-            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            #
-            y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 7, 7, 1]))
-            outputs = tf.concat([outputs, y_tile], axis=-1)
-            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            #
-            y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 4, 4, 1]))
-            outputs = tf.concat([outputs, y_tile], axis=-1)
-            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            #
-            outputs = tf.reduce_mean(outputs, [1, 2])
-            outputs = tf.reshape(outputs, [-1, num_filters])
+            for _ in range(4):
+                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            outputs = tf.reshape(outputs, [-1, tf.prod(int_shape(outputs)[1:])])
+            outputs = tf.concat([outputs, y], axis=-1)
+            outputs = dense(outputs, num_filters)
             r = dense(outputs, r_dim, nonlinearity=None, bn=False)
 
-            return r
+
+
+            # #
+            # y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 28, 28, 1]))
+            # outputs = tf.concat([outputs, y_tile], axis=-1)
+            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            # #
+            # y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 14, 14, 1]))
+            # outputs = tf.concat([outputs, y_tile], axis=-1)
+            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            # #
+            # y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 7, 7, 1]))
+            # outputs = tf.concat([outputs, y_tile], axis=-1)
+            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            # #
+            # y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 4, 4, 1]))
+            # outputs = tf.concat([outputs, y_tile], axis=-1)
+            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            # #
+            # outputs = tf.reduce_mean(outputs, [1, 2])
+            # outputs = tf.reshape(outputs, [-1, num_filters])
+            # r = dense(outputs, r_dim, nonlinearity=None, bn=False)
+            #
+            # return r
 
 
 @add_arg_scope
