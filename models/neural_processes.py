@@ -184,7 +184,10 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
             # y = deconv2d(tf.reshape(y, [-1, 1, 1, num_classes]), num_filters, filter_size=int_shape(outputs)[1:3], stride=[1, 1], pad='VALID')
             b, h, w = tf.shape(outputs)[0], tf.shape(outputs)[1], tf.shape(outputs)[2]
             y = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([b, h, w, 1]))
+            print(int_shape(outputs))
+            print(int_shape(y))
             outputs = tf.concat([outputs, y], axis=-1)
+            print("w?")
             for _ in range(2):
                 outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             outputs = tf.reshape(outputs, [-1, num_filters])
