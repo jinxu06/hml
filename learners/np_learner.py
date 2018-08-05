@@ -42,6 +42,31 @@ class NPLearner(MetaLearner):
             })
         self.get_session().run(self.optimize_op, feed_dict=feed_dict)
 
+    def evaluate(self, eval_samples, num_shots=None, test_shots=None):
+        evals = []
+        eval_meta_batch = eval_samples // self.nr_model
+        for i in range(eval_meta_batch):
+            tasks = self.eval_set.sample(self.nr_model)
+            if num_shots is None:
+                num_shots = np.random.randint(low=1, high=50)
+            if test_shots is None:
+                test_shots = 20
+
+            run_ops, feed_dict = [], {}
+            for k, task in enumerate(tasks):
+                X_c_value, y_c_value, X_t_value, y_t_value = task.sample(num_shots, test_shots)
+                X_value = np.concatenate([X_c_value, X_t_value], axis=0)
+                y_value = np.concatenate([y_c_value, y_t_value], axis=0)
+                ## !! training data is not included in the evaluation, different from neural process
+                ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value)
+                run_ops += ops
+                feed_dict.update(d)
+            ls = np.array(self.get_session().run(run_ops, feed_dict=feed_dict))
+            ls = np.reshape(ls, (self.nr_model, len(ls)//self.nr_model))
+            ls = np.mean(ls, axis=0)
+            evals.append(ls)
+        return np.mean(evals, axis=0)
+
     def visualise_1d(self, save_name):
         fig = plt.figure(figsize=(10, 10))
         for i in range(12):
