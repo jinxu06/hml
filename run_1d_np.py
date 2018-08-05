@@ -29,6 +29,7 @@ model_opt = {
     "sample_encoder": fc_encoder,
     "aggregator": aggregator,
     "conditional_decoder": conditional_decoder,
+    "task_type": "regression"
     "obs_shape": [1],
     "r_dim": 128,
     "z_dim": 32,
