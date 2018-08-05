@@ -72,7 +72,7 @@ class NPLearner(MetaLearner):
             ckpt_file = self.checkpoint_dir + '/params.ckpt'
             print('restoring parameters from', ckpt_file)
             saver.restore(self.session, ckpt_file)
-        self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, 0)))
+        # self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, 0)))
 
         for epoch in range(1, num_epoch+1):
             self.qclock()
@@ -85,7 +85,7 @@ class NPLearner(MetaLearner):
                 print("    Eval Loss: ", v)
             if epoch % save_interval == 0:
                 print("\tsave figure")
-                self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, epoch)))
+                # self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, epoch)))
                 print("\tsave checkpoint")
                 saver.save(self.session, self.checkpoint_dir + '/params.ckpt')
             sys.stdout.flush()
