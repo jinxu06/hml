@@ -116,8 +116,8 @@ class NeuralProcess(object):
             self.is_training: False,
         }
         if self.task_type == 'classification':
-            return [self.loss, accuracy(self.y_t, self.pred_func(self.outputs))], feed_dict
-        return [self.loss], feed_dict
+            return [self.nll, accuracy(self.y_t, self.pred_func(self.outputs))], feed_dict
+        return [self.nll], feed_dict
 
 
     # def predict(self, sess, X_c_value, y_c_value, X_t_value):
