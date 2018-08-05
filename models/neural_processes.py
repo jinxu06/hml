@@ -180,13 +180,13 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
         with arg_scope([conv2d, dense], **default_args):
             outputs = X
             for _ in range(2):
-                outputs = conv2d(outputs, num_filters, filter_size, stride, "SAME")
+                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             y = deconv2d(tf.reshape(y, [-1, 1, 1, num_classes]), num_filters, int_shape(outputs)[1:3], [1, 1], 'VALID')
             outputs = tf.concat([outputs, y], axis=-1)
             for _ in range(2):
-                outputs = conv2d(outputs, num_filters, filter_size, stride, "SAME")
+                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             outputs = tf.reshape(outputs, [-1, num_filters])
-            r = tf.dense(outputs, r_dim, nonlinearity=None, bn=False)
+            r = dense(outputs, r_dim, nonlinearity=None, bn=False)
             return r
 
 
