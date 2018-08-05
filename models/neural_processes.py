@@ -53,6 +53,10 @@ class NeuralProcess(object):
         self._model()
         self.loss = self._loss(beta=1.0, y_sigma=0.2)
         self.grads = tf.gradients(self.loss, tf.trainable_variables(), colocate_gradients_with_ops=True)
+
+        for v in tf.trainable_variables():
+            print(v)
+        quit()
         #
         # self.outputs = self._model()
         # self.y_hat = self.outputs
