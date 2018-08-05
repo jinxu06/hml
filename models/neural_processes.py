@@ -199,8 +199,10 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
             outputs = tf.concat([outputs, y_tile], axis=-1)
             outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             #
+            outputs = tf.reduce_mean(outputs, [1, 2])
             outputs = tf.reshape(outputs, [-1, num_filters])
             r = dense(outputs, r_dim, nonlinearity=None, bn=False)
+
             return r
 
 
