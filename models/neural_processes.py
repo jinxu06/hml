@@ -81,7 +81,8 @@ class NeuralProcess(object):
                     r_ct = self.sample_encoder(X_ct, y_ct, self.r_dim, self.num_classes)
                     self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_ct, num_c, self.z_dim)
                     if self.user_mode == 'train':
-                        z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
+                        z = self.z_mu_pos
+                        # z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
                     elif self.user_mode == 'eval':
                         z = self.z_mu_pos
                     else:
@@ -174,7 +175,7 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
             "is_training": is_training,
             "counters": counters,
         }
-        num_filters = 64
+        num_filters = 256
         filter_size = [3, 3]
         stride = [2, 2]
         with arg_scope([conv2d, dense], **default_args):
