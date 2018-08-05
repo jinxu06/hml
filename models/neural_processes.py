@@ -178,7 +178,7 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
         num_filters = 256
         filter_size = [3, 3]
         stride = [2, 2]
-        bsize = tf.shape(inputs)[0]
+        bsize = tf.shape(X)[0]
         with arg_scope([conv2d, dense], **default_args):
             outputs = X
             #
