@@ -135,7 +135,7 @@ class NPLearner(MetaLearner):
             if epoch % eval_interval == 0:
                 v = self.evaluate(eval_samples, num_shots, test_shots)
                 print("    Eval Loss: ", v)
-                # v = self.test(eval_samples, num_shots, test_shots)
+                v = self.test(eval_samples, num_shots, test_shots)
 
             if epoch % save_interval == 0:
                 print("\tsave figure")
