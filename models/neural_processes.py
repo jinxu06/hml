@@ -87,7 +87,7 @@ class NeuralProcess(object):
                     else:
                         raise Exception("unknown user_mode")
                     z = (1-self.use_z_ph) * z + self.use_z_ph * self.z_ph
-                    self.outputs = self.conditional_decoder(self.X_t, z, num_classes)
+                    self.outputs = self.conditional_decoder(self.X_t, z, self.num_classes)
 
     def _loss(self, beta=1., y_sigma=1./np.sqrt(2)):
         self.reg = compute_2gaussian_kld(self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos)
