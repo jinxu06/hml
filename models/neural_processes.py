@@ -82,7 +82,7 @@ class NeuralProcess(object):
                     self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_ct, num_c, self.z_dim)
                     if self.user_mode == 'train':
                         z = self.z_mu_pos
-                        # z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
+                        ## z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
                     elif self.user_mode == 'eval':
                         z = self.z_mu_pos
                     else:
@@ -115,10 +115,9 @@ class NeuralProcess(object):
             self.y_t: y_t_value,
             self.is_training: False,
         }
-        l = self.error_func(self.y_t, self.outputs)
         if self.task_type == 'classification':
-            return [l, accuracy(self.y_t, self.pred_func(self.outputs))], feed_dict
-        return [l], feed_dict
+            return [self.loss, accuracy(self.y_t, self.pred_func(self.outputs))], feed_dict
+        return [self.loss], feed_dict
 
 
     # def predict(self, sess, X_c_value, y_c_value, X_t_value):
