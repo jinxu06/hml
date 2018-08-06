@@ -36,8 +36,8 @@ class NPLearner(MetaLearner):
             feed_dict.update({
                 self.parallel_models[i].X_c: X_c_value,
                 self.parallel_models[i].y_c: y_c_value,
-                self.parallel_models[i].X_t: X_t_value,
-                self.parallel_models[i].y_t: y_t_value,
+                self.parallel_models[i].X_t: X_value,
+                self.parallel_models[i].y_t: y_value,
                 self.parallel_models[i].is_training: True,
             })
         self.get_session().run(self.optimize_op, feed_dict=feed_dict)
