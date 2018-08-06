@@ -11,7 +11,7 @@ import tensorflow as tf
 from tensorflow.python import debug as tf_debug
 from args import argument_parser, prepare_args
 from data.load_data import load
-from models.neural_processes import NeuralProcess, omniglot_conv_encoder, omniglot_conv_conditional_decoder, cls_aggregator
+from models.neural_processes import ConditionalNeuralProcess, omniglot_conv_encoder, omniglot_conv_conditional_decoder, cls_aggregator
 from learners.np_learner import NPLearner
 
 
@@ -25,7 +25,7 @@ result_dir = "results"
 # train_set, val_set = load(dataset_name=args.dataset_name, period_range=[0.5*np.pi, 0.5*np.pi])
 train_set, val_set = load(dataset_name=args.dataset_name, num_classes=args.num_classes)
 
-models = [NeuralProcess(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
+models = [ConditionalNeuralProcess(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
 model_opt = {
     "sample_encoder": omniglot_conv_encoder,
@@ -43,7 +43,7 @@ model_opt = {
     "kernel_regularizer":None,
 }
 
-model = tf.make_template('model', NeuralProcess.construct)
+model = tf.make_template('model', ConditionalNeuralProcess.construct)
 
 for i in range(args.nr_model):
     with tf.device('/'+ args.device_type +':%d' % (i%args.nr_gpu)):
