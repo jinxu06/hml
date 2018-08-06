@@ -33,6 +33,7 @@ class ConditionalNeuralProcess(object):
             raise Exception("Unknown task type")
         self.obs_shape = obs_shape
         self.r_dim = r_dim
+        self.z_dim = z_dim
         self.label_shape = label_shape
         self.num_classes = num_classes
         self.nonlinearity = nonlinearity
