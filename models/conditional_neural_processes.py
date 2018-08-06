@@ -74,16 +74,11 @@ class ConditionalNeuralProcess(object):
             with arg_scope([self.sample_encoder, self.aggregator], **default_args):
                 self.scope_name = get_name("neural_process", self.counters)
                 with tf.variable_scope(self.scope_name):
-                    num_c = tf.shape(self.X_c)[0]
-                    X_ct = tf.concat([self.X_c, self.X_t], axis=0)
-                    y_ct = tf.concat([self.y_c, self.y_t], axis=0)
-                    r_ct = self.sample_encoder(X_ct, y_ct, self.r_dim, self.num_classes)
+                    r_ct = self.sample_encoder(self.X_c, self.y_c, self.r_dim, self.num_classes)
                     self.r_ct = r_ct
                     if self.task_type == 'classification':
-                        self.r_pr, self.r = self.aggregator(r_ct, y_ct, num_c, self.z_dim)
-                    else:
-                        self.r_pr, self.r = self.aggregator(r_ct, num_c, self.z_dim)
-                    z = self.r_pr 
+                        self.r_pr, self.r = self.aggregator(r_ct, y_ct, self.z_dim)
+                    z = self.r_pr
                     self.outputs = self.conditional_decoder(self.X_t, z, self.num_classes)
 
     def _loss(self):
@@ -179,8 +174,8 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
             for _ in range(4):
                 outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             outputs = tf.reshape(outputs, [-1, np.prod(int_shape(outputs)[1:])])
-            outputs = tf.concat([outputs, y], axis=-1)
-            outputs = dense(outputs, num_filters)
+            # outputs = tf.concat([outputs, y], axis=-1)
+            # outputs = dense(outputs, num_filters)
             r = dense(outputs, r_dim, nonlinearity=None, bn=False)
             return r
 
@@ -299,20 +294,17 @@ def aggregator(r, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=Tru
 
 
 @add_arg_scope
-def cls_aggregator(r, y, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+def cls_aggregator(r, y, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
     name = get_name("cls_aggregator", counters)
     print("construct", name, "...")
     with tf.variable_scope(name):
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
             r_dim = int_shape(r)[-1]
-            r_pr_arr, r_arr = [], []
+            r_arr = []
             for k in range(int_shape(y)[-1]):
-                r_pr_arr.append(method(tf.tile(y[:num_c, k:k+1], [1,r_dim]) * r[:num_c], axis=0, keepdims=True))
                 r_arr.append(method(tf.tile(y[:, k:k+1], [1,r_dim]) * r, axis=0, keepdims=True))
-            r_pr = tf.concat(r_pr_arr, axis=-1)
             r = tf.concat(r_arr, axis=-1)
-            r = tf.concat([r_pr, r], axis=0)
-            return r[:1], r[1:]
+            return r
 
 
 @add_arg_scope
