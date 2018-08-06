@@ -131,8 +131,8 @@ class NPLearner(MetaLearner):
 
         for epoch in range(1, num_epoch+1):
             self.qclock()
-            for k in range(1000):
-                self.train(meta_batch, num_shots, test_shots)
+            #for k in range(1000):
+            #    self.train(meta_batch, num_shots, test_shots)
             train_time = self.qclock()
             print("Epoch {0}: {1:0.3f}s ...................".format(epoch, train_time))
             if epoch % eval_interval == 0:
