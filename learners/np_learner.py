@@ -89,7 +89,7 @@ class NPLearner(MetaLearner):
                 m.y_t: y_t_value,
                 m.is_training: True,
             })
-            v = self.get_session().run(m.outputs, feed_dict=feed_dict)
+            v = self.get_session().run(m.preds, feed_dict=feed_dict)
             print(v)
             print(y_t_value)
             print("---")
