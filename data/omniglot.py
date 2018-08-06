@@ -87,7 +87,7 @@ class Characters:
         self.num_char = len(chars)
         self.one_hot = one_hot
 
-    def sample(self, num_shots, test_shots):
+    def sample(self, num_shots, test_shots, shuffle=True):
         total_shots = num_shots + test_shots
         assert total_shots <= 20, "num_shots+test_shots={0}, but only have 20 instances in each class".format(total_shots)
         xs_train, xs_test = [], []
@@ -105,6 +105,11 @@ class Characters:
         if self.one_hot:
             ys_train = helpers.one_hot(ys_train, self.num_char)
             ys_test = helpers.one_hot(ys_test, self.num_char)
+        if shuffle:
+            p = np.random.permutation(num_shots)
+            xs_train, ys_train = xs_train[p], ys_train[p]
+            p = np.random.permutation(test_shots)
+            xs_test, ys_test = xs_test[p], ys_test[p]
         return xs_train, ys_train, xs_test, ys_test
 
 
