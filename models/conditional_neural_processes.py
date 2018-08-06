@@ -77,7 +77,7 @@ class ConditionalNeuralProcess(object):
                     r_c = self.sample_encoder(self.X_c, self.y_c, self.r_dim, self.num_classes)
                     if self.task_type == 'classification':
                         self.r = self.aggregator(r_c, self.y_c, self.z_dim)
-                    self.outputs = self.conditional_decoder(self.X_t, self.r, self.num_classes)
+                    self.outputs = self.conditional_decoder(self.X_t, self.y+0.00001tf.reduce_mean(self.r), self.num_classes)
 
     def _loss(self):
         self.nll = self.error_func(self.y_t, self.outputs)
