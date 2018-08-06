@@ -81,7 +81,11 @@ class NeuralProcess(object):
                     y_ct = tf.concat([self.y_c, self.y_t], axis=0)
                     r_ct = self.sample_encoder(X_ct, y_ct, self.r_dim, self.num_classes)
                     self.r_ct = r_ct
-                    self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_ct, num_c, self.z_dim)
+                    if self.task_type == 'classification':
+                        y_ct = tf.concat([self.y_c, self.y_t], axis=0)
+                        self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_ct, y_ct, num_c, self.z_dim)
+                    else:
+                        self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_ct, num_c, self.z_dim)
                     if self.user_mode == 'train':
                         z = self.z_mu_pos
                         ## z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
@@ -315,7 +319,7 @@ def cls_aggregator(r, y, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None,
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
             r_pr, r = [], []
             for k in range(int_shape(y)[-1]):
-                r_pr.append(method(y[:, k] * r[:num_c], axis=0, keepdims=True))
+                r_pr.append(method(y[:num_c, k] * r[:num_c], axis=0, keepdims=True))
                 r.append(method(y[:, k] * r, axis=0, keepdims=True))
             r_pr = tf.concat(r_pr, axis=-1)
             r = tf.concat(r, axis=-1)
