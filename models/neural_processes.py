@@ -86,8 +86,8 @@ class NeuralProcess(object):
                     else:
                         self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_ct, num_c, self.z_dim)
                     if self.user_mode == 'train':
-                        z = self.z_mu_pos
-                        # z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
+                        #z = self.z_mu_pos
+                        z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
                     elif self.user_mode == 'eval':
                         z = self.z_mu_pos
                     else:
@@ -99,7 +99,6 @@ class NeuralProcess(object):
         self.reg = compute_2gaussian_kld(self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos)
         # self.nll = mean_squared_error(self.y_t, self.y_hat, sigma=y_sigma)
         self.nll = self.error_func(self.y_t, self.outputs) / (2*y_sigma**2)
-        beta = 0.00001
         return self.nll + beta * self.reg
 
     def predict(self, X_c_value, y_c_value, X_t_value):
