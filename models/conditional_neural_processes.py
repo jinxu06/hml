@@ -170,7 +170,7 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
 
 @add_arg_scope
 def omniglot_mlp_conditional_decoder(inputs, z, num_classes, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
-    name = get_name("omniglot_conv_conditional_decoder", counters)
+    name = get_name("omniglot_mlp_conditional_decoder", counters)
     print("construct", name, "...")
     with tf.variable_scope(name):
         default_args = {
@@ -184,7 +184,7 @@ def omniglot_mlp_conditional_decoder(inputs, z, num_classes, nonlinearity=None, 
         batch_size = tf.shape(inputs)[0]
         with arg_scope([dense], **default_args):
 
-            outputs = tf.reshape(inputs, np.prod(int_shape(inputs)[1:]))
+            outputs = tf.reshape(inputs, [-1,np.prod(int_shape(inputs)[1:])])
             z = tf.tile(z, tf.stack([batch_size, 1]))
             outputs = tf.concat([outputs, z], axis=-1)
             num_units = 256
