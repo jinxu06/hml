@@ -86,8 +86,8 @@ class NeuralProcess(object):
                     else:
                         self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_ct, num_c, self.z_dim)
                     if self.user_mode == 'train':
-                        z = self.z_mu_pos
-                        ## z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
+                        # z = self.z_mu_pos
+                        z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
                     elif self.user_mode == 'eval':
                         z = self.z_mu_pos
                     else:
