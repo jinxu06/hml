@@ -235,11 +235,11 @@ def omniglot_conv_conditional_decoder(inputs, z, num_classes, nonlinearity=None,
             a = dense(xz, size, nonlinearity=None) + dense(z, size, nonlinearity=None)
             outputs = tf.nn.tanh(a) * tf.sigmoid(a)
 
-            for k in range(4):
+            for k in range(2):
                 a = dense(outputs, size, nonlinearity=None) + dense(z, size, nonlinearity=None)
                 outputs = tf.nn.tanh(a) * tf.sigmoid(a)
-            outputs = dense(outputs, 1, nonlinearity=None, bn=False)
-            outputs = tf.reshape(outputs, shape=(batch_size,))
+            outputs = dense(outputs, num_classes, nonlinearity=None, bn=False)
+            # outputs = tf.reshape(outputs, shape=(batch_size,))
             return outputs
 
 
