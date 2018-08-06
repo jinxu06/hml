@@ -314,21 +314,47 @@ def cls_aggregator(r, y, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None,
     with tf.variable_scope(name):
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
             r_dim = int_shape(r)[-1]
+            num_classes = int_shape(y)[-1]
             r_pr_arr, r_arr = [], []
-            for k in range(int_shape(y)[-1]):
+            for k in range(num_classes):
                 r_pr_arr.append(method(tf.tile(y[:num_c, k:k+1], [1,r_dim]) * r[:num_c], axis=0, keepdims=True))
                 r_arr.append(method(tf.tile(y[:, k:k+1], [1,r_dim]) * r, axis=0, keepdims=True))
-            r_pr = tf.concat(r_pr_arr, axis=-1)
-            r = tf.concat(r_arr, axis=-1)
+            r_pr = tf.concat(r_pr_arr, axis=0)
+            r = tf.concat(r_arr, axis=0)
             r = tf.concat([r_pr, r], axis=0)
+
+            num_units = 256
+            r = dense(r, num_units)
+            r = dense(r, num_units)
+            z_mu = dense(r, z_dim, nonlinearity=None, bn=False)
+            z_log_sigma_sq = dense(r, z_dim, nonlinearity=None, bn=False)
+
+            z_mu_pr, z_mu_pos = z_mu[:num_classes], z_mu[num_classes:]
+            z_log_sigma_sq_pr, z_log_sigma_sq_pos = z_log_sigma_sq[:num_classes], z_log_sigma_sq[num_classes:]
+
+            f = lambda x: tf.concat(tf.reshape(tf.unstack(x, axis=0), [1, None]), axis=-1)
+            z_mu_pr = f(z_mu_pr)
+            z_mu_pos = f(z_mu_pos)
+            z_log_sigma_sq_pr = f(z_log_sigma_sq_pr)
+            z_log_sigma_sq_pos = f(z_log_sigma_sq_pos)
+            return z_mu_pr, z_log_sigma_sq_pr, z_mu_pos, z_log_sigma_sq_pos
+
+
+            # r_pr_arr, r_arr = [], []
+            # for k in range(int_shape(y)[-1]):
+            #     r_pr_arr.append(method(tf.tile(y[:num_c, k:k+1], [1,r_dim]) * r[:num_c], axis=0, keepdims=True))
+            #     r_arr.append(method(tf.tile(y[:, k:k+1], [1,r_dim]) * r, axis=0, keepdims=True))
+            # r_pr = tf.concat(r_pr_arr, axis=-1)
+            # r = tf.concat(r_arr, axis=-1)
+            # r = tf.concat([r_pr, r], axis=0)
             # size = 256
             # r = dense(r, size)
             # r = dense(r, size)
             # r = dense(r, size)
-            z_mu = dense(r, z_dim, nonlinearity=None, bn=False)
-            z_log_sigma_sq = dense(r, z_dim, nonlinearity=None, bn=False)
-            # return z_mu[:1], z_log_sigma_sq[:1], z_mu[1:], z_log_sigma_sq[1:]
-            return r[:1], z_log_sigma_sq[:1], r[1:], z_log_sigma_sq[1:]
+            # z_mu = dense(r, z_dim, nonlinearity=None, bn=False)
+            # z_log_sigma_sq = dense(r, z_dim, nonlinearity=None, bn=False)
+            # # return z_mu[:1], z_log_sigma_sq[:1], z_mu[1:], z_log_sigma_sq[1:]
+            # return r[:1], z_log_sigma_sq[:1], r[1:], z_log_sigma_sq[1:]
 
 
 @add_arg_scope
