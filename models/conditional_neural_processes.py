@@ -75,10 +75,9 @@ class ConditionalNeuralProcess(object):
                 self.scope_name = get_name("neural_process", self.counters)
                 with tf.variable_scope(self.scope_name):
                     r_c = self.sample_encoder(self.X_c, self.y_c, self.r_dim, self.num_classes)
-                    print(r_c)
+                    self.r_c = r_c 
                     if self.task_type == 'classification':
                         self.r = self.aggregator(r_c, self.y_c, self.z_dim)
-                        print(self.r)
                     self.outputs = self.conditional_decoder(self.X_t, self.r, self.num_classes)
 
     def _loss(self):
