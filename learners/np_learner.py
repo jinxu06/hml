@@ -85,13 +85,14 @@ class NPLearner(MetaLearner):
             feed_dict.update({
                 m.X_c: X_c_value,
                 m.y_c: y_c_value,
-                m.X_t: X_c_value,
-                m.y_t: y_c_value,
+                m.X_t: X_t_value,
+                m.y_t: y_t_value,
                 m.is_training: True,
             })
-            # v = self.get_session().run(m.outputs, feed_dict=feed_dict)
-            # print(v)
-            # print("---")
+            v = self.get_session().run(m.outputs, feed_dict=feed_dict)
+            print(v)
+            print(y_t)
+            print("---")
 
 
     def visualise_1d(self, save_name):
