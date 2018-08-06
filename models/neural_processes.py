@@ -316,17 +316,12 @@ def cls_aggregator(r, y, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None,
     print("construct", name, "...")
     with tf.variable_scope(name):
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
-            r_pr, r = [], []
+            r_pr_arr, r_arr = [], []
             for k in range(int_shape(y)[-1]):
-                print(k)
-                print(num_c)
-                print(y[:num_c])
-                print(y[:num_c, k])
-                print(r[:num_c])
-                r_pr.append(method(y[:num_c, k] * r[:num_c], axis=0, keepdims=True))
-                r.append(method(y[:, k] * r, axis=0, keepdims=True))
-            r_pr = tf.concat(r_pr, axis=-1)
-            r = tf.concat(r, axis=-1)
+                r_pr_arr.append(method(y[:num_c, k] * r[:num_c], axis=0, keepdims=True))
+                r_arr.append(method(y[:, k] * r, axis=0, keepdims=True))
+            r_pr = tf.concat(r_pr_arr, axis=-1)
+            r = tf.concat(r_arr, axis=-1)
             r = tf.concat([r_pr, r], axis=0)
             size = 256
             r = dense(r, size)
