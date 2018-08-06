@@ -332,7 +332,7 @@ def cls_aggregator(r, y, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None,
             z_mu_pr, z_mu_pos = z_mu[:num_classes], z_mu[num_classes:]
             z_log_sigma_sq_pr, z_log_sigma_sq_pos = z_log_sigma_sq[:num_classes], z_log_sigma_sq[num_classes:]
 
-            f = lambda x: tf.concat(tf.reshape(tf.unstack(x, axis=0), [1, None]), axis=-1)
+            f = lambda x: tf.reshape(tf.concat(tf.unstack(x, axis=0), axis=-1), [1, None])
             z_mu_pr = f(z_mu_pr)
             z_mu_pos = f(z_mu_pos)
             z_log_sigma_sq_pr = f(z_log_sigma_sq_pr)
