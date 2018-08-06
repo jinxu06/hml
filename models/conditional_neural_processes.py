@@ -223,7 +223,7 @@ def omniglot_conv_conditional_decoder(inputs, z, num_classes, nonlinearity=None,
         stride = [2, 2]
         bsize = tf.shape(inputs)[0]
         with arg_scope([conv2d, dense], **default_args):
-            outputs = tf.reshape(inputs, [-1, np.prod(int_shape(outputs)[1:])])
+            outputs = tf.reshape(inputs, [-1, np.prod(int_shape(inputs)[1:])])
 
             size = 256
             batch_size = bsize
