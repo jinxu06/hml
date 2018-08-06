@@ -58,7 +58,7 @@ class NPLearner(MetaLearner):
                 X_value = np.concatenate([X_c_value, X_t_value], axis=0)
                 y_value = np.concatenate([y_c_value, y_t_value], axis=0)
                 ## !! training data is not included in the evaluation, different from neural process
-                ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_t_value, y_t_value)
+                ops, d = self.parallel_models[k].evaluate_metrics(X_c_value, y_c_value, X_value, y_value)
                 run_ops += ops
                 feed_dict.update(d)
             ls = np.array(self.get_session().run(run_ops, feed_dict=feed_dict))
