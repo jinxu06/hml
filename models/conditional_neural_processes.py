@@ -132,7 +132,6 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
         with arg_scope([conv2d, dense], **default_args):
             outputs = X
 
-            #
             for _ in range(4):
                 outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             outputs = tf.reshape(outputs, [-1, np.prod(int_shape(outputs)[1:])])

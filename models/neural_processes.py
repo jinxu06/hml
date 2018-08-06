@@ -99,7 +99,6 @@ class NeuralProcess(object):
         self.reg = compute_2gaussian_kld(self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos)
         # self.nll = mean_squared_error(self.y_t, self.y_hat, sigma=y_sigma)
         self.nll = self.error_func(self.y_t, self.outputs) / (2*y_sigma**2)
-        beta = 0.00000001
         return self.nll + beta * self.reg
 
     def predict(self, X_c_value, y_c_value, X_t_value):
@@ -183,16 +182,14 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
         num_filters = 64
         filter_size = [3, 3]
         stride = [2, 2]
-        bsize = tf.shape(X)[0]
+        batch_size = tf.shape(X)[0]
         with arg_scope([conv2d, dense], **default_args):
             outputs = X
-
-            #
             for _ in range(4):
                 outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             outputs = tf.reshape(outputs, [-1, np.prod(int_shape(outputs)[1:])])
-            outputs = tf.concat([outputs, y], axis=-1)
-            outputs = dense(outputs, num_filters)
+            # outputs = tf.concat([outputs, y], axis=-1)
+            # outputs = dense(outputs, num_filters)
             r = dense(outputs, r_dim, nonlinearity=None, bn=False)
             return r
 
@@ -242,36 +239,36 @@ def omniglot_conv_conditional_decoder(inputs, z, num_classes, nonlinearity=None,
         with arg_scope([conv2d, dense], **default_args):
             outputs = inputs
 
-            for _ in range(4):
-                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            outputs = tf.reshape(outputs, [-1, np.prod(int_shape(outputs)[1:])])
-            z = tf.tile(z, tf.stack([bsize, 1]))
-            outputs = tf.concat([outputs, z], axis=-1)
-            outputs = dense(outputs, num_filters)
-            y = dense(outputs, num_classes, nonlinearity=None, bn=False)
-            return y
-
-            #
-            # z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 28, 28, 1]))
-            # outputs = tf.concat([outputs, z_tile], axis=-1)
-            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            # #
-            # z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 14, 14, 1]))
-            # outputs = tf.concat([outputs, z_tile], axis=-1)
-            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            # #
-            # z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 7, 7, 1]))
-            # outputs = tf.concat([outputs, z_tile], axis=-1)
-            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            # #
-            # z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 4, 4, 1]))
-            # outputs = tf.concat([outputs, z_tile], axis=-1)
-            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            # #
-            # outputs = tf.reduce_mean(outputs, [1, 2])
-            # outputs = tf.reshape(outputs, [-1, num_filters])
+            # for _ in range(4):
+            #     outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            # outputs = tf.reshape(outputs, [-1, np.prod(int_shape(outputs)[1:])])
+            # z = tf.tile(z, tf.stack([bsize, 1]))
+            # outputs = tf.concat([outputs, z], axis=-1)
+            # outputs = dense(outputs, num_filters)
             # y = dense(outputs, num_classes, nonlinearity=None, bn=False)
             # return y
+
+
+            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 28, 28, 1]))
+            outputs = tf.concat([outputs, z_tile], axis=-1)
+            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            #
+            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 14, 14, 1]))
+            outputs = tf.concat([outputs, z_tile], axis=-1)
+            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            #
+            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 7, 7, 1]))
+            outputs = tf.concat([outputs, z_tile], axis=-1)
+            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            #
+            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 4, 4, 1]))
+            outputs = tf.concat([outputs, z_tile], axis=-1)
+            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            #
+            outputs = tf.reduce_mean(outputs, [1, 2])
+            outputs = tf.reshape(outputs, [-1, num_filters])
+            y = dense(outputs, num_classes, nonlinearity=None, bn=False)
+            return y
 
 
 @add_arg_scope
@@ -324,10 +321,10 @@ def cls_aggregator(r, y, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None,
             r_pr = tf.concat(r_pr_arr, axis=-1)
             r = tf.concat(r_arr, axis=-1)
             r = tf.concat([r_pr, r], axis=0)
-            size = 256
-            r = dense(r, size)
-            r = dense(r, size)
-            r = dense(r, size)
+            # size = 256
+            # r = dense(r, size)
+            # r = dense(r, size)
+            # r = dense(r, size)
             z_mu = dense(r, z_dim, nonlinearity=None, bn=False)
             z_log_sigma_sq = dense(r, z_dim, nonlinearity=None, bn=False)
             # return z_mu[:1], z_log_sigma_sq[:1], z_mu[1:], z_log_sigma_sq[1:]
