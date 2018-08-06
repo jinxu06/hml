@@ -106,9 +106,9 @@ class Characters:
             ys_train = helpers.one_hot(ys_train, self.num_char)
             ys_test = helpers.one_hot(ys_test, self.num_char)
         if shuffle:
-            p = np.random.permutation(num_shots)
+            p = np.random.permutation(xs_train.shape[0])
             xs_train, ys_train = xs_train[p], ys_train[p]
-            p = np.random.permutation(test_shots)
+            p = np.random.permutation(xs_test.shape[0])
             xs_test, ys_test = xs_test[p], ys_test[p]
         return xs_train, ys_train, xs_test, ys_test
 
