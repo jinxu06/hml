@@ -52,9 +52,6 @@ class ConditionalNeuralProcess(object):
         self.loss = self._loss()
         self.grads = tf.gradients(self.loss, tf.trainable_variables(), colocate_gradients_with_ops=True)
 
-        for v in tf.trainable_variables():
-            print(v)
-        quit()
 
         #
         # self.outputs = self._model()
