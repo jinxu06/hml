@@ -186,7 +186,7 @@ def omniglot_mlp_conditional_decoder(inputs, z, num_classes, nonlinearity=None, 
 
             outputs = tf.reshape(inputs, np.prod(int_shape(inputs)[1:]))
             z = tf.tile(z, tf.stack([batch_size, 1]))
-            outputs = tf.concat([outputs, z], axis=0)
+            outputs = tf.concat([outputs, z], axis=-1)
             num_units = 256
             for _ in range(3):
                 outputs = dense(outputs, num_units)
