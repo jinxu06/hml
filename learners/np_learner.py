@@ -47,7 +47,7 @@ class NPLearner(MetaLearner):
         eval_meta_batch = eval_samples // self.nr_model
         for i in range(eval_meta_batch):
             tasks = self.eval_set.sample(self.nr_model)
-            if num_shots is None:
+            if num_shots is None: # if num_shots is None, this is wrong
                 num_shots = np.random.randint(low=1, high=50)
             if test_shots is None:
                 test_shots = 20
@@ -90,11 +90,7 @@ class NPLearner(MetaLearner):
                 m.is_training: True,
             })
             v = self.get_session().run(m.r_c, feed_dict=feed_dict)
-            # r = self.get_session().run(m.r, feed_dict=feed_dict)
-            print(v)
-            # print(r)
-            # print(y_t_value)
-            print("---")
+            print("----")
 
 
     def visualise_1d(self, save_name):

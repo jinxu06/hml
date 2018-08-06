@@ -109,45 +109,6 @@ class ConditionalNeuralProcess(object):
         return [self.loss], feed_dict
 
 
-    # def predict(self, sess, X_c_value, y_c_value, X_t_value):
-    #     feed_dict = {
-    #         self.X_c: X_c_value,
-    #         self.y_c: y_c_value,
-    #         self.X_t: X_t_value,
-    #         self.y_t: np.zeros((X_t_value.shape[0],)),
-    #         self.is_training: False,
-    #     }
-    #     z_mu, z_log_sigma_sq = sess.run([self.z_mu_pr, self.z_log_sigma_sq_pr], feed_dict=feed_dict)
-    #     z_sigma = np.exp(0.5*z_log_sigma_sq)
-    #     z_pr = np.random.normal(loc=z_mu, scale=z_sigma)
-    #     feed_dict.update({
-    #         self.use_z_ph: True,
-    #         self.z_ph: z_pr,
-    #     })
-    #     preds= sess.run(self.y_hat, feed_dict=feed_dict)
-    #     return preds
-    #
-    # def manipulate_z(self, sess, z_value, X_t_value):
-    #     feed_dict = {
-    #         self.use_z_ph: True,
-    #         self.z_ph: z_value,
-    #         self.X_t: X_t_value,
-    #         self.is_training: False,
-    #     }
-    #     preds= sess.run(self.y_hat, feed_dict=feed_dict)
-    #     return preds
-    #
-    # def compute_loss(self, sess, X_c_value, y_c_value, X_t_value, y_t_value, is_training):
-    #     feed_dict = {
-    #         self.X_c: X_c_value,
-    #         self.y_c: y_c_value,
-    #         self.X_t: X_t_value,
-    #         self.y_t: y_t_value,
-    #         self.is_training: is_training,
-    #     }
-    #     l = sess.run(self.loss, feed_dict=feed_dict)
-    #     return l
-
 
 
 
@@ -204,6 +165,33 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
             # r = dense(outputs, r_dim, nonlinearity=None, bn=False)
             #
             # return r
+
+
+
+@add_arg_scope
+def omniglot_mlp_conditional_decoder(inputs, z, num_classes, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+    name = get_name("omniglot_conv_conditional_decoder", counters)
+    print("construct", name, "...")
+    with tf.variable_scope(name):
+        default_args = {
+            "nonlinearity": nonlinearity,
+            "bn": bn,
+            "kernel_initializer": kernel_initializer,
+            "kernel_regularizer": kernel_regularizer,
+            "is_training": is_training,
+            "counters": counters,
+        }
+        batch_size = tf.shape(inputs)[0]
+        with arg_scope([dense], **default_args):
+
+            outputs = tf.reshape(inputs, np.prod(int_shape(inputs)[1:]))
+            z = tf.tile(z, tf.stack([batch_size, 1]))
+            outputs = tf.concat([outputs, z], axis=0)
+            num_units = 256
+            for _ in range(3):
+                outputs = dense(outputs, num_units)
+            outputs = dense(outputs, num_classes, bn=False, nonlinearity=None)
+            return outputs
 
 
 @add_arg_scope

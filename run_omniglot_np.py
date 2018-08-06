@@ -11,7 +11,7 @@ import tensorflow as tf
 from tensorflow.python import debug as tf_debug
 from args import argument_parser, prepare_args
 from data.load_data import load
-from models.conditional_neural_processes import ConditionalNeuralProcess, omniglot_conv_encoder, omniglot_conv_conditional_decoder, cls_aggregator
+from models.conditional_neural_processes import ConditionalNeuralProcess, omniglot_conv_encoder, omniglot_mlp_conditional_decoder, cls_aggregator
 from learners.np_learner import NPLearner
 
 
@@ -30,7 +30,7 @@ models = [ConditionalNeuralProcess(counters={}, user_mode=args.user_mode) for i 
 model_opt = {
     "sample_encoder": omniglot_conv_encoder,
     "aggregator": cls_aggregator,
-    "conditional_decoder": omniglot_conv_conditional_decoder,
+    "conditional_decoder": omniglot_mlp_conditional_decoder,
     "task_type": "classification",
     "obs_shape": [28,28,1],
     "num_classes": args.num_classes,
