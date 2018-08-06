@@ -123,46 +123,73 @@ class NeuralProcess(object):
             return [self.loss, accuracy(self.y_t, self.pred_func(self.outputs))], feed_dict
         return [self.loss], feed_dict
 
+@add_arg_scope
+def miniimagenet_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, counters={}):
+    name = get_name("miniimagenet_conv_encoder", counters)
+    print("construct", name, "...")
+    with tf.variable_scope(name):
+        default_args = {
+            "nonlinearity": nonlinearity,
+            "bn": bn,
+            "kernel_initializer": kernel_initializer,
+            "kernel_regularizer": kernel_regularizer,
+            "is_training": is_training,
+            "counters": counters,
+        }
+        num_filters = 64
+        filter_size = [3, 3]
+        stride = [2, 2]
+        batch_size = tf.shape(X)[0]
+        with arg_scope([conv2d, dense], **default_args):
+            outputs = X
+            for _ in range(4):
+                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            outputs = tf.reshape(outputs, [-1, np.prod(int_shape(outputs)[1:])])
+            # outputs = tf.concat([outputs, y], axis=-1)
+            # outputs = dense(outputs, num_filters)
+            r = dense(outputs, r_dim, nonlinearity=None, bn=False)
+            return r
 
-    # def predict(self, sess, X_c_value, y_c_value, X_t_value):
-    #     feed_dict = {
-    #         self.X_c: X_c_value,
-    #         self.y_c: y_c_value,
-    #         self.X_t: X_t_value,
-    #         self.y_t: np.zeros((X_t_value.shape[0],)),
-    #         self.is_training: False,
-    #     }
-    #     z_mu, z_log_sigma_sq = sess.run([self.z_mu_pr, self.z_log_sigma_sq_pr], feed_dict=feed_dict)
-    #     z_sigma = np.exp(0.5*z_log_sigma_sq)
-    #     z_pr = np.random.normal(loc=z_mu, scale=z_sigma)
-    #     feed_dict.update({
-    #         self.use_z_ph: True,
-    #         self.z_ph: z_pr,
-    #     })
-    #     preds= sess.run(self.y_hat, feed_dict=feed_dict)
-    #     return preds
-    #
-    # def manipulate_z(self, sess, z_value, X_t_value):
-    #     feed_dict = {
-    #         self.use_z_ph: True,
-    #         self.z_ph: z_value,
-    #         self.X_t: X_t_value,
-    #         self.is_training: False,
-    #     }
-    #     preds= sess.run(self.y_hat, feed_dict=feed_dict)
-    #     return preds
-    #
-    # def compute_loss(self, sess, X_c_value, y_c_value, X_t_value, y_t_value, is_training):
-    #     feed_dict = {
-    #         self.X_c: X_c_value,
-    #         self.y_c: y_c_value,
-    #         self.X_t: X_t_value,
-    #         self.y_t: y_t_value,
-    #         self.is_training: is_training,
-    #     }
-    #     l = sess.run(self.loss, feed_dict=feed_dict)
-    #     return l
+@add_arg_scope
+def miniimagenet_conv_conditional_decoder(inputs, z, num_classes, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+    name = get_name("miniimagenet_conv_conditional_decoder", counters)
+    print("construct", name, "...")
+    with tf.variable_scope(name):
+        default_args = {
+            "nonlinearity": nonlinearity,
+            "bn": bn,
+            "kernel_initializer": kernel_initializer,
+            "kernel_regularizer": kernel_regularizer,
+            "is_training": is_training,
+            "counters": counters,
+        }
+        num_filters = 64
+        filter_size = [3, 3]
+        stride = [2, 2]
+        bsize = tf.shape(inputs)[0]
+        with arg_scope([conv2d, dense], **default_args):
+            outputs = inputs
 
+            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 84, 84, 1]))
+            outputs = tf.concat([outputs, z_tile], axis=-1)
+            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            #
+            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 42, 42, 1]))
+            outputs = tf.concat([outputs, z_tile], axis=-1)
+            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            #
+            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 21, 21, 1]))
+            outputs = tf.concat([outputs, z_tile], axis=-1)
+            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            #
+            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 11, 11, 1]))
+            outputs = tf.concat([outputs, z_tile], axis=-1)
+            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            #
+            outputs = tf.reduce_mean(outputs, [1, 2])
+            outputs = tf.reshape(outputs, [-1, num_filters])
+            y = dense(outputs, num_classes, nonlinearity=None, bn=False)
+            return y
 
 
 

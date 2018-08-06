@@ -11,7 +11,7 @@ import tensorflow as tf
 from tensorflow.python import debug as tf_debug
 from args import argument_parser, prepare_args
 from data.load_data import load
-from models.neural_processes import NeuralProcess, omniglot_conv_encoder, omniglot_conv_conditional_decoder, cls_aggregator
+from models.neural_processes import NeuralProcess, miniimagenet_conv_encoder, miniimagenet_conv_conditional_decoder, cls_aggregator
 from learners.np_learner import NPLearner
 
 
@@ -28,9 +28,9 @@ train_set, val_set = load(dataset_name=args.dataset_name, num_classes=args.num_c
 models = [NeuralProcess(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
 model_opt = {
-    "sample_encoder": omniglot_conv_encoder,
+    "sample_encoder": miniimagenet_conv_encoder,
     "aggregator": cls_aggregator,
-    "conditional_decoder": omniglot_conv_conditional_decoder,
+    "conditional_decoder": miniimagenet_conv_conditional_decoder,
     "task_type": "classification",
     "obs_shape": [84,84,3],
     "num_classes": args.num_classes,
