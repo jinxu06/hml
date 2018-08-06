@@ -72,8 +72,8 @@ with tf.Session(config=config) as sess:
         "save_interval": args.save_interval,
         "eval_samples": 100,
         "meta_batch": args.nr_model,
-        "num_shots": args.num_shots,
-        "test_shots": 5,
+        "num_shots": None, #args.num_shots,
+        "test_shots": 1,
         "load_params": args.load_params,
     }
     if args.user_mode == 'train':

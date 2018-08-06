@@ -58,7 +58,7 @@ class MetaLearner(object):
         feed_dict = {}
         for i, task in enumerate(tasks):
             if num_shots is None:
-                num_shots = np.random.randint(low=1, high=50)
+                num_shots = np.random.randint(low=1, high=19)
             if test_shots is None:
                 test_shots = 20
 
@@ -82,7 +82,7 @@ class MetaLearner(object):
         for i in range(eval_meta_batch):
             tasks = self.eval_set.sample(self.nr_model)
             if num_shots is None:
-                num_shots = np.random.randint(low=1, high=50)
+                num_shots = np.random.randint(low=1, high=19)
             if test_shots is None:
                 test_shots = 20
 
