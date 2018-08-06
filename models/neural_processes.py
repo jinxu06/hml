@@ -320,6 +320,7 @@ def cls_aggregator(r, y, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None,
             for k in range(int_shape(y)[-1]):
                 print(k)
                 print(num_c)
+                print(y[:num_c, k] * r[:num_c])
                 r_pr.append(method(y[:num_c, k] * r[:num_c], axis=0, keepdims=True))
                 r.append(method(y[:, k] * r, axis=0, keepdims=True))
             r_pr = tf.concat(r_pr, axis=-1)
