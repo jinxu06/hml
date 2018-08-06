@@ -91,7 +91,7 @@ class NPLearner(MetaLearner):
             })
             v = self.get_session().run(m.outputs, feed_dict=feed_dict)
             print(v)
-            print(y_t)
+            print(y_t_value)
             print("---")
 
 
