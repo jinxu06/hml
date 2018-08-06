@@ -324,10 +324,10 @@ def cls_aggregator(r, y, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None,
             r_pr = tf.concat(r_pr_arr, axis=-1)
             r = tf.concat(r_arr, axis=-1)
             r = tf.concat([r_pr, r], axis=0)
-            # size = 256
-            # r = dense(r, size)
-            # r = dense(r, size)
-            # r = dense(r, size)
+            size = 256
+            r = dense(r, size)
+            r = dense(r, size)
+            r = dense(r, size)
             z_mu = dense(r, z_dim, nonlinearity=None, bn=False)
             z_log_sigma_sq = dense(r, z_dim, nonlinearity=None, bn=False)
             # return z_mu[:1], z_log_sigma_sq[:1], z_mu[1:], z_log_sigma_sq[1:]
