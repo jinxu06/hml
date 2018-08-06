@@ -74,7 +74,7 @@ class NPLearner(MetaLearner):
         for i in range(eval_samples):
             task = self.eval_set.sample(1)[0]
             if num_shots is None:
-                num_shots = np.random.randint(low=1, high=50)
+                num_shots = np.random.randint(low=1, high=19)
             if test_shots is None:
                 test_shots = 20
 
