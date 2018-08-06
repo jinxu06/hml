@@ -87,7 +87,7 @@ class Characters:
         self.num_char = len(chars)
         self.one_hot = one_hot
 
-    def sample(self, num_shots, test_shots, shuffle=False):
+    def sample(self, num_shots, test_shots, shuffle=True):
         total_shots = num_shots + test_shots
         assert total_shots <= 20, "num_shots+test_shots={0}, but only have 20 instances in each class".format(total_shots)
         xs_train, xs_test = [], []
