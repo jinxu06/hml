@@ -11,7 +11,7 @@ import tensorflow as tf
 from tensorflow.python import debug as tf_debug
 from args import argument_parser, prepare_args
 from data.load_data import load
-from models.neural_processes import ConditionalNeuralProcess, omniglot_conv_encoder, omniglot_conv_conditional_decoder, cls_aggregator
+from models.conditional_neural_processes import ConditionalNeuralProcess, omniglot_conv_encoder, omniglot_conv_conditional_decoder, cls_aggregator
 from learners.np_learner import NPLearner
 
 
