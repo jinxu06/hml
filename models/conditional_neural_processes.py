@@ -17,7 +17,7 @@ class ConditionalNeuralProcess(object):
         self.counters = counters
         self.user_mode = user_mode
 
-    def construct(self, sample_encoder, aggregator, conditional_decoder, task_type, obs_shape, r_dim, z_dim, label_shape=[], num_classes=1, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
+    def construct(self, sample_encoder, aggregator, conditional_decoder, task_type, obs_shape, r_dim, label_shape=[], num_classes=1, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
         #
         self.sample_encoder = sample_encoder
         self.aggregator = aggregator
@@ -33,7 +33,6 @@ class ConditionalNeuralProcess(object):
             raise Exception("Unknown task type")
         self.obs_shape = obs_shape
         self.r_dim = r_dim
-        self.z_dim = z_dim
         self.label_shape = label_shape
         self.num_classes = num_classes
         self.nonlinearity = nonlinearity
@@ -223,26 +222,7 @@ def omniglot_conv_conditional_decoder(inputs, z, num_classes, nonlinearity=None,
         stride = [2, 2]
         bsize = tf.shape(inputs)[0]
         with arg_scope([conv2d, dense], **default_args):
-            outputs = tf.reshape(inputs, [-1, np.prod(int_shape(inputs)[1:])])
-
-            size = 256
-            batch_size = bsize
-            x = dense(outputs, size)
-            z = tf.tile(z, tf.stack([batch_size, 1]))
-            z = dense(z, size)
-            # xz = x + z * tf.get_variable(name="coeff", shape=(), dtype=tf.float32, initializer=tf.constant_initializer(2.0))
-            xz = x
-            a = dense(xz, size, nonlinearity=None) + dense(z, size, nonlinearity=None)
-            outputs = tf.nn.tanh(a) * tf.sigmoid(a)
-
-            for k in range(2):
-                a = dense(outputs, size, nonlinearity=None) + dense(z, size, nonlinearity=None)
-                outputs = tf.nn.tanh(a) * tf.sigmoid(a)
-            outputs = dense(outputs, num_classes, nonlinearity=None, bn=False)
-            # outputs = tf.reshape(outputs, shape=(batch_size,))
-            return outputs
-
-
+            outputs = inputs
 
             # for _ in range(4):
             #     outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
@@ -255,26 +235,26 @@ def omniglot_conv_conditional_decoder(inputs, z, num_classes, nonlinearity=None,
             # return y
 
 
-            # z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 28, 28, 1]))
-            # outputs = tf.concat([outputs, z_tile], axis=-1)
-            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            # #
-            # z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 14, 14, 1]))
-            # outputs = tf.concat([outputs, z_tile], axis=-1)
-            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            # #
-            # z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 7, 7, 1]))
-            # outputs = tf.concat([outputs, z_tile], axis=-1)
-            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            # #
-            # z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 4, 4, 1]))
-            # outputs = tf.concat([outputs, z_tile], axis=-1)
-            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            # #
-            # outputs = tf.reduce_mean(outputs, [1, 2])
-            # outputs = tf.reshape(outputs, [-1, num_filters])
-            # y = dense(outputs, num_classes, nonlinearity=None, bn=False)
-            # return y
+            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 28, 28, 1]))
+            outputs = tf.concat([outputs, z_tile], axis=-1)
+            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            #
+            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 14, 14, 1]))
+            outputs = tf.concat([outputs, z_tile], axis=-1)
+            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            #
+            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 7, 7, 1]))
+            outputs = tf.concat([outputs, z_tile], axis=-1)
+            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            #
+            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 4, 4, 1]))
+            outputs = tf.concat([outputs, z_tile], axis=-1)
+            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            #
+            outputs = tf.reduce_mean(outputs, [1, 2])
+            outputs = tf.reshape(outputs, [-1, num_filters])
+            y = dense(outputs, num_classes, nonlinearity=None, bn=False)
+            return y
 
 
 @add_arg_scope
