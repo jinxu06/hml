@@ -171,7 +171,7 @@ def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=No
             outputs = X
 
             #
-            for _ in range(4):
+            for _ in range(2):
                 outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
             outputs = tf.reshape(outputs, [-1, np.prod(int_shape(outputs)[1:])])
             # outputs = tf.concat([outputs, y], axis=-1)
@@ -223,17 +223,36 @@ def omniglot_conv_conditional_decoder(inputs, z, num_classes, nonlinearity=None,
         stride = [2, 2]
         bsize = tf.shape(inputs)[0]
         with arg_scope([conv2d, dense], **default_args):
-            outputs = inputs
+            outputs = tf.reshape(inputs, [-1, np.prod(int_shape(outputs)[1:])])
 
-            for _ in range(4):
-                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            outputs = tf.reshape(outputs, [-1, np.prod(int_shape(outputs)[1:])])
-            z = tf.tile(z, tf.stack([bsize, 1]))
-            outputs = tf.concat([outputs, z], axis=-1)
+            size = 256
+            batch_size = bsize
+            x = dense(outputs, size)
+            z = tf.tile(z, tf.stack([batch_size, 1]))
+            z = dense(z, size)
+            # xz = x + z * tf.get_variable(name="coeff", shape=(), dtype=tf.float32, initializer=tf.constant_initializer(2.0))
+            xz = x
+            a = dense(xz, size, nonlinearity=None) + dense(z, size, nonlinearity=None)
+            outputs = tf.nn.tanh(a) * tf.sigmoid(a)
 
-            outputs = dense(outputs, num_filters)
-            y = dense(outputs, num_classes, nonlinearity=None, bn=False)
-            return y
+            for k in range(4):
+                a = dense(outputs, size, nonlinearity=None) + dense(z, size, nonlinearity=None)
+                outputs = tf.nn.tanh(a) * tf.sigmoid(a)
+            outputs = dense(outputs, 1, nonlinearity=None, bn=False)
+            outputs = tf.reshape(outputs, shape=(batch_size,))
+            return outputs
+
+
+
+            # for _ in range(4):
+            #     outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
+            # outputs = tf.reshape(outputs, [-1, np.prod(int_shape(outputs)[1:])])
+            # z = tf.tile(z, tf.stack([bsize, 1]))
+            # outputs = tf.concat([outputs, z], axis=-1)
+            #
+            # outputs = dense(outputs, num_filters)
+            # y = dense(outputs, num_classes, nonlinearity=None, bn=False)
+            # return y
 
 
             # z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 28, 28, 1]))
