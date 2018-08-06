@@ -70,7 +70,7 @@ class ConditionalNeuralProcess(object):
             "counters": self.counters,
         }
         with arg_scope([self.conditional_decoder], **default_args):
-            default_args.update({"bn":False})
+            #default_args.update({"bn":False})
             with arg_scope([self.sample_encoder, self.aggregator], **default_args):
                 self.scope_name = get_name("neural_process", self.counters)
                 with tf.variable_scope(self.scope_name):
