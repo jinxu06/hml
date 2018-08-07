@@ -71,9 +71,9 @@ class NeuralProcess(object):
             "is_training": self.is_training,
             "counters": self.counters,
         }
-        with arg_scope([self.conditional_decoder,self.sample_encoder], **default_args):
+        with arg_scope([self.conditional_decoder], **default_args):
             default_args.update({"bn":False})
-            with arg_scope([self.aggregator], **default_args):
+            with arg_scope([self.sample_encoder,self.aggregator], **default_args):
                 self.scope_name = get_name("neural_process", self.counters)
                 with tf.variable_scope(self.scope_name):
                     num_c = tf.shape(self.X_c)[0]
