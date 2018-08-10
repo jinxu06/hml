@@ -73,9 +73,11 @@ class MCMCImplicitProcess(object):
                 outputs  = self.conditional_decoder(self.X_c, z, reuse=False, counters={})
                 self.outputs_sqs = [self.conditional_decoder(self.X_t, z, reuse=True, counters={})]
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
-                    loss = self.error_func(self.y_c, outputs)
+                    loss = - (tf.distributions.Normal(loc=0., scale=0.2).lob_prob(self.y_c-outputs) + \
+                                    tf.distributions.Normal(loc=0., scale=1.).lob_prob(z))
                     grad_z = tf.gradients(loss, z, colocate_gradients_with_ops=True)[0]
-                    z -= self.alpha * grad_z
+                    eta = tf.distributions.Normal(loc=0., scale=self.alpha).sample(sample_shape=int_shape(z))
+                    z -= 2*self.alpha * grad_z + eta
                     outputs = self.conditional_decoder(self.X_c, z, reuse=True, counters={})
                     outputs_t = self.conditional_decoder(self.X_t, z, reuse=True, counters={})
                     self.outputs_sqs.append(outputs_t)
