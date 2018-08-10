@@ -106,11 +106,12 @@ class MIPLearner(MetaLearner):
 
             for k in range(20):
                 X_eval = np.linspace(self.eval_set.input_range[0], self.eval_set.input_range[1], num=100)[:,None]
-                y_hat = m.predict(self.session, X_c_value, y_c_value, X_eval)
+                y_hat = m.predict(self.session, X_c_value, y_c_value, X_eval, step=5)
                 ax.plot(X_eval[:,0], y_hat, "-", color='gray', alpha=0.5)
 
         fig.savefig(save_name)
         plt.close()
+
 
 
     def run_train(self, num_epoch, eval_interval, save_interval, eval_samples, meta_batch, gen_num_shots, gen_test_shots, load_params=False):
@@ -134,7 +135,7 @@ class MIPLearner(MetaLearner):
 
             if epoch % save_interval == 0:
                 print("\tsave figure")
-                # self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, epoch)))
+                self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, epoch)))
                 print("\tsave checkpoint")
                 saver.save(self.session, self.checkpoint_dir + '/params.ckpt')
             sys.stdout.flush()
