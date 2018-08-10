@@ -53,14 +53,6 @@ class MCMCImplicitProcess(object):
         self.grads = tf.gradients(self.loss, tf.trainable_variables(), colocate_gradients_with_ops=True)
 
 
-        #
-        # self.outputs = self._model()
-        # self.y_hat = self.outputs
-        # self.loss = self._loss(beta=1.0, y_sigma=0.2)
-        # #
-        # self.grads = tf.gradients(self.loss, get_trainable_variables([self.scope_name]), colocate_gradients_with_ops=True)
-
-
     def _model(self):
         default_args = {
             "nonlinearity": self.nonlinearity,
@@ -70,17 +62,15 @@ class MCMCImplicitProcess(object):
             "is_training": self.is_training,
             "counters": self.counters,
         }
-        with arg_scope([self.conditional_decoder], **default_args):
-            default_args.update({"bn":False})
-            with arg_scope([self.sample_encoder, self.aggregator], **default_args):
-                self.scope_name = get_name("neural_process", self.counters)
-                with tf.variable_scope(self.scope_name):
-                    r_c = self.sample_encoder(self.X_c, self.y_c, self.r_dim, self.num_classes)
-                    self.r_c = r_c
-                    if self.task_type == 'classification':
-                        self.r = self.aggregator(r_c, self.y_c, self.z_dim)
-                    self.outputs = self.conditional_decoder(self.X_t, self.r, self.num_classes)
-                    self.preds = self.pred_func(self.outputs)
+        with arg_scope([self.conditional_decoder, self.sample_encoder, self.aggregator], **default_args):
+            self.scope_name = get_name("mcmc_implicit_process", self.counters)
+            with tf.variable_scope(self.scope_name):
+                r_c = self.sample_encoder(self.X_c, self.y_c, self.r_dim, self.num_classes, bn=False)
+                # if self.task_type == 'classification':
+                #     self.r = self.aggregator(r_c, self.y_c, self.z_dim, bn=False)
+                z = self.aggregator(r_c, z, self.z_dim, bn=False)
+                self.outputs = self.conditional_decoder(self.X_t, z, self.num_classes)
+                self.preds = self.pred_func(self.outputs)
 
     def _loss(self):
         self.nll = self.error_func(self.y_t, self.outputs)
@@ -276,10 +266,8 @@ def aggregator(r, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=Tru
             size = 256
             r = dense(r, size)
             r = dense(r, size)
-            r = dense(r, size)
-            z_mu = dense(r, z_dim, nonlinearity=None, bn=False)
-            z_log_sigma_sq = dense(r, z_dim, nonlinearity=None, bn=False)
-            return z_mu[:1], z_log_sigma_sq[:1], z_mu[1:], z_log_sigma_sq[1:]
+            z = dense(r, z_dim, nonlinearity=None, bn=False)
+            return z
 
 
 
