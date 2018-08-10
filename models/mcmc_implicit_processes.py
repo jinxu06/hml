@@ -17,7 +17,7 @@ class MCMCImplicitProcess(object):
         self.counters = counters
         self.user_mode = user_mode
 
-    def construct(self, sample_encoder, aggregator, conditional_decoder, task_type, obs_shape, r_dim, z_dim, label_shape=[], num_classes=1, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
+    def construct(self, sample_encoder, aggregator, conditional_decoder, task_type, obs_shape, r_dim, z_dim, label_shape=[], num_classes=1, alpha=0.01, inner_iters=1, eval_iters=5, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
         #
         self.sample_encoder = sample_encoder
         self.aggregator = aggregator
@@ -36,6 +36,9 @@ class MCMCImplicitProcess(object):
         self.z_dim = z_dim
         self.label_shape = label_shape
         self.num_classes = num_classes
+        self.alpha = alpha
+        self.inner_iters = inner_iters
+        self.eval_iters = eval_iters
         self.nonlinearity = nonlinearity
         self.bn = bn
         self.kernel_initializer = kernel_initializer
@@ -66,81 +69,34 @@ class MCMCImplicitProcess(object):
             self.scope_name = get_name("mcmc_implicit_process", self.counters)
             with tf.variable_scope(self.scope_name):
                 r_c = self.sample_encoder(self.X_c, self.y_c, self.r_dim, self.num_classes, bn=False)
-                # if self.task_type == 'classification':
-                #     self.r = self.aggregator(r_c, self.y_c, self.z_dim, bn=False)
                 z = self.aggregator(r_c, self.z_dim, bn=False)
-
-                outputs  = self.conditional_decoder(self.X_c, z)
-                loss = self.error_func(self.y_c, outputs)
-                g = tf.gradients(loss, z, colocate_gradients_with_ops=True)
-                for i in g:
-                    print(i)
-                quit()
-
-
-
-
-                # add maml ops
-                y_hat = self.conditional_decoder(self.X_c, z)
-                vars = get_trainable_variables(['conditional_decoder'])
-                inner_iters = 1
-                eval_iters = 10
-                y_hat_test_arr = [self.conditional_decoder(self.X_t, z, params=vars.copy())]
-                for k in range(1, max(inner_iters, eval_iters)+1):
-                    loss = sum_squared_error(labels=self.y_c, predictions=y_hat)
-                    grads = tf.gradients(loss, vars, colocate_gradients_with_ops=True)
-                    vars = [v - self.alpha * g for v, g in zip(vars, grads)]
-                    y_hat = self.conditional_decoder(self.X_c, z, params=vars.copy())
-                    y_hat_test = self.conditional_decoder(self.X_t, z, params=vars.copy())
-                    y_hat_test_arr.append(y_hat_test)
-                self.eval_ops = y_hat_test_arr
-                return y_hat_test_arr[inner_iters]
-                ##
-
-                self.scope_name = get_name("maml_regressor", self.counters)
-                with tf.variable_scope(self.scope_name):
-                    outputs = self.regressor(self.X_c, counters={})
-                    vars = get_trainable_variables([self.scope_name])
-                    vars = [v for v in vars if 'BatchNorm' not in v.name]
-                    self.vars = vars
-
-                    self.outputs_sqs.append(self.regressor(self.X_t, params=vars.copy(), counters={}))
-                    for k in range(1, max(self.inner_iters, self.eval_iters)+1):
-                        loss = self.error_func(self.y_c, outputs)
-                        grads = tf.gradients(loss, vars, colocate_gradients_with_ops=True)
-                        vars = [v - self.alpha * g for v, g in zip(vars, grads)]
-                        outputs = self.regressor(self.X_c, params=vars.copy(), counters={})
-                        outputs_t = self.regressor(self.X_t, params=vars.copy(), counters={})
-                        self.outputs_sqs.append(outputs_t)
-
-                    self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
-                    self.loss_sqs = [self.error_func(self.y_t, o) for o in self.outputs_sqs]
-
-
+                outputs  = self.conditional_decoder(self.X_c, z, counters={})
+                self.outputs_sqs = [self.conditional_decoder(self.X_t, z, counters={})]
+                for k in range(1, max(self.inner_iters, self.eval_iters)+1):
+                    loss = self.error_func(self.y_c, outputs)
+                    grad_z = tf.gradients(loss, z, colocate_gradients_with_ops=True)
+                    z -= self.alpha * grad_z
+                    outputs = self.conditional_decoder(self.X_c, z, counters={})
+                    outputs_t = self.conditional_decoder(self.X_t, z, counters={})
+                    self.outputs_sqs.append(outputs_t)
                 self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
                 self.loss_sqs = [self.error_func(self.y_t, o) for o in self.outputs_sqs]
 
-
-
-
-                self.outputs = self.conditional_decoder(self.X_t, z, self.num_classes)
-                self.preds = self.pred_func(self.outputs)
-
     def _loss(self):
-        self.nll = self.error_func(self.y_t, self.outputs)
-        return self.nll
+        return self.loss_sqs[self.inner_iters]
 
-    def predict(self, X_c_value, y_c_value, X_t_value):
+    def predict(self, X_c_value, y_c_value, X_t_value, step=None):
         feed_dict = {
             self.X_c: X_c_value,
             self.y_c: y_c_value,
             self.X_t: X_t_value,
             self.is_training: False,
         }
-        preds = self.pred_func(self.outputs)
-        return [preds], feed_dict
+        if step is None:
+            step = self.eval_iters
+        return [self.y_hat_sqs[step]], feed_dict
 
-    def evaluate_metrics(self, X_c_value, y_c_value, X_t_value, y_t_value):
+    def evaluate_metrics(self, X_c_value, y_c_value, X_t_value, y_t_value, step=None):
         feed_dict = {
             self.X_c: X_c_value,
             self.y_c: y_c_value,
@@ -148,147 +104,9 @@ class MCMCImplicitProcess(object):
             self.y_t: y_t_value,
             self.is_training: False,
         }
-        if self.task_type == 'classification':
-            return [self.loss, accuracy(self.y_t, self.pred_func(self.outputs))], feed_dict
-        return [self.loss], feed_dict
-
-
-
-
-
-@add_arg_scope
-def omniglot_conv_encoder(X, y, r_dim, num_classes, is_training, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, counters={}):
-    name = get_name("omniglot_conv_encoder", counters)
-    print("construct", name, "...")
-    with tf.variable_scope(name):
-        default_args = {
-            "nonlinearity": nonlinearity,
-            "bn": bn,
-            "kernel_initializer": kernel_initializer,
-            "kernel_regularizer": kernel_regularizer,
-            "is_training": is_training,
-            "counters": counters,
-        }
-        num_filters = 64
-        filter_size = [3, 3]
-        stride = [2, 2]
-        bsize = tf.shape(X)[0]
-        with arg_scope([conv2d, dense], **default_args):
-            outputs = X
-
-            for _ in range(4):
-                outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            outputs = tf.reshape(outputs, [-1, np.prod(int_shape(outputs)[1:])])
-            # outputs = tf.concat([outputs, y], axis=-1)
-            # outputs = dense(outputs, num_filters)
-            r = dense(outputs, r_dim, nonlinearity=None, bn=False)
-            return r
-
-
-
-            # #
-            # y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 28, 28, 1]))
-            # outputs = tf.concat([outputs, y_tile], axis=-1)
-            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            # #
-            # y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 14, 14, 1]))
-            # outputs = tf.concat([outputs, y_tile], axis=-1)
-            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            # #
-            # y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 7, 7, 1]))
-            # outputs = tf.concat([outputs, y_tile], axis=-1)
-            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            # #
-            # y_tile = tf.tile(tf.reshape(y, [-1, 1, 1, num_classes]), tf.stack([1, 4, 4, 1]))
-            # outputs = tf.concat([outputs, y_tile], axis=-1)
-            # outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            # #
-            # outputs = tf.reduce_mean(outputs, [1, 2])
-            # outputs = tf.reshape(outputs, [-1, num_filters])
-            # r = dense(outputs, r_dim, nonlinearity=None, bn=False)
-            #
-            # return r
-
-
-
-@add_arg_scope
-def omniglot_mlp_conditional_decoder(inputs, z, num_classes, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
-    name = get_name("omniglot_mlp_conditional_decoder", counters)
-    print("construct", name, "...")
-    with tf.variable_scope(name):
-        default_args = {
-            "nonlinearity": nonlinearity,
-            "bn": bn,
-            "kernel_initializer": kernel_initializer,
-            "kernel_regularizer": kernel_regularizer,
-            "is_training": is_training,
-            "counters": counters,
-        }
-        batch_size = tf.shape(inputs)[0]
-        with arg_scope([dense], **default_args):
-
-            outputs = tf.reshape(inputs, [-1,np.prod(int_shape(inputs)[1:])])
-            z = tf.tile(z, tf.stack([batch_size, 1]))
-            outputs = tf.concat([outputs, z], axis=-1)
-            num_units = 512
-            for _ in range(3):
-                outputs = dense(outputs, num_units)
-                outputs = tf.concat([outputs, z], axis=-1)
-            outputs = dense(outputs, num_classes, bn=False, nonlinearity=None)
-            return outputs
-
-
-@add_arg_scope
-def omniglot_conv_conditional_decoder(inputs, z, num_classes, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
-    name = get_name("omniglot_conv_conditional_decoder", counters)
-    print("construct", name, "...")
-    with tf.variable_scope(name):
-        default_args = {
-            "nonlinearity": nonlinearity,
-            "bn": bn,
-            "kernel_initializer": kernel_initializer,
-            "kernel_regularizer": kernel_regularizer,
-            "is_training": is_training,
-            "counters": counters,
-        }
-        num_filters = 64
-        filter_size = [3, 3]
-        stride = [2, 2]
-        bsize = tf.shape(inputs)[0]
-        with arg_scope([conv2d, dense], **default_args):
-            outputs = inputs
-
-            # for _ in range(4):
-            #     outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            # outputs = tf.reshape(outputs, [-1, np.prod(int_shape(outputs)[1:])])
-            # z = tf.tile(z, tf.stack([bsize, 1]))
-            # outputs = tf.concat([outputs, z], axis=-1)
-            #
-            # outputs = dense(outputs, num_filters)
-            # y = dense(outputs, num_classes, nonlinearity=None, bn=False)
-            # return y
-
-
-            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 28, 28, 1]))
-            outputs = tf.concat([outputs, z_tile], axis=-1)
-            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            #
-            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 14, 14, 1]))
-            outputs = tf.concat([outputs, z_tile], axis=-1)
-            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            #
-            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 7, 7, 1]))
-            outputs = tf.concat([outputs, z_tile], axis=-1)
-            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            #
-            z_tile = tf.tile(tf.reshape(z, [1, 1, 1, int_shape(z)[-1]]), tf.stack([bsize, 4, 4, 1]))
-            outputs = tf.concat([outputs, z_tile], axis=-1)
-            outputs = conv2d(outputs, num_filters, filter_size=filter_size, stride=stride, pad="SAME")
-            #
-            outputs = tf.reduce_mean(outputs, [1, 2])
-            outputs = tf.reshape(outputs, [-1, num_filters])
-            y = dense(outputs, num_classes, nonlinearity=None, bn=False)
-            return y
+        if step is None:
+            step = self.eval_iters
+        return [self.loss_sqs[step]], feed_dict
 
 
 @add_arg_scope
@@ -321,20 +139,6 @@ def aggregator(r, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=True, kern
             z = dense(r, z_dim, nonlinearity=None, bn=False)
             return z
 
-
-
-@add_arg_scope
-def cls_aggregator(r, y, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
-    name = get_name("cls_aggregator", counters)
-    print("construct", name, "...")
-    with tf.variable_scope(name):
-        with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
-            r_dim = int_shape(r)[-1]
-            r_arr = []
-            for k in range(int_shape(y)[-1]):
-                r_arr.append(method(tf.tile(y[:, k:k+1], [1,r_dim]) * r, axis=0, keepdims=True))
-            r = tf.concat(r_arr, axis=-1)
-            return r
 
 
 @add_arg_scope
