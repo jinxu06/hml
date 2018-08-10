@@ -35,7 +35,7 @@ def load_sinusoid(amp_range=[0.1, 5.0], phase_range=[0, np.pi], period_range=[2*
 
 def load_gpsamples():
     from data.gpsample import GPSample
-    data = np.load("gpsamples_var05.npz")
+    data = np.load("/data/ziz/not-backed-up/jxu/gpsamples_var05.npz")
     train_data = {"xs":data['xs'][:50000], "ys":data['ys'][:50000]}
     val_data = {"xs":data['xs'][50000:60000], "ys":data['ys'][50000:60000]}
     train_set = GPSample(input_range=[-2., 2.], var_range=[0.5, 0.5], max_num_samples=200, data=train_data)
