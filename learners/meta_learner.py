@@ -34,10 +34,11 @@ class MetaLearner(object):
         with tf.device('/' + device_type + ':0'):
             for i in range(1, self.nr_model):
                 for j in range(len(grads[0])):
-                    try:
-                        grads[0][j] += grads[i][j]
-                    except:
-                        grads[0][j] = 0.
+                    grads[0][j] += grads[i][j]
+                    # try:
+                    #     grads[0][j] += grads[i][j]
+                    # except:
+                    #     grads[0][j] = 0.
         self.aggregated_grads = grads[0]
 
         self.optimize_op = adam_updates(variables, self.aggregated_grads, lr=self.lr)
