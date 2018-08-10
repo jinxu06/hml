@@ -32,17 +32,7 @@ def get_name(layer_name, counters):
     counters[layer_name] += 1
     return name
 
-def PIL_to_uint(pil_img):
-    pass
 
-def uint_to_PIL(uint_img):
-    pass
-
-def PIL_to_float(pil_img):
-    pass
-
-def uint_to_float(pil_img):
-    pass
 
 def tile_images(imgs, size=(6, 6)):
     imgs = imgs[:size[0]*size[1], :, :, :]

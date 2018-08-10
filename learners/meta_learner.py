@@ -55,15 +55,13 @@ class MetaLearner(object):
     def get_session(self):
         return self.session
 
-    def train(self, meta_batch, num_shots=None, test_shots=None):
+    def train(self, meta_batch, gen_num_shots, gen_test_shots):
         assert meta_batch==self.nr_model, "nr_model != meta_batch"
         tasks = self.train_set.sample(meta_batch)
         feed_dict = {}
         for i, task in enumerate(tasks):
-            if num_shots is None:
-                num_shots = np.random.randint(low=1, high=19)
-            if test_shots is None:
-                test_shots = 20
+            num_shots = gen_num_shots()
+            test_shots = gen_test_shots()
 
             X_c_value, y_c_value, X_t_value, y_t_value = task.sample(num_shots, test_shots)
             X_value = np.concatenate([X_c_value, X_t_value], axis=0)
@@ -79,15 +77,13 @@ class MetaLearner(object):
 
 
 
-    def evaluate(self, eval_samples, num_shots=None, test_shots=None):
+    def evaluate(self, eval_samples, gen_num_shots, gen_test_shots):
         evals = []
         eval_meta_batch = eval_samples // self.nr_model
         for i in range(eval_meta_batch):
             tasks = self.eval_set.sample(self.nr_model)
-            if num_shots is None:
-                num_shots = np.random.randint(low=1, high=19)
-            if test_shots is None:
-                test_shots = 20
+            num_shots = gen_num_shots()
+            test_shots = gen_test_shots()
 
             run_ops, feed_dict = [], {}
             for k, task in enumerate(tasks):
@@ -110,23 +106,6 @@ class MetaLearner(object):
             evals.append(ls)
         return np.mean(evals, axis=0)
 
-
-        # m = self.parallel_models[0]
-        # ls = []
-        # for _ in range(eval_samples):
-        #     if num_shots is None:
-        #         num_shots = np.random.randint(low=1, high=50)
-        #     if test_shots is None:
-        #         test_shots = 20
-        #     X_c_value, y_c_value, X_t_value, y_t_value = self.eval_set.sample(1)[0].sample(num_shots, test_shots)
-        #     X_value = np.concatenate([X_c_value, X_t_value], axis=0)
-        #     y_value = np.concatenate([y_c_value, y_t_value], axis=0)
-        #     if metric == 'loss':
-        #         l = m.compute_loss(self.get_session(), X_c_value, y_c_value, X_value, y_value, is_training=False)
-        #     elif metric == 'acc':
-        #         l = m.compute_acc(self.get_session(), X_c_value, y_c_value, X_value, y_value, is_training=False)
-        #     ls.append(l)
-        # return np.mean(ls)
 
     def visualise(self, save_name):
         pass

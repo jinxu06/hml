@@ -49,7 +49,7 @@ class MAMLLearner(MetaLearner):
         plt.close()
 
 
-    def run_train(self, num_epoch, eval_interval, save_interval, eval_samples, meta_batch, num_shots, test_shots, load_params=False):
+    def run_train(self, num_epoch, eval_interval, save_interval, eval_samples, meta_batch, gen_num_shots, gen_test_shots, load_params=False):
         saver = tf.train.Saver(var_list=self.variables)
         if load_params:
             ckpt_file = self.checkpoint_dir + '/params.ckpt'
@@ -60,11 +60,11 @@ class MAMLLearner(MetaLearner):
         for epoch in range(1, num_epoch+1):
             self.qclock()
             for k in range(1000):
-                self.train(meta_batch, num_shots, test_shots)
+                self.train(meta_batch, gen_num_shots, gen_test_shots)
             train_time = self.qclock()
             print("Epoch {0}: {1:0.3f}s ...................".format(epoch, train_time))
             if epoch % eval_interval == 0:
-                v = self.evaluate(eval_samples, num_shots, test_shots)
+                v = self.evaluate(eval_samples, gen_num_shots, gen_test_shots)
                 print("    Eval: ", v)
             if epoch % save_interval == 0:
                 print("\tsave figure")

@@ -5,6 +5,7 @@ import sys
 import json
 import argparse
 import time
+from functools import partial
 import numpy as np
 import tensorflow as tf
 from tensorflow.python import debug as tf_debug
@@ -69,8 +70,8 @@ with tf.Session(config=config) as sess:
         "save_interval": args.save_interval,
         "eval_samples": 1000,
         "meta_batch": args.nr_model,
-        "num_shots": 10,
-        "test_shots": 10,
+        "num_shots": partial(np.random.randint, low=1, high=30),
+        "test_shots": partial(np.random.randint, low=1, high=2),
         "load_params": args.load_params,
     }
 

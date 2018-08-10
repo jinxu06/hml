@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 plt.style.use("ggplot")
 from .meta_learner import MetaLearner, cosort_x
 
-class NPLearner(MetaLearner):
+class MIPLearner(MetaLearner):
 
     def __init__(self, session, parallel_models, optimize_op, train_set=None, eval_set=None, variables=None, lr=0.001, device_type='gpu', tags=["test"], cdir="", rdir=""):
         super().__init__(session, parallel_models, optimize_op, train_set, eval_set, variables, lr, device_type, tags)
