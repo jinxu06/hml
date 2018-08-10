@@ -70,8 +70,8 @@ with tf.Session(config=config) as sess:
         "save_interval": args.save_interval,
         "eval_samples": 1000,
         "meta_batch": args.nr_model,
-        "num_shots": partial(np.random.randint, low=1, high=20),
-        "test_shots": partial(np.random.randint, low=1, high=10),
+        "gen_num_shots": partial(np.random.randint, low=1, high=20),
+        "gen_test_shots": partial(np.random.randint, low=1, high=10),
         "load_params": args.load_params,
     }
 
