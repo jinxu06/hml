@@ -118,7 +118,7 @@ def fc_encoder(X, y, r_dim, num_classes=1, nonlinearity=None, bn=True, kernel_in
     print("construct", name, "...")
     with tf.variable_scope(name):
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
-            size = 256
+            size = 40
             outputs = dense(inputs, size)
             outputs = nonlinearity(dense(outputs, size, nonlinearity=None) + dense(inputs, size, nonlinearity=None))
             inputs = outputs
@@ -135,7 +135,7 @@ def aggregator(r, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=True, kern
     with tf.variable_scope(name):
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
             r = method(r, axis=0, keepdims=True)
-            size = 256
+            size = 40
             r = dense(r, size)
             r = dense(r, size)
             z = dense(r, z_dim, nonlinearity=None, bn=False)
@@ -149,7 +149,7 @@ def conditional_decoder(x, z, num_classes=1, reuse=False, nonlinearity=None, bn=
     print("construct", name, "...")
     with tf.variable_scope(name, reuse=reuse):
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
-            size = 256
+            size = 40
             batch_size = tf.shape(x)[0]
             x = tf.tile(x, tf.stack([1, int_shape(z)[1]]))
             z = tf.tile(z, tf.stack([batch_size, 1]))
@@ -158,7 +158,7 @@ def conditional_decoder(x, z, num_classes=1, reuse=False, nonlinearity=None, bn=
             a = dense(xz, size, nonlinearity=None) + dense(z, size, nonlinearity=None)
             outputs = tf.nn.tanh(a) * tf.sigmoid(a)
 
-            for k in range(4):
+            for k in range(2):
                 a = dense(outputs, size, nonlinearity=None) + dense(z, size, nonlinearity=None)
                 outputs = tf.nn.tanh(a) * tf.sigmoid(a)
             outputs = dense(outputs, 1, nonlinearity=None, bn=False)

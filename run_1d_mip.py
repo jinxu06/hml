@@ -33,7 +33,7 @@ model_opt = {
     "task_type": "regression",
     "obs_shape": [1],
     "r_dim": 128,
-    "z_dim": 128,
+    "z_dim": 32,
     "alpha": 0.2,
     "inner_iters": 5,
     "eval_iters": 5,
