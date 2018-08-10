@@ -69,6 +69,60 @@ class MCMCImplicitProcess(object):
                 # if self.task_type == 'classification':
                 #     self.r = self.aggregator(r_c, self.y_c, self.z_dim, bn=False)
                 z = self.aggregator(r_c, self.z_dim, bn=False)
+
+                outputs  = self.conditional_decoder(self.X_c, z)
+                loss = self.error_func(self.y_c, outputs)
+                g = tf.gradients(loss, z, colocate_gradients_with_ops=True)
+                for i in g:
+                    print(i)
+                quit()
+
+
+
+
+                # add maml ops
+                y_hat = self.conditional_decoder(self.X_c, z)
+                vars = get_trainable_variables(['conditional_decoder'])
+                inner_iters = 1
+                eval_iters = 10
+                y_hat_test_arr = [self.conditional_decoder(self.X_t, z, params=vars.copy())]
+                for k in range(1, max(inner_iters, eval_iters)+1):
+                    loss = sum_squared_error(labels=self.y_c, predictions=y_hat)
+                    grads = tf.gradients(loss, vars, colocate_gradients_with_ops=True)
+                    vars = [v - self.alpha * g for v, g in zip(vars, grads)]
+                    y_hat = self.conditional_decoder(self.X_c, z, params=vars.copy())
+                    y_hat_test = self.conditional_decoder(self.X_t, z, params=vars.copy())
+                    y_hat_test_arr.append(y_hat_test)
+                self.eval_ops = y_hat_test_arr
+                return y_hat_test_arr[inner_iters]
+                ##
+
+                self.scope_name = get_name("maml_regressor", self.counters)
+                with tf.variable_scope(self.scope_name):
+                    outputs = self.regressor(self.X_c, counters={})
+                    vars = get_trainable_variables([self.scope_name])
+                    vars = [v for v in vars if 'BatchNorm' not in v.name]
+                    self.vars = vars
+
+                    self.outputs_sqs.append(self.regressor(self.X_t, params=vars.copy(), counters={}))
+                    for k in range(1, max(self.inner_iters, self.eval_iters)+1):
+                        loss = self.error_func(self.y_c, outputs)
+                        grads = tf.gradients(loss, vars, colocate_gradients_with_ops=True)
+                        vars = [v - self.alpha * g for v, g in zip(vars, grads)]
+                        outputs = self.regressor(self.X_c, params=vars.copy(), counters={})
+                        outputs_t = self.regressor(self.X_t, params=vars.copy(), counters={})
+                        self.outputs_sqs.append(outputs_t)
+
+                    self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
+                    self.loss_sqs = [self.error_func(self.y_t, o) for o in self.outputs_sqs]
+
+
+                self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
+                self.loss_sqs = [self.error_func(self.y_t, o) for o in self.outputs_sqs]
+
+
+
+
                 self.outputs = self.conditional_decoder(self.X_t, z, self.num_classes)
                 self.preds = self.pred_func(self.outputs)
 
