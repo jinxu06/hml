@@ -13,7 +13,7 @@ from args import argument_parser, prepare_args
 from data.load_data import load
 from models.mcmc_implicit_processes import MCMCImplicitProcess
 from learners.mip_learner import MIPLearner
-from models.neural_processes import fc_encoder, aggregator, conditional_decoder
+from models.mcmc_implicit_processes import fc_encoder, aggregator, conditional_decoder
 
 parser = argument_parser()
 args = parser.parse_args()
