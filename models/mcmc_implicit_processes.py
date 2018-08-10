@@ -70,14 +70,14 @@ class MCMCImplicitProcess(object):
             with tf.variable_scope(self.scope_name):
                 r_c = self.sample_encoder(self.X_c, self.y_c, self.r_dim, self.num_classes, bn=False)
                 z = self.aggregator(r_c, self.z_dim, bn=False)
-                outputs  = self.conditional_decoder(self.X_c, z, counters={})
-                self.outputs_sqs = [self.conditional_decoder(self.X_t, z, counters={})]
+                outputs  = self.conditional_decoder(self.X_c, z, reuse=False, counters={})
+                self.outputs_sqs = [self.conditional_decoder(self.X_t, z, reuse=True, counters={})]
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
                     loss = self.error_func(self.y_c, outputs)
                     grad_z = tf.gradients(loss, z, colocate_gradients_with_ops=True)
                     z -= self.alpha * grad_z
-                    outputs = self.conditional_decoder(self.X_c, z, counters={})
-                    outputs_t = self.conditional_decoder(self.X_t, z, counters={})
+                    outputs = self.conditional_decoder(self.X_c, z, reuse=True, counters={})
+                    outputs_t = self.conditional_decoder(self.X_t, z, reuse=True, counters={})
                     self.outputs_sqs.append(outputs_t)
                 self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
                 self.loss_sqs = [self.error_func(self.y_t, o) for o in self.outputs_sqs]
@@ -142,10 +142,10 @@ def aggregator(r, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=True, kern
 
 
 @add_arg_scope
-def conditional_decoder(x, z, num_classes=1, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+def conditional_decoder(x, z, num_classes=1, reuse=False, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
     name = get_name("conditional_decoder", counters)
     print("construct", name, "...")
-    with tf.variable_scope(name):
+    with tf.variable_scope(name, reuse=reuse):
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
             size = 256
             batch_size = tf.shape(x)[0]
