@@ -55,7 +55,10 @@ class MCMCImplicitProcess(object):
 
         self.loss = self._loss()
         print("finish loss")
-        self.grads = tf.gradients(self.loss, tf.trainable_variables(), colocate_gradients_with_ops=True)
+        vars = tf.trainable_variables()
+        for v in vars:
+            print(v)
+        self.grads = tf.gradients(self.loss, vars, colocate_gradients_with_ops=True)
 
 
     def _model(self, y_sigma=1.):
