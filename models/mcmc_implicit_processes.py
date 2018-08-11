@@ -75,12 +75,10 @@ class MCMCImplicitProcess(object):
                 z = tf.get_variable('z', shape=[1,self.z_dim], dtype=tf.float32, trainable=True, initializer=self.kernel_initializer, regularizer=self.kernel_regularizer)
                 outputs  = self.conditional_decoder(self.X_c, z, reuse=False, counters={})
                 self.outputs_sqs = [self.conditional_decoder(self.X_t, z, reuse=True, counters={})]
-                loss_func = lambda z, o, y: - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=y_sigma).log_prob(y-o)) \
-                 + tf.reduce_sum(tf.distributions.Normal(loc=0., scale=1.).log_prob(z)))
+                loss_func = lambda z, o, y, beta: - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=y_sigma).log_prob(y-o)) \
+                 + beta*tf.reduce_sum(tf.distributions.Normal(loc=0., scale=1.).log_prob(z)))
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
-                    loss = loss_func(z, outputs, self.y_c)
-                    loss = - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=y_sigma).log_prob(self.y_c-outputs)) \
-                     + tf.reduce_sum(tf.distributions.Normal(loc=0., scale=1.).log_prob(z)))
+                    loss = loss_func(z, outputs, self.y_c, 1.0)
                     grad_z = tf.gradients(loss, z, colocate_gradients_with_ops=True)[0]
                     eta = tf.distributions.Normal(loc=0., scale=2*self.alpha).sample(sample_shape=int_shape(z))
                     z -= self.alpha * grad_z + eta
@@ -88,7 +86,7 @@ class MCMCImplicitProcess(object):
                     outputs_t = self.conditional_decoder(self.X_t, z, reuse=True, counters={})
                     self.outputs_sqs.append(outputs_t)
                 self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
-                self.loss_sqs = [loss_func(z, o, self.y_t) for o in self.outputs_sqs]
+                self.loss_sqs = [loss_func(z, o, self.y_t, 0.0) for o in self.outputs_sqs]
                 self.mse_sqs = [self.error_func(self.y_t, o) for o in self.outputs_sqs]
 
     def _loss(self):
