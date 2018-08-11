@@ -49,8 +49,6 @@ for i in range(args.nr_model):
     with tf.device('/'+ args.device_type +':%d' % (i%args.nr_gpu)):
         model(models[i], **model_opt)
 
-print("finish building model")
-
 
 tags = ["test1"]
 # save_dir = "/data/ziz/jxu/neural_processes/test-{0}".format(args.dataset_name)
