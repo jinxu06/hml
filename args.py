@@ -44,7 +44,7 @@ def argument_parser():
     parser.add_argument('--eval_batch', help='eval inner batch size', default=5, type=int)
     parser.add_argument('--eval_iters', help='eval inner iterations', default=50, type=int)
     parser.add_argument('--eval_samples', help='evaluation samples', default=10000, type=int)
-    parser.add_argument('--eval_interval', help='train steps per eval', default=10, type=int)
+    parser.add_argument('--eval_interval', help='train steps per eval', default=5, type=int)
     return parser
 
 def prepare_args(args):
