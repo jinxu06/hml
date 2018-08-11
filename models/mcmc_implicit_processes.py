@@ -72,7 +72,7 @@ class MCMCImplicitProcess(object):
                 # # z = self.aggregator(r_c, self.z_dim, bn=False)
                 # self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_c, self.z_dim, bn=False)
                 # z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
-                z = tf.get_variable('z', shape=[1,self.z_dim], dtype=tf.float32, trainable=True, initializer=kernel_initializer, regularizer=kernel_regularizer)
+                z = tf.get_variable('z', shape=[1,self.z_dim], dtype=tf.float32, trainable=True, initializer=self.kernel_initializer, regularizer=self.kernel_regularizer)
                 outputs  = self.conditional_decoder(self.X_c, z, reuse=False, counters={})
                 self.outputs_sqs = [self.conditional_decoder(self.X_t, z, reuse=True, counters={})]
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
