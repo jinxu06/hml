@@ -89,6 +89,7 @@ class MCMCImplicitProcess(object):
                     self.outputs_sqs.append(outputs_t)
                 self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
                 self.loss_sqs = [loss_func(z, o, self.y_t) for o in self.outputs_sqs]
+                self.mse_sqs = [self.error_func(self.y_t, o) for o in self.outputs_sqs]
 
     def _loss(self):
         return self.loss_sqs[self.inner_iters]
@@ -114,7 +115,7 @@ class MCMCImplicitProcess(object):
         }
         if step is None:
             step = self.eval_iters
-        return [self.loss_sqs[step]], feed_dict
+        return [self.loss_sqs[step], self.mse_sqs[step]], feed_dict
 
 
 @add_arg_scope
