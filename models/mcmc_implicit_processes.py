@@ -69,7 +69,9 @@ class MCMCImplicitProcess(object):
             self.scope_name = get_name("mcmc_implicit_process", self.counters)
             with tf.variable_scope(self.scope_name):
                 r_c = self.sample_encoder(self.X_c, self.y_c, self.r_dim, self.num_classes, bn=False)
-                z = self.aggregator(r_c, self.z_dim, bn=False)
+                # z = self.aggregator(r_c, self.z_dim, bn=False)
+                self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_c, self.z_dim, bn=False)
+                z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
                 outputs  = self.conditional_decoder(self.X_c, z, reuse=False, counters={})
                 self.outputs_sqs = [self.conditional_decoder(self.X_t, z, reuse=True, counters={})]
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
@@ -118,7 +120,7 @@ def fc_encoder(X, y, r_dim, num_classes=1, nonlinearity=None, bn=True, kernel_in
     print("construct", name, "...")
     with tf.variable_scope(name):
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
-            size = 40
+            size = 256
             outputs = dense(inputs, size)
             outputs = nonlinearity(dense(outputs, size, nonlinearity=None) + dense(inputs, size, nonlinearity=None))
             inputs = outputs
@@ -135,11 +137,14 @@ def aggregator(r, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=True, kern
     with tf.variable_scope(name):
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
             r = method(r, axis=0, keepdims=True)
-            size = 40
+            size = 128
             r = dense(r, size)
             r = dense(r, size)
-            z = dense(r, z_dim, nonlinearity=None, bn=False)
-            return z
+            # z = dense(r, z_dim, nonlinearity=None, bn=False)
+            # return z
+            z_mu = dense(r, z_dim, nonlinearity=None, bn=False)
+            z_log_sigma_sq = dense(r, z_dim, nonlinearity=None, bn=False)
+            return z_mu, z_log_sigma_sq
 
 
 
@@ -149,7 +154,7 @@ def conditional_decoder(x, z, num_classes=1, reuse=False, nonlinearity=None, bn=
     print("construct", name, "...")
     with tf.variable_scope(name, reuse=reuse):
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
-            size = 40
+            size = 256
             batch_size = tf.shape(x)[0]
             x = tf.tile(x, tf.stack([1, int_shape(z)[1]]))
             z = tf.tile(z, tf.stack([batch_size, 1]))
