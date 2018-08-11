@@ -57,6 +57,8 @@ class MCMCImplicitProcess(object):
         print("finish loss")
         vars = tf.trainable_variables()
         vars = [v for v in vars if "BatchNorm" not in v.name]
+        for v in vars:
+            print(v)
         self.grads = tf.gradients(self.loss, vars, colocate_gradients_with_ops=True)
 
 
