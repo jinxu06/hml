@@ -71,7 +71,8 @@ class MCMCImplicitProcess(object):
                 # r_c = self.sample_encoder(self.X_c, self.y_c, self.r_dim, self.num_classes, bn=False)
                 # # z = self.aggregator(r_c, self.z_dim, bn=False)
                 # self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_c, self.z_dim, bn=False)
-                # z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
+                # #z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
+                # z = self.z_mu_pos
                 z = tf.get_variable('z', shape=[1,self.z_dim], dtype=tf.float32, trainable=True, initializer=self.kernel_initializer, regularizer=self.kernel_regularizer)
                 outputs  = self.conditional_decoder(self.X_c, z, reuse=False, counters={})
                 self.outputs_sqs = [self.conditional_decoder(self.X_t, z, reuse=True, counters={})]
@@ -166,7 +167,7 @@ def conditional_decoder(x, z, num_classes=1, reuse=False, nonlinearity=None, bn=
             a = dense(xz, size, nonlinearity=None) + dense(z, size, nonlinearity=None)
             outputs = tf.nn.tanh(a) * tf.sigmoid(a)
 
-            for k in range(2):
+            for k in range(4):
                 a = dense(outputs, size, nonlinearity=None) + dense(z, size, nonlinearity=None)
                 outputs = tf.nn.tanh(a) * tf.sigmoid(a)
             outputs = dense(outputs, 1, nonlinearity=None, bn=False)
