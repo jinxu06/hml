@@ -34,7 +34,7 @@ model_opt = {
     "obs_shape": [1],
     "r_dim": 128,
     "z_dim": 32,
-    "alpha": 0.2,
+    "alpha": 0.1,
     "inner_iters": 1,
     "eval_iters": 5,
     "nonlinearity": tf.nn.relu,

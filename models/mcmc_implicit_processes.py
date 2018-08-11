@@ -51,12 +51,12 @@ class MCMCImplicitProcess(object):
 
         self.is_training = tf.placeholder(tf.bool, shape=())
 
-        self._model()
+        self._model(y_sigma=.2)
         self.loss = self._loss()
         self.grads = tf.gradients(self.loss, tf.trainable_variables(), colocate_gradients_with_ops=True)
 
 
-    def _model(self):
+    def _model(self, y_sigma=1.):
         default_args = {
             "nonlinearity": self.nonlinearity,
             "bn": self.bn,
@@ -75,17 +75,20 @@ class MCMCImplicitProcess(object):
                 z = tf.get_variable('z', shape=[1,self.z_dim], dtype=tf.float32, trainable=True, initializer=self.kernel_initializer, regularizer=self.kernel_regularizer)
                 outputs  = self.conditional_decoder(self.X_c, z, reuse=False, counters={})
                 self.outputs_sqs = [self.conditional_decoder(self.X_t, z, reuse=True, counters={})]
+                loss_func = lambda z, o, y: - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=y_sigma).log_prob(y-o)) \
+                 + tf.reduce_sum(tf.distributions.Normal(loc=0., scale=1.).log_prob(z)))
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
-                    loss = - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=0.2).log_prob(self.y_c-outputs)) \
+                    loss = loss_func(z, outputs, self.y_c)
+                    loss = - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=y_sigma).log_prob(self.y_c-outputs)) \
                      + tf.reduce_sum(tf.distributions.Normal(loc=0., scale=1.).log_prob(z)))
                     grad_z = tf.gradients(loss, z, colocate_gradients_with_ops=True)[0]
-                    eta = tf.distributions.Normal(loc=0., scale=self.alpha).sample(sample_shape=int_shape(z))
-                    z -= 2*self.alpha * grad_z + eta
+                    eta = tf.distributions.Normal(loc=0., scale=2*self.alpha).sample(sample_shape=int_shape(z))
+                    z -= self.alpha * grad_z + eta
                     outputs = self.conditional_decoder(self.X_c, z, reuse=True, counters={})
                     outputs_t = self.conditional_decoder(self.X_t, z, reuse=True, counters={})
                     self.outputs_sqs.append(outputs_t)
                 self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
-                self.loss_sqs = [self.error_func(self.y_t, o) for o in self.outputs_sqs]
+                self.loss_sqs = [loss_func(z, o, self.y_t) for o in self.outputs_sqs]
 
     def _loss(self):
         return self.loss_sqs[self.inner_iters]
