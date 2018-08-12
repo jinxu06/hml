@@ -37,15 +37,15 @@ class MAMLLearner(MetaLearner):
             X_eval = np.linspace(self.eval_set.input_range[0], self.eval_set.input_range[1], num=100)[:,None]
             # step 1
             ops, feed_dict = m.predict(X_c_value, y_c_value, X_eval, step=1)
-            y_hat = self.session.run(ops, feed_dict=feed_dict)
+            y_hat = self.session.run(ops, feed_dict=feed_dict)[0]
             ax.plot(X_eval[:,0], y_hat, ":", color='gray', alpha=0.5)
             # step 3
             ops, feed_dict = m.predict(X_c_value, y_c_value, X_eval, step=3)
-            y_hat = self.session.run(ops, feed_dict=feed_dict)
+            y_hat = self.session.run(ops, feed_dict=feed_dict)[0]
             ax.plot(X_eval[:,0], y_hat, "--", color='gray', alpha=0.5)
             # step 5
             ops, feed_dict = m.predict(X_c_value, y_c_value, X_eval, step=5)
-            y_hat = self.session.run(ops, feed_dict=feed_dict)
+            y_hat = self.session.run(ops, feed_dict=feed_dict)[0]
             ax.plot(X_eval[:,0], y_hat, "-", color='gray', alpha=0.5)
 
         fig.savefig(save_name)
