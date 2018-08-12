@@ -94,7 +94,7 @@ class GradientAscentVIProcess(object):
 
 
     def _loss(self):
-        return self.loss_sqs[self.inner_iters] #+ compute_gaussian_entropy(self.z_mu_pos, self.z_log_sigma_sq_pos)
+        return self.loss_sqs[self.inner_iters] + compute_gaussian_entropy(self.z_mu_pos, self.z_log_sigma_sq_pos)
 
     def predict(self, X_c_value, y_c_value, X_t_value, step=None):
         feed_dict = {
