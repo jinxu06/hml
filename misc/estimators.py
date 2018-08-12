@@ -13,6 +13,20 @@ def compute_kernel(x, y, is_dimention_wise=False):
         return tf.exp(-tf.square(tiled_x - tiled_y))
     return tf.exp(-tf.reduce_mean(tf.square(tiled_x - tiled_y), axis=2) / tf.cast(dim, tf.float32))
 
+def estimate_kld(x, y):
+    bsize_x, d = int_shape(x)
+    bsize_y = int_shape(y)[0]
+    x_tile = tf.stack([x for i in range(bsize_y)], axis=0)
+    x_tile_1 = tf.stack([x for i in range(bsize_y)], axis=1)
+    y_tile = tf.stack([y for i in range(bsize_x)], axis=1)
+    l2_norm_xy = tf.sqrt(tf.reduce_sum(tf.pow((x_tile - y_tile), 2), axis=-1))
+    l2_norm_xx = tf.sqrt(tf.reduce_sum(tf.pow((x_tile - x_tile_1), 2), axis=-1))
+    l2_norm_xy = tf.reduce_min(l2_norm_xy, axis=0)
+    l2_norm_xx += tf.diag(tf.reduce_max(l2_norm_xx))
+    l2_norm_xx = tf.reduce_min(l2_norm_xx, axis=0)
+    kld = tf.reduce_mean(tf.log(l2_norm_xy / l2_norm_xx)) * d + tf.log(bsize_y / (bsize_x-1))
+    return kld
+
 def compute_gaussian_entropy(z_mu, z_log_sigma_sq):
     batch_size, z_dim = int_shape(z_mu)
     entropy = (tf.reduce_mean(z_log_sigma_sq, axis=1) + tf.log(2*np.pi*np.e)) * z_dim / 2.
