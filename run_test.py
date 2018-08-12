@@ -44,8 +44,8 @@ with tf.Session(config=config) as sess:
     print(sess.run(kld, feed_dict=feed_dict))
 
     feed_dict = {
-        x_ph: x,
-        y_ph: z
+        x_ph: z,
+        y_ph: x
     }
     print(sess.run(kld, feed_dict=feed_dict))
 
