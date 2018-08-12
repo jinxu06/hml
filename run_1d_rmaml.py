@@ -34,7 +34,7 @@ model_opt = {
     "num_classes": 1,
     "label_shape": [],
     "alpha": 0.1,
-    "z_dim": 128,
+    "z_dim": 256,
     "inner_iters": 1,
     "eval_iters": 5,
     "nonlinearity": tf.nn.relu,
