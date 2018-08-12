@@ -57,7 +57,7 @@ with tf.Session(config=config) as sess:
     print(sess.run(ckld, feed_dict=feed_dict))
 
     feed_dict = {
-        z_mu_ph: np.ones((d,)) * 0.3,
-        z_log_sigma_sq_ph:np.ones((d,)) * 2.*np.log(1.8),
+        z_mu_ph: np.ones((d,)) * 0.1,
+        z_log_sigma_sq_ph:np.ones((d,)) * 2.*np.log(1.1),
     }
     print(sess.run(ckld, feed_dict=feed_dict))
