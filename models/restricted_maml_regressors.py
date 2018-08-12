@@ -12,7 +12,7 @@ class RestrictedMAMLRegressor(object):
         self.counters = counters
         self.user_mode = user_mode
 
-    def construct(self, regressor, task_type, obs_shape, label_shape=[], num_classes=1, alpha=0.01, inner_iters=1, eval_iters=10, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
+    def construct(self, regressor, task_type, obs_shape, label_shape=[], num_classes=1, alpha=0.01, z_dim=32, inner_iters=1, eval_iters=10, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
 
         self.regressor = regressor
         self.task_type = task_type
@@ -28,6 +28,7 @@ class RestrictedMAMLRegressor(object):
         self.label_shape = label_shape
         self.num_classes = num_classes
         self.alpha = alpha
+        self.z_dim = z_dim 
         self.inner_iters = inner_iters
         self.eval_iters = eval_iters
         self.nonlinearity = nonlinearity
