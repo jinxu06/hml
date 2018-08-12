@@ -12,6 +12,7 @@ from args import argument_parser, prepare_args
 from data.load_data import load
 from models.restricted_maml_regressors import RestrictedMAMLRegressor, conditional_decoder
 from learners.maml_learner import MAMLLearner
+from functools import partial
 
 
 parser = argument_parser()
