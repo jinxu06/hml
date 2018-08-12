@@ -17,10 +17,11 @@ def estimate_kld(x, y):
     bsize_x, d = int_shape(x)
     bsize_y = int_shape(y)[0]
     x_tile = tf.stack([x for i in range(bsize_y)], axis=0)
-    x_tile_1 = tf.stack([x for i in range(bsize_y)], axis=1)
+    x_tile_0 = tf.stack([x for i in range(bsize_x)], axis=0)
+    x_tile_1 = tf.stack([x for i in range(bsize_x)], axis=1)
     y_tile = tf.stack([y for i in range(bsize_x)], axis=1)
     l2_norm_xy = tf.sqrt(tf.reduce_sum(tf.pow((x_tile - y_tile), 2), axis=-1))
-    l2_norm_xx = tf.sqrt(tf.reduce_sum(tf.pow((x_tile - x_tile_1), 2), axis=-1))
+    l2_norm_xx = tf.sqrt(tf.reduce_sum(tf.pow((x_tile_0 - x_tile_1), 2), axis=-1))
     l2_norm_xy = tf.reduce_min(l2_norm_xy, axis=0)
     l2_norm_xx += tf.diag(tf.reduce_max(l2_norm_xx))
     l2_norm_xx = tf.reduce_min(l2_norm_xx, axis=0)
