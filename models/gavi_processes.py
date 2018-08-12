@@ -65,6 +65,8 @@ class GradientAscentVIProcess(object):
         with arg_scope([self.sample_encoder, self.aggregator, self.conditional_decoder], **default_args):
             self.scope_name = get_name("gavi_process", self.counters)
             with tf.variable_scope(self.scope_name):
+
+                self.alpha = tf.get_variable('alpha', shape=(), dtype=tf.float32, trainable=True, initializer=tf.constant_initializer(self.alpha))
                 r_c = self.sample_encoder(self.X_c, self.y_c, self.r_dim, bn=False)
                 self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_c, self.r_dim, bn=False)
                 z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))

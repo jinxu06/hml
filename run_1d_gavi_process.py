@@ -35,7 +35,7 @@ model_opt = {
     "obs_shape": [1],
     "num_classes": 1,
     "label_shape": [],
-    "alpha": 0.1,
+    "alpha": 0.01,
     "r_dim": 256,
     "z_dim": 256,
     "inner_iters": 1,
