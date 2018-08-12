@@ -10,7 +10,7 @@ import tensorflow as tf
 from tensorflow.python import debug as tf_debug
 from args import argument_parser, prepare_args
 from data.load_data import load
-from models.gavi_processes import GradientAscentVIProcess, conditional_decoder
+from models.gavi_processes import GradientAscentVIProcess, fc_encoder, aggregator, conditional_decoder
 from learners.gavi_learner import GAVILearner
 from functools import partial
 
@@ -28,7 +28,9 @@ train_set, val_set = load(dataset_name=args.dataset_name)
 models = [GradientAscentVIProcess(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
 model_opt = {
-    "regressor": conditional_decoder,
+    "sample_encoder": fc_encoder,
+    "aggregator": aggregator,
+    "conditional_decoder": conditional_decoder,
     "task_type": "regression",
     "obs_shape": [1],
     "num_classes": 1,
