@@ -18,20 +18,18 @@ def estimate_kld(x, y):
     bsize_y = int_shape(y)[0]
     print(bsize_x, bsize_y, d)
     x_tile = tf.stack([x for i in range(bsize_y)], axis=0)
-    print(int_shape(x_tile))
     x_tile_0 = tf.stack([x for i in range(bsize_x)], axis=0)
     x_tile_1 = tf.stack([x for i in range(bsize_x)], axis=1)
     y_tile = tf.stack([y for i in range(bsize_x)], axis=1)
-    print(int_shape(x_tile_0))
-    print(int_shape(x_tile_1))
-    print(int_shape(y_tile))
     l2_norm_xy = tf.sqrt(tf.reduce_sum(tf.pow((x_tile - y_tile), 2), axis=-1))
     l2_norm_xx = tf.sqrt(tf.reduce_sum(tf.pow((x_tile_0 - x_tile_1), 2), axis=-1))
-    print(int_shape(l2_norm_xy))
-    print(int_shape(l2_norm_xx))
     l2_norm_xy = tf.reduce_min(l2_norm_xy, axis=0)
-    l2_norm_xx += tf.diag(tf.reduce_max(l2_norm_xx, axis=0))
+    print(int_shape(l2_norm_xy))
+    diag = tf.diag(tf.reduce_max(l2_norm_xx, axis=0))
+    print(int_shape(diag))
+    l2_norm_xx += diag
     l2_norm_xx = tf.reduce_min(l2_norm_xx, axis=0)
+    print(int_shape(l2_norm_xx))
     kld = tf.reduce_mean(tf.log(l2_norm_xy / l2_norm_xx)) * d + tf.log(bsize_y / (bsize_x-1))
     return kld
 
