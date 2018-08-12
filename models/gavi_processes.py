@@ -31,6 +31,7 @@ class GradientAscentVIProcess(object):
         self.label_shape = label_shape
         self.num_classes = num_classes
         self.alpha = alpha
+        self.r_dim = r_dim
         self.z_dim = z_dim
         self.inner_iters = inner_iters
         self.eval_iters = eval_iters
