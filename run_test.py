@@ -38,14 +38,14 @@ with tf.Session(config=config) as sess:
     z = np.random.normal(0.2, 1.6, size=(bsize_y, d))
 
     feed_dict = {
-        x_ph: y,
-        y_ph: x
+        x_ph: x,
+        y_ph: y
     }
     print(sess.run(kld, feed_dict=feed_dict))
 
     feed_dict = {
-        x_ph: z,
-        y_ph: x
+        x_ph: x,
+        y_ph: z
     }
     print(sess.run(kld, feed_dict=feed_dict))
 
