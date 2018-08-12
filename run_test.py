@@ -21,7 +21,7 @@ d = 32
 
 x_ph = tf.placeholder(dtype=tf.float32, shape=[bsize_x, d])
 y_ph = tf.placeholder(dtype=tf.float32, shape=[bsize_y, d])
-kld = estimate_kld(y_ph, x_ph)
+kld = estimate_kld(x_ph, y_ph)
 
 
 z_mu_ph = tf.placeholder(dtype=tf.float32, shape=[d])
