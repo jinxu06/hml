@@ -26,10 +26,7 @@ kld = estimate_kld(x_ph, y_ph)
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 with tf.Session(config=config) as sess:
-    if args.debug:
-        sess = tf_debug.LocalCLIDebugWrapperSession(sess)
-    sess.run(initializer)
-
+    # sess.run(initializer)
 
     x = np.random.normal(0.0, 1.0, size=(bsize_x, d))
     y = np.random.normal(0.0, 1.0, size=(bsize_y, d))
