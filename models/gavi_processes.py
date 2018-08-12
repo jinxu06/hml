@@ -14,20 +14,12 @@ class GradientAscentVIProcess(object):
         self.counters = counters
         self.user_mode = user_mode
 
-    def construct(self, sample_encoder, aggregator, conditional_decoder, task_type, obs_shape, label_shape=[], num_classes=1, alpha=0.01, r_dim=32, z_dim=32, inner_iters=1, eval_iters=10, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
+    def construct(self, sample_encoder, aggregator, conditional_decoder, task_type, obs_shape, label_shape=[], num_classes=1, alpha=0.01, r_dim=32, z_dim=32, inner_iters=1, eval_iters=5, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
 
         self.sample_encoder = sample_encoder
         self.aggregator = aggregator
         self.conditional_decoder = conditional_decoder
         self.task_type = task_type
-        if task_type == 'classification':
-            self.error_func = tf.losses.softmax_cross_entropy
-            self.pred_func = lambda x: tf.nn.softmax(x)
-        elif task_type == 'regression':
-            self.error_func = tf.losses.mean_squared_error
-            self.pred_func = lambda x: x
-        else:
-            raise Exception("Unknown task type")
         self.obs_shape = obs_shape
         self.label_shape = label_shape
         self.num_classes = num_classes
@@ -63,21 +55,21 @@ class GradientAscentVIProcess(object):
         }
         self.outputs_sqs = []
         with arg_scope([self.sample_encoder, self.aggregator, self.conditional_decoder], **default_args):
-            self.scope_name = get_name("gradient_ascent_vi_process", self.counters)
+            self.scope_name = get_name("gavi_process", self.counters)
             with tf.variable_scope(self.scope_name):
                 r_c = self.sample_encoder(self.X_c, self.y_c, self.r_dim, bn=False)
                 self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_c, self.r_dim, bn=False)
                 z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
+
                 outputs = self.conditional_decoder(self.X_c, z, counters={})
                 y_sigma = .2
                 loss_func = lambda z, o, y, beta: - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=y_sigma).log_prob(y-o)) \
                  + beta*tf.reduce_sum(tf.distributions.Normal(loc=0., scale=1.).log_prob(z)))
                 self.outputs_sqs.append(self.conditional_decoder(self.X_t, z, counters={}))
-                log_Js = []
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
                     loss = loss_func(z, outputs, self.y_c, 1.)
                     grad_z = tf.gradients(loss, z, colocate_gradients_with_ops=True)[0]
-                    log_Js.append(tf.log(tf.sqrt(tf.reduce_sum(grad_z ** 2))))
+                    # log_Js.append(tf.log(tf.sqrt(tf.reduce_sum(grad_z ** 2))))
                     z = z - self.alpha * grad_z
                     outputs = self.conditional_decoder(self.X_c, z, counters={})
                     outputs_t = self.conditional_decoder(self.X_t, z, counters={})
@@ -91,7 +83,7 @@ class GradientAscentVIProcess(object):
 
 
     def _loss(self):
-        return self.loss_sqs[self.inner_iters] + compute_gaussian_entropy(self.z_mu_pos, self.z_log_sigma_sq_pos)
+        return self.loss_sqs[self.inner_iters]
 
     def predict(self, X_c_value, y_c_value, X_t_value, step=None):
         feed_dict = {
@@ -146,8 +138,6 @@ def aggregator(r, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=True, kern
             size = 128
             r = dense(r, size)
             r = dense(r, size)
-            # z = dense(r, z_dim, nonlinearity=None, bn=False)
-            # return z
             z_mu = dense(r, z_dim, nonlinearity=None, bn=False)
             z_log_sigma_sq = dense(r, z_dim, nonlinearity=None, bn=False)
             return z_mu, z_log_sigma_sq
