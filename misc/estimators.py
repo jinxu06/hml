@@ -28,7 +28,7 @@ def estimate_kld(x, y):
     l2_norm_xx = tf.reduce_min(l2_norm_xx, axis=0)
     kld = tf.reduce_mean(tf.log(l2_norm_xy / l2_norm_xx)) * d + tf.log(bsize_y / (bsize_x-1))
     return kld
-    ## may not right at this moment
+    ## may not be right at this moment
 
 def compute_gaussian_entropy(z_mu, z_log_sigma_sq):
     batch_size, z_dim = int_shape(z_mu)

@@ -21,7 +21,7 @@ d = 32
 
 x_ph = tf.placeholder(dtype=tf.float32, shape=[bsize_x, d])
 y_ph = tf.placeholder(dtype=tf.float32, shape=[bsize_y, d])
-kld = estimate_kld(x_ph, y_ph)
+kld = estimate_kld(y_ph, x_ph)
 
 
 z_mu_ph = tf.placeholder(dtype=tf.float32, shape=[d])
@@ -44,8 +44,8 @@ with tf.Session(config=config) as sess:
     print(sess.run(kld, feed_dict=feed_dict))
 
     feed_dict = {
-        x_ph: z,
-        y_ph: x
+        x_ph: x,
+        y_ph: z,
     }
     print(sess.run(kld, feed_dict=feed_dict))
 
