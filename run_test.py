@@ -26,7 +26,7 @@ kld = estimate_kld(x_ph, y_ph)
 
 z_mu_ph = tf.placeholder(dtype=tf.float32, shape=[d])
 z_log_sigma_ph = tf.placeholder(dtype=tf.float32, shape=[d])
-ckld = compute_gaussian_kld(z_mu, z_log_sigma_sq)
+ckld = compute_gaussian_kld(z_mu_ph, z_log_sigma_sq_ph)
 
 compute_gaussian_kld
 
