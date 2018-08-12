@@ -15,8 +15,8 @@ from misc.estimators import estimate_kld, compute_gaussian_kld
 # initializer = tf.global_variables_initializer()
 # saver = tf.train.Saver()
 
-bsize_x = 1000
-bsize_y = 1000
+bsize_x = 2000
+bsize_y = 2000
 d = 32
 
 x_ph = tf.placeholder(dtype=tf.float32, shape=[bsize_x, d])
@@ -37,7 +37,7 @@ with tf.Session(config=config) as sess:
 
     x = np.random.normal(0.0, 1.0, size=(bsize_x, d))
     y = np.random.normal(0.0, 1.0, size=(bsize_y, d))
-    z = np.random.normal(0.5, 2.0, size=(bsize_y, d))
+    z = np.random.normal(0.2, 1.6, size=(bsize_y, d))
 
     feed_dict = {
         x_ph: x,
