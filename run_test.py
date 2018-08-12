@@ -28,8 +28,6 @@ z_mu_ph = tf.placeholder(dtype=tf.float32, shape=[d])
 z_log_sigma_sq_ph = tf.placeholder(dtype=tf.float32, shape=[d])
 ckld = compute_gaussian_kld(z_mu_ph, z_log_sigma_sq_ph)
 
-compute_gaussian_kld
-
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 with tf.Session(config=config) as sess:
@@ -40,14 +38,14 @@ with tf.Session(config=config) as sess:
     z = np.random.normal(0.2, 1.6, size=(bsize_y, d))
 
     feed_dict = {
-        x_ph: x,
-        y_ph: y
+        x_ph: y,
+        y_ph: x
     }
     print(sess.run(kld, feed_dict=feed_dict))
 
     feed_dict = {
-        x_ph: x,
-        y_ph: z
+        x_ph: z,
+        y_ph: x
     }
     print(sess.run(kld, feed_dict=feed_dict))
 
