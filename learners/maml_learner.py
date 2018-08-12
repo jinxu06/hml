@@ -38,11 +38,11 @@ class MAMLLearner(MetaLearner):
             # step 1
             y_hat = m.predict(self.session, X_c_value, y_c_value, X_eval, step=1)
             ax.plot(X_eval[:,0], y_hat, ":", color='gray', alpha=0.5)
+            # step 3
+            y_hat = m.predict(self.session, X_c_value, y_c_value, X_eval, step=3)
+            ax.plot(X_eval[:,0], y_hat, "--", color='gray', alpha=0.5)
             # step 5
             y_hat = m.predict(self.session, X_c_value, y_c_value, X_eval, step=5)
-            ax.plot(X_eval[:,0], y_hat, "--", color='gray', alpha=0.5)
-            # step 10
-            y_hat = m.predict(self.session, X_c_value, y_c_value, X_eval, step=10)
             ax.plot(X_eval[:,0], y_hat, "-", color='gray', alpha=0.5)
 
         fig.savefig(save_name)
@@ -55,7 +55,7 @@ class MAMLLearner(MetaLearner):
             ckpt_file = self.checkpoint_dir + '/params.ckpt'
             print('restoring parameters from', ckpt_file)
             saver.restore(self.session, ckpt_file)
-        #self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, 0)))
+        self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, 0)))
 
         for epoch in range(1, num_epoch+1):
             self.qclock()
@@ -68,7 +68,7 @@ class MAMLLearner(MetaLearner):
                 print("    Eval: ", v)
             if epoch % save_interval == 0:
                 print("\tsave figure")
-                #self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, epoch)))
+                self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, epoch)))
                 print("\tsave checkpoint")
                 saver.save(self.session, self.checkpoint_dir + '/params.ckpt')
             sys.stdout.flush()
