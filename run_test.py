@@ -23,6 +23,13 @@ x_ph = tf.placeholder(dtype=tf.float32, shape=[bsize_x, d])
 y_ph = tf.placeholder(dtype=tf.float32, shape=[bsize_y, d])
 kld = estimate_kld(x_ph, y_ph)
 
+
+z_mu_ph = tf.placeholder(dtype=tf.float32, shape=[d])
+z_log_sigma_ph = tf.placeholder(dtype=tf.float32, shape=[d])
+ckld = compute_gaussian_kld(z_mu, z_log_sigma_sq)
+
+compute_gaussian_kld
+
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 with tf.Session(config=config) as sess:
@@ -43,3 +50,16 @@ with tf.Session(config=config) as sess:
         y_ph: z
     }
     print(sess.run(kld, feed_dict=feed_dict))
+
+
+    feed_dict = {
+        z_mu_ph: np.zeros((d,)),
+        z_log_sigma_ph:np.zeros((d,)),
+    }
+    print(sess.run(ckld, feed_dict=feed_dict))
+
+    feed_dict = {
+        z_mu_ph: np.ones((d,)) * 0.5,
+        z_log_sigma_ph:np.ones((d,)) * np.log(2.0),
+    }
+    print(sess.run(ckld, feed_dict=feed_dict))
