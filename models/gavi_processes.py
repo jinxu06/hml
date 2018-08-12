@@ -61,7 +61,7 @@ class GradientAscentVIProcess(object):
             "num_classes": self.num_classes,
         }
         self.outputs_sqs = []
-        with arg_scope([self.conditional_decoder], **default_args):
+        with arg_scope([self.sample_encoder, self.aggregator, self.conditional_decoder], **default_args):
             self.scope_name = get_name("gradient_ascent_vi_process", self.counters)
             with tf.variable_scope(self.scope_name):
                 r_c = self.sample_encoder(self.X_c, self.y_c, self.r_dim, self.num_classes, bn=False)
