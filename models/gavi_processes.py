@@ -13,7 +13,7 @@ class GradientAscentVIProcess(object):
         self.counters = counters
         self.user_mode = user_mode
 
-    def construct(self, sample_encoder, aggregator, conditional_decoder, task_type, obs_shape, label_shape=[], num_classes=1, alpha=0.01, z_dim=32, inner_iters=1, eval_iters=10, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
+    def construct(self, sample_encoder, aggregator, conditional_decoder, task_type, obs_shape, label_shape=[], num_classes=1, alpha=0.01, r_dim=32, z_dim=32, inner_iters=1, eval_iters=10, nonlinearity=tf.nn.relu, bn=False, kernel_initializer=None, kernel_regularizer=None):
 
         self.sample_encoder = sample_encoder
         self.aggregator = aggregator
