@@ -16,7 +16,7 @@ from misc.estimators import estimate_kld, compute_gaussian_kld
 # saver = tf.train.Saver()
 
 bsize_x = 2000
-bsize_y = 2000
+bsize_y = 1000
 d = 32
 
 x_ph = tf.placeholder(dtype=tf.float32, shape=[bsize_x, d])
