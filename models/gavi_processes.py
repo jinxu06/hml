@@ -58,14 +58,14 @@ class GradientAscentVIProcess(object):
             "kernel_regularizer": self.kernel_regularizer,
             "is_training": self.is_training,
             "counters": {}, #self.counters,
-            "num_classes": self.num_classes,
+            #"num_classes": self.num_classes,
         }
         self.outputs_sqs = []
         with arg_scope([self.sample_encoder, self.aggregator, self.conditional_decoder], **default_args):
             self.scope_name = get_name("gradient_ascent_vi_process", self.counters)
             with tf.variable_scope(self.scope_name):
                 r_c = self.sample_encoder(self.X_c, self.y_c, self.r_dim, bn=False)
-                self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_c, self.z_dim, bn=False)
+                self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_c, self.r_dim, bn=False)
                 z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
                 outputs = self.conditional_decoder(self.X_c, z, counters={})
                 y_sigma = .2
