@@ -5,6 +5,7 @@ from tensorflow.contrib.framework.python.ops import arg_scope, add_arg_scope
 from misc.layers import conv2d, deconv2d, dense
 from misc.helpers import int_shape, get_name, get_trainable_variables
 from misc.metrics import accuracy
+from misc.estimators import compute_gaussian_entropy
 
 class GradientAscentVIProcess(object):
 
@@ -60,27 +61,33 @@ class GradientAscentVIProcess(object):
         with arg_scope([self.regressor], **default_args):
             self.scope_name = get_name("gradient_ascent_vi_process", self.counters)
             with tf.variable_scope(self.scope_name):
-                z = tf.get_variable('z', shape=[1,self.z_dim], dtype=tf.float32, trainable=True, initializer=self.kernel_initializer, regularizer=self.kernel_regularizer)
+                r_c = self.sample_encoder(self.X_c, self.y_c, self.r_dim, self.num_classes, bn=False)
+                self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_c, self.z_dim, bn=False)
+                z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
                 outputs = self.regressor(self.X_c, z, counters={})
-
+                y_sigma = .2
+                loss_func = lambda z, o, y, beta: - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=y_sigma).log_prob(y-o)) \
+                 + beta*tf.reduce_sum(tf.distributions.Normal(loc=0., scale=1.).log_prob(z)))
                 self.outputs_sqs.append(self.regressor(self.X_t, z, counters={}))
+                log_Js = []
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
-                    loss = self.error_func(self.y_c, outputs)
+                    loss = loss_func(z, outputs, self.y_c, 1.)
                     grad_z = tf.gradients(loss, z, colocate_gradients_with_ops=True)[0]
+                    log_Js.append(tf.log(tf.sqrt(tf.reduce_sum(grad_z ** 2))))
                     z = z - self.alpha * grad_z
                     outputs = self.regressor(self.X_c, z, counters={})
                     outputs_t = self.regressor(self.X_t, z, counters={})
                     self.outputs_sqs.append(outputs_t)
 
                 self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
-                self.loss_sqs = [self.error_func(self.y_t, o) for o in self.outputs_sqs]
+                self.loss_sqs = [loss_func(z, o, self.y_t, 1.0) for o in self.outputs_sqs]
                 if self.task_type == 'classification':
                     self.acc_sqs = [accuracy(self.y_t, y_hat) for y_hat in self.y_hat_sqs]
 
 
 
     def _loss(self):
-        return self.loss_sqs[self.inner_iters]
+        return self.loss_sqs[self.inner_iters] + compute_gaussian_entropy(self.z_mu_pos, self.z_log_sigma_sq_pos)
 
     def predict(self, X_c_value, y_c_value, X_t_value, step=None):
         feed_dict = {
