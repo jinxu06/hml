@@ -11,7 +11,7 @@ from tensorflow.python import debug as tf_debug
 from args import argument_parser, prepare_args
 from data.load_data import load
 from models.gavi_processes import GradientAscentVIProcess, conditional_decoder
-from learners.maml_learner import MAMLLearner
+from learners.gavi_learner import GAVILearner
 from functools import partial
 
 
@@ -52,7 +52,7 @@ for i in range(args.nr_model):
 
 #tags = ["test", 'small-period']
 tags = ["test"]
-learner = MAMLLearner(session=None, parallel_models=models, optimize_op=None, train_set=train_set, eval_set=val_set, variables=tf.trainable_variables(), lr=args.learning_rate, device_type=args.device_type, tags=tags, cdir=checkpoint_dir, rdir=result_dir)
+learner = GAVILearner(session=None, parallel_models=models, optimize_op=None, train_set=train_set, eval_set=val_set, variables=tf.trainable_variables(), lr=args.learning_rate, device_type=args.device_type, tags=tags, cdir=checkpoint_dir, rdir=result_dir)
 
 initializer = tf.global_variables_initializer()
 saver = tf.train.Saver()
