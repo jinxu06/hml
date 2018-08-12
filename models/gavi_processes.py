@@ -20,6 +20,14 @@ class GradientAscentVIProcess(object):
         self.aggregator = aggregator
         self.conditional_decoder = conditional_decoder
         self.task_type = task_type
+        if task_type == 'classification':
+            self.error_func = tf.losses.softmax_cross_entropy
+            self.pred_func = lambda x: tf.nn.softmax(x)
+        elif task_type == 'regression':
+            self.error_func = tf.losses.mean_squared_error
+            self.pred_func = lambda x: x
+        else:
+            raise Exception("Unknown task type")
         self.obs_shape = obs_shape
         self.label_shape = label_shape
         self.num_classes = num_classes
