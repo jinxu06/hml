@@ -6,6 +6,7 @@ from misc.layers import conv2d, deconv2d, dense
 from misc.helpers import int_shape, get_name, get_trainable_variables
 from misc.metrics import accuracy
 from misc.estimators import compute_gaussian_entropy
+from misc.samples import gaussian_sampler
 
 class GradientAscentVIProcess(object):
 
