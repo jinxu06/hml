@@ -47,8 +47,7 @@ class NeuralProcess(object):
         self.y_t = tf.placeholder(tf.float32, shape=tuple([None,]+label_shape))
 
         self.is_training = tf.placeholder(tf.bool, shape=())
-        self.use_z_ph = tf.cast(tf.placeholder_with_default(False, shape=()), dtype=tf.float32)
-        self.z_ph = tf.placeholder_with_default(np.zeros((1, self.z_dim), dtype=np.float32), shape=(1, self.z_dim))
+        self.use_z_pr = tf.cast(tf.placeholder_with_default(False, shape=()), dtype=tf.float32)
 
         self._model()
         self.loss = self._loss(beta=1.0, y_sigma=0.2)
@@ -86,13 +85,14 @@ class NeuralProcess(object):
                     else:
                         self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_ct, num_c, self.z_dim)
                     if self.user_mode == 'train':
-                        z = self.z_mu_pr ##
-                        #z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
+                        # z = self.z_mu_pr ##
+                        z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
+                        z_pr = gaussian_sampler(self.z_mu_pr, tf.exp(0.5*self.z_log_sigma_sq_pr))
                     elif self.user_mode == 'eval':
                         z = self.z_mu_pos
                     else:
                         raise Exception("unknown user_mode")
-                    z = (1-self.use_z_ph) * z + self.use_z_ph * self.z_ph
+                    z = (1-self.use_z_pr) * z + self.use_z_pr * z_pr
                     self.outputs = self.conditional_decoder(self.X_t, z, self.num_classes)
 
     def _loss(self, beta=1., y_sigma=1./np.sqrt(2)):
@@ -106,10 +106,13 @@ class NeuralProcess(object):
             self.X_c: X_c_value,
             self.y_c: y_c_value,
             self.X_t: X_t_value,
+            self.y_t: np.zeros((X_t_value.shape[0],)),
             self.is_training: False,
+            self.use_z_pr: True,
         }
         preds = self.pred_func(self.outputs)
         return [preds], feed_dict
+
 
     def evaluate_metrics(self, X_c_value, y_c_value, X_t_value, y_t_value):
         feed_dict = {

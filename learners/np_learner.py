@@ -106,7 +106,8 @@ class NPLearner(MetaLearner):
 
             for k in range(20):
                 X_eval = np.linspace(self.eval_set.input_range[0], self.eval_set.input_range[1], num=100)[:,None]
-                y_hat = m.predict(self.session, X_c_value, y_c_value, X_eval)
+                ops, feed_dict = m.predict(X_c_value, y_c_value, X_eval, step=None)
+                y_hat = self.session.run(ops, feed_dict=feed_dict)[0]
                 ax.plot(X_eval[:,0], y_hat, "-", color='gray', alpha=0.5)
 
         fig.savefig(save_name)
@@ -119,7 +120,7 @@ class NPLearner(MetaLearner):
             ckpt_file = self.checkpoint_dir + '/params.ckpt'
             print('restoring parameters from', ckpt_file)
             saver.restore(self.session, ckpt_file)
-        # self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, 0)))
+        self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, 0)))
 
         for epoch in range(1, num_epoch+1):
             self.qclock()
@@ -134,7 +135,7 @@ class NPLearner(MetaLearner):
 
             if epoch % save_interval == 0:
                 print("\tsave figure")
-                # self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, epoch)))
+                self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, epoch)))
                 print("\tsave checkpoint")
                 saver.save(self.session, self.checkpoint_dir + '/params.ckpt')
             sys.stdout.flush()
