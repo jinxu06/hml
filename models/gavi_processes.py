@@ -85,8 +85,11 @@ class GradientAscentVIProcess(object):
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
                     loss = loss_func(z, outputs, self.y_c, 1.)
                     grad_z = tf.gradients(loss, z, colocate_gradients_with_ops=True)[0]
-                    # log_Js.append(tf.log(tf.sqrt(tf.reduce_sum(grad_z ** 2))))
-                    z = z - self.alpha * grad_z
+                    #
+                    eta = tf.distributions.Normal(loc=0., scale=2*self.alpha).sample(sample_shape=int_shape(z))
+                    z -= self.alpha * grad_z + eta
+                    #
+                    # z = z - self.alpha * grad_z
                     outputs = self.conditional_decoder(self.X_c, z, counters={})
                     outputs_t = self.conditional_decoder(self.X_t, z, counters={})
                     self.outputs_sqs.append(outputs_t)
@@ -111,7 +114,7 @@ class GradientAscentVIProcess(object):
             self.X_t: X_t_value,
             self.y_t: np.zeros((X_t_value.shape[0],)),
             self.is_training: False,
-            self.use_z_pr: True, 
+            self.use_z_pr: True,
         }
         if step is None:
             step = self.eval_iters
