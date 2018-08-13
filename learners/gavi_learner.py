@@ -106,7 +106,7 @@ class GAVILearner(MetaLearner):
 
             for k in range(20):
                 X_eval = np.linspace(self.eval_set.input_range[0], self.eval_set.input_range[1], num=100)[:,None]
-                ops, feed_dict = m.predict(X_c_value, y_c_value, X_eval, step=5)
+                ops, feed_dict = m.predict(X_c_value, y_c_value, X_eval, step=None)
                 y_hat = self.session.run(ops, feed_dict=feed_dict)[0]
                 ax.plot(X_eval[:,0], y_hat, "-", color='gray', alpha=0.5)
 
