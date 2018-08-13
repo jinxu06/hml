@@ -35,7 +35,7 @@ with tf.Session(config=config) as sess:
 
     x = np.random.normal(0.0, 1.0, size=(bsize_x, d))
     y = np.random.normal(0.0, 1.0, size=(bsize_y, d))
-    z = np.random.normal(0.1, 1.1, size=(bsize_y, d))
+    z = np.random.normal(0.5, 1.5, size=(bsize_y, d))
 
     feed_dict = {
         x_ph: x,
@@ -57,7 +57,7 @@ with tf.Session(config=config) as sess:
     print(sess.run(ckld, feed_dict=feed_dict))
 
     feed_dict = {
-        z_mu_ph: np.ones((d,)) * 0.1,
-        z_log_sigma_sq_ph:np.ones((d,)) * 2.*np.log(1.1),
+        z_mu_ph: np.ones((d,)) * 0.5,
+        z_log_sigma_sq_ph:np.ones((d,)) * 2.*np.log(1.5),
     }
     print(sess.run(ckld, feed_dict=feed_dict))
