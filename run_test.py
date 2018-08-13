@@ -15,9 +15,9 @@ from misc.estimators import estimate_kld, compute_gaussian_kld
 # initializer = tf.global_variables_initializer()
 # saver = tf.train.Saver()
 
-bsize_x = 1000
-bsize_y = 1000
-d = 16
+bsize_x = 5000
+bsize_y = 5000
+d = 1
 
 x_ph = tf.placeholder(dtype=tf.float32, shape=[bsize_x, d])
 y_ph = tf.placeholder(dtype=tf.float32, shape=[bsize_y, d])
