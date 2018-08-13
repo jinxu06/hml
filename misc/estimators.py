@@ -26,7 +26,7 @@ def estimate_kld(x, y):
     diag = tf.diag(tf.reduce_max(l2_norm_xx, axis=0))
     l2_norm_xx += diag
     l2_norm_xx = tf.reduce_min(l2_norm_xx, axis=0)
-    kld = tf.reduce_mean(tf.log(l2_norm_xx / l2_norm_xy)) * d + tf.log(bsize_y / (bsize_x-1))
+    kld = tf.reduce_mean(tf.log(l2_norm_xy / l2_norm_xx)) * d + tf.log(bsize_y / (bsize_x-1))
     return kld
     ## may not be right at this moment
 
