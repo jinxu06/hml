@@ -5,7 +5,7 @@ from tensorflow.contrib.framework.python.ops import arg_scope, add_arg_scope
 from misc.layers import conv2d, deconv2d, dense
 from misc.helpers import int_shape, get_name, get_trainable_variables
 from misc.metrics import accuracy
-from misc.estimators import compute_gaussian_entropy
+from misc.estimators import compute_gaussian_entropy, estimate_kld, estimate_mmd, compute_2gaussian_kld
 from misc.samplers import gaussian_sampler
 
 class GradientAscentVIProcess(object):
@@ -46,6 +46,7 @@ class GradientAscentVIProcess(object):
         self.X_t = tf.placeholder(tf.float32, shape=tuple([None,]+obs_shape))
         self.y_t = tf.placeholder(tf.float32, shape=tuple([None,]+label_shape))
         self.is_training = tf.placeholder(tf.bool, shape=())
+        self.use_z_pr = tf.cast(tf.placeholder_with_default(False, shape=()), dtype=tf.float32)
 
         self._model()
         self.loss = self._loss()
@@ -73,6 +74,8 @@ class GradientAscentVIProcess(object):
                 self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_ct, num_c, self.z_dim, bn=False)
                 # self.alpha = tf.get_variable('alpha', shape=(), dtype=tf.float32, trainable=True, initializer=tf.constant_initializer(self.alpha))
                 z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
+                z_pr = gaussian_sampler(self.z_mu_pr, tf.exp(0.5*self.z_log_sigma_sq_pr))
+                z = (1-self.use_z_pr) * z + self.use_z_pr * z_pr
 
                 outputs = self.conditional_decoder(self.X_c, z, counters={})
                 y_sigma = .2
@@ -96,15 +99,19 @@ class GradientAscentVIProcess(object):
 
 
 
-    def _loss(self):
-        return self.loss_sqs[self.inner_iters]
+    def _loss(self, beta=1.0):
+        self.nll = self.loss_sqs[self.inner_iters]
+        self.reg = compute_2gaussian_kld(self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos)
+        return self.nll + beta * self.reg
 
     def predict(self, X_c_value, y_c_value, X_t_value, step=None):
         feed_dict = {
             self.X_c: X_c_value,
             self.y_c: y_c_value,
             self.X_t: X_t_value,
+            self.y_t: np.zeros((X_t_value.shape[0],)),
             self.is_training: False,
+            self.use_z_pr: True, 
         }
         if step is None:
             step = self.eval_iters
