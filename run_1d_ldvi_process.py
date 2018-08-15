@@ -3,6 +3,7 @@ matplotlib.use('Agg')
 import os
 import sys
 import json
+from __future__ import print_function
 import argparse
 import time
 import numpy as np

@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import tensorflow as tf
+from __future__ import print_function
 from tensorflow.contrib.framework.python.ops import arg_scope, add_arg_scope
 from misc.layers import conv2d, deconv2d, dense
 from misc.helpers import int_shape, get_name, get_trainable_variables
@@ -88,7 +89,7 @@ class GradientAscentVIProcess(object):
                     # langevin dynamics
                     eta = tf.distributions.Normal(loc=0., scale=2*self.alpha).sample(sample_shape=int_shape(z))
                     z -= self.alpha * grad_z + eta
-                    # gradient descent 
+                    # gradient descent
                     # z = z - self.alpha * grad_z
                     outputs = self.conditional_decoder(self.X_c, z, counters={})
                     outputs_t = self.conditional_decoder(self.X_t, z, counters={})
