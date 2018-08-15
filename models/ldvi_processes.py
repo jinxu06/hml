@@ -94,7 +94,7 @@ class LangevinDynamicsVIProcess(object):
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
                     #
                     l_c = self.conditional_decoder(self.X_c, z_pos, counters={})
-                    grad_z_c = tf.gradients(l, z_pos, colocate_gradients_with_ops=True)[0]
+                    grad_z_c = tf.gradients(l_c, z_pos, colocate_gradients_with_ops=True)[0]
                     # data-dependent prior
                     loss_pr = loss_func(z_pr, outputs_pr, self.y_c, 1.)
                     grad_z_pr = tf.gradients(loss_pr, z_pr, colocate_gradients_with_ops=True)[0]
