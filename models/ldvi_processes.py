@@ -111,7 +111,7 @@ class LangevinDynamicsVIProcess(object):
                     outputs_pos = self.conditional_decoder(X_ct, z_pos, counters={})
 
                     z_log_sigma_sq_noise = 2*tf.log(2*self.alpha) * tf.ones_like(grad_z_pos)
-                    self.cond_kls.append(compute_2gaussian_kld(grad_z_c, z_log_sigma_sq_noise, grad_z_pos, z_log_sigma_sq_noise))
+                    self.cond_kls.append(compute_2gaussian_kld(self.alpha*grad_z_c, z_log_sigma_sq_noise, self.alpha*grad_z_pos, z_log_sigma_sq_noise))
 
                     z = (1-self.use_z_pr) * z_pos + self.use_z_pr * z_pr
                     self.outputs_sqs.append(self.conditional_decoder(self.X_t, z, counters={}))
