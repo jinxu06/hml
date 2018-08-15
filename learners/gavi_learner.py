@@ -102,7 +102,8 @@ class GAVILearner(MetaLearner):
             y_value = np.concatenate([y_c_value, y_t_value], axis=0)
             m = self.parallel_models[0]
             X_gt, y_gt = sampler.get_all_samples()
-            ax.plot(*cosort_x(X_gt[:,0], y_gt), "-")
+            x_sort, y_sort = cosort_x(X_gt[:,0], y_gt)
+            ax.plot(x_sort, y_sort, "-")
             ax.scatter(X_c_value[:,0], y_c_value)
 
             for k in range(20):
