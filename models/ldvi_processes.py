@@ -8,7 +8,7 @@ from misc.metrics import accuracy
 from misc.estimators import compute_gaussian_entropy, estimate_kld, estimate_mmd, compute_2gaussian_kld
 from misc.samplers import gaussian_sampler
 
-class GradientAscentVIProcess(object):
+class LangevinDynamicsVIProcess(object):
 
     def __init__(self, counters={}, user_mode='train'):
         self.counters = counters
@@ -63,49 +63,73 @@ class GradientAscentVIProcess(object):
             #"num_classes": self.num_classes,
         }
         self.outputs_sqs = []
+        self.z_samples_pr = []
+        self.z_samples_pos = []
+        self.cond_kls = []
         with arg_scope([self.sample_encoder, self.aggregator, self.conditional_decoder], **default_args):
             self.scope_name = get_name("gavi_process", self.counters)
             with tf.variable_scope(self.scope_name):
-
+                # log p(x, z)
+                y_sigma = .2
+                loss_func = lambda z, o, y, beta: - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=y_sigma).log_prob(y-o)) \
+                 + beta * tf.reduce_sum(tf.distributions.Normal(loc=0., scale=1.).log_prob(z)))
+                #
                 num_c = tf.shape(self.X_c)[0]
                 X_ct = tf.concat([self.X_c, self.X_t], axis=0)
                 y_ct = tf.concat([self.y_c, self.y_t], axis=0)
                 r_ct = self.sample_encoder(X_ct, y_ct, self.r_dim, bn=False)
                 self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos = self.aggregator(r_ct, num_c, self.z_dim, bn=False)
                 # self.alpha = tf.get_variable('alpha', shape=(), dtype=tf.float32, trainable=True, initializer=tf.constant_initializer(self.alpha))
-                z = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
                 z_pr = gaussian_sampler(self.z_mu_pr, tf.exp(0.5*self.z_log_sigma_sq_pr))
-                z = (1-self.use_z_pr) * z + self.use_z_pr * z_pr
+                z_pos = gaussian_sampler(self.z_mu_pos, tf.exp(0.5*self.z_log_sigma_sq_pos))
+                self.z_samples_pr.append(z_pr)
+                self.z_samples_pos.append(z_pos)
+                # z = (1-self.use_z_pr) * z + self.use_z_pr * z_pr
 
-                outputs = self.conditional_decoder(self.X_c, z, counters={})
-                y_sigma = .2
-                loss_func = lambda z, o, y, beta: - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=y_sigma).log_prob(y-o)) \
-                 + beta * tf.reduce_sum(tf.distributions.Normal(loc=0., scale=1.).log_prob(z)))
+                outputs_pr = self.conditional_decoder(self.X_c, z_pr, counters={})
+                outputs_pos = self.conditional_decoder(X_ct, z_pos, counters={})
+
+                z = (1-self.use_z_pr) * z_pos + self.use_z_pr * z_pr
                 self.outputs_sqs.append(self.conditional_decoder(self.X_t, z, counters={}))
                 for k in range(1, max(self.inner_iters, self.eval_iters)+1):
-                    loss = loss_func(z, outputs, self.y_c, 1.)
-                    grad_z = tf.gradients(loss, z, colocate_gradients_with_ops=True)[0]
-                    # langevin dynamics
+                    #
+                    l_c = self.conditional_decoder(self.X_c, z_pos, counters={})
+                    grad_z_c = tf.gradients(l, z_pos, colocate_gradients_with_ops=True)[0]
+                    # data-dependent prior
+                    loss_pr = loss_func(z_pr, outputs_pr, self.y_c, 1.)
+                    grad_z_pr = tf.gradients(loss_pr, z_pr, colocate_gradients_with_ops=True)[0]
                     eta = tf.distributions.Normal(loc=0., scale=2*self.alpha).sample(sample_shape=int_shape(z))
-                    z -= self.alpha * grad_z + eta
-                    # gradient descent 
-                    # z = z - self.alpha * grad_z
-                    outputs = self.conditional_decoder(self.X_c, z, counters={})
-                    outputs_t = self.conditional_decoder(self.X_t, z, counters={})
-                    self.outputs_sqs.append(outputs_t)
+                    z_pr -= self.alpha * grad_z_pr + eta
+                    self.z_samples_pr.append(z_pr)
+                    outputs_pr = self.conditional_decoder(self.X_c, z_pr, counters={})
+                    # posterior
+                    loss_pos = loss_func(z_pos, outputs_pos, y_ct, 1.)
+                    grad_z_pos = tf.gradients(loss_pos, z_pos, colocate_gradients_with_ops=True)[0]
+                    eta = tf.distributions.Normal(loc=0., scale=2*self.alpha).sample(sample_shape=int_shape(z))
+                    z_pos -= self.alpha * grad_z_pos + eta
+                    self.z_samples_pos.append(z_pos)
+                    outputs_pos = self.conditional_decoder(X_ct, z_pos, counters={})
+
+                    z_log_sigma_sq_noise = 2*tf.log(2*self.alpha) * tf.ones_like(grad_z_pos)
+                    self.cond_kls.append(compute_2gaussian_kld(grad_z_pos, z_log_sigma_sq_noise, grad_z_c, z_log_sigma_sq_noise))
+
+                    z = (1-self.use_z_pr) * z_pos + self.use_z_pr * z_pr
+                    self.outputs_sqs.append(self.conditional_decoder(self.X_t, z, counters={}))
 
                 self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
                 self.loss_sqs = [loss_func(z, o, self.y_t, 1.0) for o in self.outputs_sqs]
                 self.mse_sqs = [self.error_func(self.y_t, o) for o in self.outputs_sqs]
-                if self.task_type == 'classification':
-                    self.acc_sqs = [accuracy(self.y_t, y_hat) for y_hat in self.y_hat_sqs]
-
+                # if self.task_type == 'classification':
+                #     self.acc_sqs = [accuracy(self.y_t, y_hat) for y_hat in self.y_hat_sqs]
 
 
     def _loss(self, beta=1.0):
+        self.regs = []
         self.nll = self.loss_sqs[self.inner_iters]
-        self.reg = compute_2gaussian_kld(self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos)
-        return self.nll + beta * self.reg
+        self.regs.append(compute_2gaussian_kld(self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos))
+        for _ in range(self.inner_iters):
+            self.regs.append(compute_2gaussian_kld(self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos))
+        return self.nll + beta * tf.add_n(self.regs)
 
     def predict(self, X_c_value, y_c_value, X_t_value, step=None):
         feed_dict = {
