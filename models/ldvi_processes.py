@@ -125,9 +125,8 @@ class LangevinDynamicsVIProcess(object):
 
     def _loss(self, beta=1.0):
         self.nll = self.loss_sqs[self.inner_iters]
-        self.regs = [compute_2gaussian_kld(self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos)]
-        self.regs += self.cond_kls[:self.inner_iters]
-        return self.nll + beta * tf.add_n(self.regs)
+        self.reg = compute_2gaussian_kld(self.z_mu_pr, self.z_log_sigma_sq_pr, self.z_mu_pos, self.z_log_sigma_sq_pos)
+        return self.nll + beta * self.reg + 0.1 * tf.add_n(self.cond_kls[:self.inner_iters])
 
     def predict(self, X_c_value, y_c_value, X_t_value, step=None):
         feed_dict = {
