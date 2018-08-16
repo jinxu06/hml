@@ -139,8 +139,8 @@ class GAVILearner(MetaLearner):
             if epoch % save_interval == 0:
                 print("\tsave figure")
                 self.visualise_1d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, epoch)))
-                print("\tsave checkpoint")
-                saver.save(self.session, self.checkpoint_dir + '/params.ckpt')
+                # print("\tsave checkpoint")
+                # saver.save(self.session, self.checkpoint_dir + '/params.ckpt')
             sys.stdout.flush()
 
     def run_eval(self, num_func, num_shots, test_shots):
