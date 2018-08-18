@@ -7,9 +7,9 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 plt.style.use("ggplot")
 from .meta_learner import MetaLearner, cosort_x
-from np_learner import NPLearner
-from maml_learner import MAMLLearner
-from gavi_learner import gavi_learner
+from .np_learner import NPLearner
+from .maml_learner import MAMLLearner
+from .gavi_learner import gavi_learner
 
 class NP2DRegressionLearner(NPLearner):
 
