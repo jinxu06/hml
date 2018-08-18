@@ -12,7 +12,7 @@ from tensorflow.python import debug as tf_debug
 from args import argument_parser, prepare_args
 from data.load_data import load
 from models.neural_processes import NeuralProcess
-from learners.np_learner import NPLearner
+from learners.task_learners import NP2DRegressionLearner
 from models.neural_processes import fc_encoder, aggregator, conditional_decoder
 
 parser = argument_parser()
@@ -49,7 +49,7 @@ for i in range(args.nr_model):
 
 tags = ["2d", "face", "regression", "sigma001"]
 # save_dir = "/data/ziz/jxu/neural_processes/test-{0}".format(args.dataset_name)
-learner = NPLearner(session=None, parallel_models=models, optimize_op=None, train_set=train_set, eval_set=val_set, variables=tf.trainable_variables(), lr=args.learning_rate, device_type=args.device_type, tags=tags, cdir=checkpoint_dir, rdir=result_dir)
+learner = NP2DRegressionLearner(session=None, parallel_models=models, optimize_op=None, train_set=train_set, eval_set=val_set, variables=tf.trainable_variables(), lr=args.learning_rate, device_type=args.device_type, tags=tags, cdir=checkpoint_dir, rdir=result_dir)
 
 
 initializer = tf.global_variables_initializer()

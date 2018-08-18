@@ -77,7 +77,7 @@ class FaceCurve(object):
             bs = self.bs
         if cs is None:
             cs = self.cs
-        img = np.zeros((32, 32))
+        img = np.ones((32, 32))
         bs = (bs * 32.).astype(np.int32)
         for b, c in zip(bs, cs):
             img[b[1], b[0]] = c
