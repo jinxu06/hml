@@ -71,3 +71,6 @@ class FaceCurve(object):
     def sample(self, num_shots, test_shots):
         idx = np.random.choice(self.num_total_pixels, size=num_shots+test_shots, replace=False).astype(np.int32)
         return self.cs[idx][:num_shots], self.bs[idx][:num_shots], self.cs[idx][num_shots:], self.bs[idx][num_shots:]
+
+    def get_all_samples(self):
+        return self.sample(self.num_total_pixels, 0)[:2]
