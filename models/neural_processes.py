@@ -394,8 +394,8 @@ def conditional_decoder(x, z, num_classes=1, nonlinearity=None, bn=True, kernel_
     with tf.variable_scope(name):
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
             size = 256
-            batch_size = tf.shape(x)[0]
-            x = tf.tile(x, tf.stack([1, int_shape(z)[1]]))
+            batch_size, x_dim = tf.shape(x)
+            x = tf.tile(x, tf.stack([1, int_shape(z)[1]//x_dim]))
             z = tf.tile(z, tf.stack([batch_size, 1]))
             # xz = x + z * tf.get_variable(name="coeff", shape=(), dtype=tf.float32, initializer=tf.constant_initializer(2.0))
             xz = x

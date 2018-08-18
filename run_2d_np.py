@@ -24,18 +24,6 @@ result_dir = "results"
 
 train_set, val_set = load(dataset_name=args.dataset_name)
 
-print(train_set)
-tasks = train_set.sample(5)
-print(tasks)
-t = tasks[0]
-a, b, c, d = t.sample(5, 5)
-print(a)
-print(b)
-print(c)
-print(d)
-
-quit()
-
 models = [NeuralProcess(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
 model_opt = {
