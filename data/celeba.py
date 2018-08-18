@@ -38,20 +38,20 @@ class CelebA(object):
         self.dataset_name = dataset_name
 
         if which_set == 'train':
-            self.images = load(self.data_dir, subset=which_set, size=32, limit=10000)
-        elif which_set == 'val':
-            self.images = load(self.data_dir, subset=which_set, size=32, limit=200)
+            self.images = load(self.data_dir, subset=which_set, size=32, limit=10000)[0]
+        elif which_set == 'valid':
+            self.images = load(self.data_dir, subset=which_set, size=32, limit=200)[0]
         elif which_set == 'test':
-            self.images = load(self.data_dir, subset=which_set, size=32, limit=200)
+            self.images = load(self.data_dir, subset=which_set, size=32, limit=200)[0]
         else:
             raise Exception("unknown {0}".format(which_set))
 
     def sample(self, num):
         tasks = []
-        idxs = np.random.choice(len(self.images), size=num, replace=False).astype(np.int32)
+        idxs = np.random.choice(self.images.shape[0], size=num, replace=False).astype(np.int32)
         for i in idx:
             tasks.append(self.images[i])
-        return tasks 
+        return tasks
 
 
 class FaceCurve(object):
