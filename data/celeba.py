@@ -39,8 +39,8 @@ class CelebA(object):
 
         if which_set == 'train':
             self.images = load(self.data_dir, subset=which_set, size=32, limit=10000)[0]
-        elif which_set == 'valid':
-            self.images = load(self.data_dir, subset=which_set, size=32, limit=200)[0]
+        elif which_set == 'val':
+            self.images = load(self.data_dir, subset="valid", size=32, limit=200)[0]
         elif which_set == 'test':
             self.images = load(self.data_dir, subset=which_set, size=32, limit=200)[0]
         else:

@@ -10,8 +10,18 @@ def load(dataset_name, **kwargs):
         return load_omniglot(**kwargs)
     elif dataset_name == 'miniimagenet':
         return load_miniimagenet(**kwargs)
+    elif dataset_name == 'celeba':
+        return load_celeba(**kwargs)
     else:
         raise Exception("Dataset {0} not found".format(dataset_name))
+
+def load_celeba():
+    from data.celeba import CelebA
+    data_dir = r"/data/ziz/not-backed-up/jxu/CelebA"
+    train_set = CelebA(data_dir, which_set='train')
+    val_set = CelebA(data_dir, which_set='val')
+    return train_set, val_set
+
 
 def load_miniimagenet(num_classes=5):
     from data.miniimagenet import Miniimagenet
