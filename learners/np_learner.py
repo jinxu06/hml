@@ -119,6 +119,8 @@ class NPLearner(MetaLearner):
         for i in range(12):
             ax = fig.add_subplot(4, 3, i+1)
             ax.grid(False)
+            ax.set_xticklabels([])
+            ax.set_yticklabels([])
             sampler = self.eval_set.sample(1)[0]
             c = [15, 30, 90, 512]
             num_shots = c[(i%4)]
