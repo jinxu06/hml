@@ -50,7 +50,7 @@ class NeuralProcess(object):
         self.use_z_pr = tf.cast(tf.placeholder_with_default(False, shape=()), dtype=tf.float32)
 
         self._model()
-        self.loss = self._loss(beta=1.0, y_sigma=0.2)
+        self.loss = self._loss(beta=1.0, y_sigma=0.01) # y_sigma=0.2)
         self.grads = tf.gradients(self.loss, tf.trainable_variables(), colocate_gradients_with_ops=True)
 
         #
@@ -308,7 +308,7 @@ def fc_encoder(X, y, r_dim, num_classes=1, nonlinearity=None, bn=True, kernel_in
     print("construct", name, "...")
     with tf.variable_scope(name):
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
-            size = 256
+            size = 512
             outputs = dense(inputs, size)
             outputs = nonlinearity(dense(outputs, size, nonlinearity=None) + dense(inputs, size, nonlinearity=None))
             inputs = outputs
@@ -327,7 +327,7 @@ def aggregator(r, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=Tru
             r_pr = method(r[:num_c], axis=0, keepdims=True)
             r = method(r, axis=0, keepdims=True)
             r = tf.concat([r_pr, r], axis=0)
-            size = 256
+            size = 512
             r = dense(r, size)
             r = dense(r, size)
             r = dense(r, size)
@@ -393,7 +393,7 @@ def conditional_decoder(x, z, num_classes=1, nonlinearity=None, bn=True, kernel_
     print("construct", name, "...")
     with tf.variable_scope(name):
         with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
-            size = 256
+            size = 512
             x_dim = int_shape(x)[-1]
             batch_size = tf.shape(x)[0]
             x = tf.tile(x, tf.stack([1, int_shape(z)[1]//x_dim]))
