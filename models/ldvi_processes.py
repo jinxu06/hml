@@ -67,7 +67,7 @@ class LangevinDynamicsVIProcess(object):
         self.z_samples_pos = []
         self.cond_kls = []
         with arg_scope([self.sample_encoder, self.aggregator, self.conditional_decoder], **default_args):
-            self.scope_name = get_name("gavi_process", self.counters)
+            self.scope_name = get_name("ldvi_process", self.counters)
             with tf.variable_scope(self.scope_name):
                 # log p(x, z)
                 y_sigma = .2
@@ -373,3 +373,61 @@ def miniimagenet_conv(X, params=None, num_classes=1, nonlinearity=None, bn=True,
                 y = dense(outputs, num_classes, W=params.pop(), b=params.pop(), nonlinearity=None, bn=False)
                 assert len(params)==0, "{0}: feed-in parameter list is not empty".format(name)
             return y
+
+
+
+@add_arg_scope
+def fc_encoder_2d(X, y, r_dim, num_classes=1, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+    inputs = tf.concat([X, y[:, None]], axis=1)
+    name = get_name("fc_encoder", counters)
+    print("construct", name, "...")
+    with tf.variable_scope(name):
+        with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
+            size = 512
+            outputs = dense(inputs, size)
+            outputs = nonlinearity(dense(outputs, size, nonlinearity=None) + dense(inputs, size, nonlinearity=None))
+            inputs = outputs
+            outputs = dense(outputs, size)
+            outputs = nonlinearity(dense(outputs, size, nonlinearity=None) + dense(inputs, size, nonlinearity=None))
+            outputs = dense(outputs, size)
+            outputs = dense(outputs, r_dim, nonlinearity=None, bn=False)
+            return outputs
+
+@add_arg_scope
+def aggregator_2d(r, num_c, z_dim, method=tf.reduce_mean, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+    name = get_name("aggregator", counters)
+    print("construct", name, "...")
+    with tf.variable_scope(name):
+        with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
+            r_pr = method(r[:num_c], axis=0, keepdims=True)
+            r = method(r, axis=0, keepdims=True)
+            r = tf.concat([r_pr, r], axis=0)
+            size = 512
+            r = dense(r, size)
+            r = dense(r, size)
+            r = dense(r, size)
+            z_mu = dense(r, z_dim, nonlinearity=None, bn=False)
+            z_log_sigma_sq = dense(r, z_dim, nonlinearity=None, bn=False)
+            return z_mu[:1], z_log_sigma_sq[:1], z_mu[1:], z_log_sigma_sq[1:]
+
+
+@add_arg_scope
+def conditional_decoder_2d(x, z, reuse=tf.AUTO_REUSE, num_classes=1, nonlinearity=None, bn=True, kernel_initializer=None, kernel_regularizer=None, is_training=False, counters={}):
+    name = get_name("conditional_decoder", counters)
+    print("construct", name, "...")
+    with tf.variable_scope(name, reuse=reuse):
+        with arg_scope([dense], nonlinearity=nonlinearity, bn=bn, kernel_initializer=kernel_initializer, kernel_regularizer=kernel_regularizer, is_training=is_training, counters=counters):
+            size = 512
+            x_dim = int_shape(x)[-1]
+            batch_size = tf.shape(x)[0]
+            x = tf.tile(x, tf.stack([1, int_shape(z)[1]//x_dim]))
+            z = tf.tile(z, tf.stack([batch_size, 1]))
+            xz = x
+            a = dense(xz, size, nonlinearity=None) + dense(z, size, nonlinearity=None)
+            outputs = tf.nn.tanh(a) * tf.sigmoid(a)
+            for k in range(4):
+                a = dense(outputs, size, nonlinearity=None) + dense(z, size, nonlinearity=None)
+                outputs = tf.nn.tanh(a) * tf.sigmoid(a)
+            outputs = dense(outputs, 1, nonlinearity=None, bn=False)
+            outputs = tf.reshape(outputs, shape=(batch_size,))
+            return outputs

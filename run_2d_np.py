@@ -13,7 +13,7 @@ from args import argument_parser, prepare_args
 from data.load_data import load
 from models.neural_processes import NeuralProcess
 from learners.task_learners import NP2DRegressionLearner
-from models.neural_processes import fc_encoder, aggregator, conditional_decoder
+from models.neural_processes import fc_encoder_2d, aggregator_2d, conditional_decoder_2d
 
 parser = argument_parser()
 args = parser.parse_args()
@@ -27,9 +27,9 @@ train_set, val_set = load(dataset_name=args.dataset_name)
 models = [NeuralProcess(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
 model_opt = {
-    "sample_encoder": fc_encoder,
-    "aggregator": aggregator,
-    "conditional_decoder": conditional_decoder,
+    "sample_encoder": fc_encoder_2d,
+    "aggregator": aggregator_2d,
+    "conditional_decoder": conditional_decoder_2d,
     "task_type": "regression",
     "obs_shape": [2],
     "r_dim": 256,
