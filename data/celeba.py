@@ -80,8 +80,9 @@ class FaceCurve(object):
         img = np.zeros((32, 32))
         bs = (bs * 32.).astype(np.int32)
         for b, c in zip(bs, cs):
-            img[b[0], b[1]]
-        return img 
+            img[b[0], b[1]] = c
+        img = np.stack([img for i in range(3)], axis=-1)
+        return img
 
 
     def get_all_samples(self):
