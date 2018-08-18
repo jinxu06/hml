@@ -34,10 +34,14 @@ class NP2DRegressionLearner(NPLearner):
                 ax.set_xticklabels([])
                 ax.set_yticklabels([])
 
-                ops, feed_dict = m.predict(X_c_value, y_c_value, X_value)
-                y_hat = self.session.run(ops, feed_dict=feed_dict)[0]
-                img = sampler.show(X_value, y_hat)
-                ax.imshow(img)
+                if j == 0:
+                    img = sampler.show(X_c_value, y_c_value)
+                    ax.imshow(img)
+                else:
+                    ops, feed_dict = m.predict(X_c_value, y_c_value, X_value)
+                    y_hat = self.session.run(ops, feed_dict=feed_dict)[0]
+                    img = sampler.show(X_value, y_hat)
+                    ax.imshow(img)
 
         fig.savefig(save_name)
         plt.close()
