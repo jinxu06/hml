@@ -72,7 +72,7 @@ class LangevinDynamicsVIProcess(object):
                 # log p(x, z)
                 y_sigma = .2
                 loss_func = lambda z, o, y, beta: - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=y_sigma).log_prob(y-o)) \
-                 + beta * tf.reduce_sum(tf.distributions.Normal(loc=0., scale=100.).log_prob(z)))
+                 + beta * tf.reduce_sum(tf.distributions.Normal(loc=0., scale=1.).log_prob(z)))
                 #
                 num_c = tf.shape(self.X_c)[0]
                 X_ct = tf.concat([self.X_c, self.X_t], axis=0)
