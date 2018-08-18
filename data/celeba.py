@@ -58,10 +58,10 @@ class FaceCurve(object):
 
     def __init__(self, image):
         self.image = image
-        self.image = np.mean(self.image.astype(np.float32), axis=-1) / 127.5 - 1.
+        self.image = np.mean(self.image.astype(np.float32), axis=-1) / 255.
         self.xs, self.ys = np.meshgrid(np.arange(32), np.arange(32))
-        self.xs = self.xs.astype(np.int32) / 16. - 1.
-        self.ys = self.ys.astype(np.int32) / 16. - 1.
+        self.xs = self.xs.astype(np.int32) / 32.
+        self.ys = self.ys.astype(np.int32) / 32.
         self.xs = np.ndarray.flatten(self.xs)
         self.ys = np.ndarray.flatten(self.ys)
         self.cs = np.stack([self.xs, self.ys], axis=-1)
@@ -71,6 +71,18 @@ class FaceCurve(object):
     def sample(self, num_shots, test_shots):
         idx = np.random.choice(self.num_total_pixels, size=num_shots+test_shots, replace=False).astype(np.int32)
         return self.cs[idx][:num_shots], self.bs[idx][:num_shots], self.cs[idx][num_shots:], self.bs[idx][num_shots:]
+
+    def show(self, bs=None, cs=None):
+        if bs is None:
+            bs = self.bs
+        if cs is None:
+            cs = self.cs
+        img = np.zeros((32, 32))
+        bs = (bs * 32.).astype(np.int32)
+        for b, c in zip(bs, cs):
+            img[b[0], b[1]]
+        return img 
+
 
     def get_all_samples(self):
         return self.sample(self.num_total_pixels, 0)[:2]

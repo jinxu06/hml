@@ -114,6 +114,27 @@ class NPLearner(MetaLearner):
         plt.close()
 
 
+    def visualise_2d(self, save_name):
+        fig = plt.figure(figsize=(10, 10))
+        for i in range(12):
+            ax = fig.add_subplot(4, 3, i+1)
+            sampler = self.eval_set.sample(1)[0]
+            c = [15, 30, 90, 512]
+            num_shots = c[(i%4)]
+            X_c_value, y_c_value, X_t_value, y_t_value = sampler.sample(num_shots, test_shots=32*32-num_shots)
+            X_value = np.concatenate([X_c_value, X_t_value], axis=0)
+            y_value = np.concatenate([y_c_value, y_t_value], axis=0)
+            m = self.parallel_models[0]
+
+            ops, feed_dict = m.predict(X_c_value, y_c_value, X_eval)
+            y_hat = self.session.run(ops, feed_dict=feed_dict)[0]
+            img = sampler.show(X_value, y_value)
+            print(img.shape)
+
+        fig.savefig(save_name)
+        plt.close()
+
+
     def run_train(self, num_epoch, eval_interval, save_interval, eval_samples, meta_batch, gen_num_shots, gen_test_shots, load_params=False):
         saver = tf.train.Saver(var_list=self.variables)
         if load_params:
