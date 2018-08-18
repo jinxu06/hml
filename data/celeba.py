@@ -50,7 +50,7 @@ class CelebA(object):
         tasks = []
         idxs = np.random.choice(self.images.shape[0], size=num, replace=False).astype(np.int32)
         for i in idxs:
-            tasks.append(self.images[i])
+            tasks.append(FaceCurve(self.images[i]))
         return tasks
 
 
@@ -59,6 +59,7 @@ class FaceCurve(object):
     def __init__(self, image):
         self.image = image
         self.image = np.mean(self.image.astype(np.float32), axis=-1)
+        print(self.image.shape)
 
     def sample(self, num_pixels):
         pass
