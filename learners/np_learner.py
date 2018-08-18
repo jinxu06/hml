@@ -118,6 +118,7 @@ class NPLearner(MetaLearner):
         fig = plt.figure(figsize=(10, 10))
         for i in range(12):
             ax = fig.add_subplot(4, 3, i+1)
+            ax.grid(False)
             sampler = self.eval_set.sample(1)[0]
             c = [15, 30, 90, 512]
             num_shots = c[(i%4)]
@@ -128,9 +129,7 @@ class NPLearner(MetaLearner):
 
             ops, feed_dict = m.predict(X_c_value, y_c_value, X_value)
             y_hat = self.session.run(ops, feed_dict=feed_dict)[0]
-            print(y_value)
             img = sampler.show(X_value, y_value)
-            print(img)
             ax.imshow(img)
 
         fig.savefig(save_name)
