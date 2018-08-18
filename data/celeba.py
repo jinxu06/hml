@@ -49,7 +49,7 @@ class CelebA(object):
     def sample(self, num):
         tasks = []
         idxs = np.random.choice(self.images.shape[0], size=num, replace=False).astype(np.int32)
-        for i in idx:
+        for i in idxs:
             tasks.append(self.images[i])
         return tasks
 
