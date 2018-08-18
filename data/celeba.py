@@ -62,9 +62,13 @@ class FaceCurve(object):
         self.xs, self.ys = np.meshgrid(np.arange(32), np.arange(32))
         self.xs = self.xs.astype(np.int32) / 16. - 1.
         self.ys = self.ys.astype(np.int32) / 16. - 1.
-        print(self.xs.shape)
-        print(self.ys.shape)
-        print(self.image.shape)
+        self.xs = np.flatten(self.xs)
+        self.ys = np.flatten(self.ys)
+        self.bs = np.flatten(self.image)
+
+        print(self.xs)
+        print(self.ys)
+        print(bs)
 
     def sample(self, num_pixels):
         pass
