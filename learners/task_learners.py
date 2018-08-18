@@ -77,7 +77,7 @@ class NP2DRegressionLearner(NPLearner):
 class LDVI2DLearner(GAVILearner):
 
     def __init__(self, session, parallel_models, optimize_op, train_set=None, eval_set=None, variables=None, lr=0.001, device_type='gpu', tags=["test"], cdir="", rdir=""):
-        super(GAVILearner, self).__init__(session, parallel_models, optimize_op, train_set, eval_set, variables, lr, device_type, tags, cdir, rdir)
+        super().__init__(session, parallel_models, optimize_op, train_set, eval_set, variables, lr, device_type, tags, cdir, rdir)
 
     def visualise_2d(self, save_name):
         m = self.parallel_models[0]
