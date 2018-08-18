@@ -66,12 +66,12 @@ with tf.Session(config=config) as sess:
 
     run_params = {
         "num_epoch": 500,
-        "eval_interval": 5,
+        "eval_interval": args.eval_interval,
         "save_interval": args.save_interval,
         "eval_samples": 1000,
         "meta_batch": args.nr_model,
-        "gen_num_shots": partial(np.random.randint, low=1, high=20),
-        "gen_test_shots": partial(np.random.randint, low=1, high=20),
+        "gen_num_shots": partial(np.random.randint, low=20, high=200),
+        "gen_test_shots": partial(np.random.randint, low=20, high=200),
         "load_params": args.load_params,
     }
 

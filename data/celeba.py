@@ -40,9 +40,9 @@ class CelebA(object):
         if which_set == 'train':
             self.images = load(self.data_dir, subset=which_set, size=32, limit=10000)[0]
         elif which_set == 'val':
-            self.images = load(self.data_dir, subset="valid", size=32, limit=200)[0]
+            self.images = load(self.data_dir, subset="valid", size=32, limit=2000)[0]
         elif which_set == 'test':
-            self.images = load(self.data_dir, subset=which_set, size=32, limit=200)[0]
+            self.images = load(self.data_dir, subset=which_set, size=32, limit=500)[0]
         else:
             raise Exception("unknown {0}".format(which_set))
 
