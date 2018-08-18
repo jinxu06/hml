@@ -59,7 +59,10 @@ class FaceCurve(object):
     def __init__(self, image):
         self.image = image
         self.image = np.mean(self.image.astype(np.float32), axis=-1)
-        print(self.image.shape)
+        self.coordinates = np.meshgrid(np.arange(32), np.arange(32)).astype(np.float32)
+        self.coordinates / 16. - 1.
+        print(self.coordinates)
+        print(self.image)
 
     def sample(self, num_pixels):
         pass
