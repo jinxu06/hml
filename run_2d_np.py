@@ -31,7 +31,7 @@ model_opt = {
     "aggregator": aggregator,
     "conditional_decoder": conditional_decoder,
     "task_type": "regression",
-    "obs_shape": [1],
+    "obs_shape": [2],
     "r_dim": 128,
     "z_dim": 32,
     "nonlinearity": tf.nn.relu,
