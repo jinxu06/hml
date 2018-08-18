@@ -9,7 +9,7 @@ plt.style.use("ggplot")
 from .meta_learner import MetaLearner, cosort_x
 from .np_learner import NPLearner
 from .maml_learner import MAMLLearner
-from .gavi_learner import gavi_learner
+from .gavi_learner import GAVILearner
 
 class NP2DRegressionLearner(NPLearner):
 
