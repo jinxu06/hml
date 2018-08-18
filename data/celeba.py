@@ -58,7 +58,7 @@ class FaceCurve(object):
 
     def __init__(self, image):
         self.image = image
-        self.image = np.mean(self.image.astype(np.float32), axis=-1)
+        self.image = np.mean(self.image.astype(np.float32), axis=-1) / 127.5 - 1.
         self.xs, self.ys = np.meshgrid(np.arange(32), np.arange(32))
         self.xs = self.xs.astype(np.int32) / 16. - 1.
         self.ys = self.ys.astype(np.int32) / 16. - 1.
@@ -66,9 +66,8 @@ class FaceCurve(object):
         self.ys = np.ndarray.flatten(self.ys)
         self.bs = np.ndarray.flatten(self.image)
 
-        print(self.xs)
-        print(self.ys)
-        print(self.bs)
+        self.num_total_pixels = len(self.xs)
 
     def sample(self, num_pixels):
-        pass
+        idx = np.random.choice(self.num_total_pixels, size=num_pixels, replace=False).astype(np.int32)
+        return self.xs[idx], self.ys[idx], self.bs[idx]
