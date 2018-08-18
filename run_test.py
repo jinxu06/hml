@@ -13,5 +13,5 @@ from tensorflow.python import debug as tf_debug
 from data.celeba import CelebA
 
 
-celeba = CelebA(data_dir="/data/ziz/not-backed-up/jxu/CelebA", 'train')
+celeba = CelebA(data_dir="/data/ziz/not-backed-up/jxu/CelebA", which_set='train')
 pritn(celeba.sample(10))
