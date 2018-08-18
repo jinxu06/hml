@@ -21,15 +21,15 @@ class NP2DRegressionLearner(NPLearner):
         m = self.parallel_models[0]
         fig = plt.figure(figsize=(12, 12))
         sampler = self.eval_set.sample(1)[0]
-        c = [15, 30, 90, 512]
-        for i in range(4):
+        c = [15, 30, 90, 512, 1024]
+        for i in range(5):
             num_shots = c[i]
             X_c_value, y_c_value, X_t_value, y_t_value = sampler.sample(num_shots, test_shots=32*32-num_shots)
             X_value = np.concatenate([X_c_value, X_t_value], axis=0)
             y_value = np.concatenate([y_c_value, y_t_value], axis=0)
-            for j in range(4):
-                idx = 4 * j + i + 1
-                ax = fig.add_subplot(4, 4, idx)
+            for j in range(5):
+                idx = 5 * j + i + 1
+                ax = fig.add_subplot(5, 5, idx)
                 ax.grid(False)
                 ax.set_xticklabels([])
                 ax.set_yticklabels([])
