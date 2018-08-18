@@ -64,10 +64,10 @@ class FaceCurve(object):
         self.ys = self.ys.astype(np.int32) / 16. - 1.
         self.xs = np.ndarray.flatten(self.xs)
         self.ys = np.ndarray.flatten(self.ys)
+        self.cs = np.stack([self.xs, self.ys], axis=-1)
         self.bs = np.ndarray.flatten(self.image)
-
         self.num_total_pixels = len(self.xs)
 
-    def sample(self, num_pixels):
-        idx = np.random.choice(self.num_total_pixels, size=num_pixels, replace=False).astype(np.int32)
-        return self.xs[idx], self.ys[idx], self.bs[idx]
+    def sample(self, num_shots, test_shots):
+        idx = np.random.choice(self.num_total_pixels, size=num_shots+test_shots, replace=False).astype(np.int32)
+        return self.cs[idx][:num_shots], self.bs[idx][:num_shots], self.cs[idx][num_shots:], self.bs[idx][num_shots:]

@@ -15,4 +15,4 @@ from data.celeba import CelebA
 
 celeba = CelebA(data_dir="/data/ziz/not-backed-up/jxu/CelebA", which_set='train')
 s = celeba.sample(1)[0]
-print(s.sample(10))
+print(s.sample(5, 5))
