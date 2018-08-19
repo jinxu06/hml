@@ -89,7 +89,8 @@ class LangevinDynamicsVIProcess(object):
                 # z = (1-self.use_z_pr) * z + self.use_z_pr * z_pr
 
                 outputs_pr = self.conditional_decoder(self.X_c, z_pr, counters={})
-                outputs_pos = self.conditional_decoder(X_ct, z_pos, counters={})
+                # * outputs_pos = self.conditional_decoder(X_ct, z_pos, counters={})
+                outputs_pos = self.conditional_decoder(self.X_c, z_pos, counters={})
 
                 z = (1-self.use_z_pr) * z_pos + self.use_z_pr * z_pr
                 self.outputs_sqs.append(self.conditional_decoder(self.X_t, z, counters={}))
