@@ -38,3 +38,6 @@ with tf.Session(config=config) as sess:
     r2 = sess.run(l2, feed_dict=feed_dict)
     print(r1, r2)
     print(r2/r1)
+
+    x = np.mean((feed_dict[targets] - feed_dict[preds])**2)
+    print(x / (2*y_sigma**2))
