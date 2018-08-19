@@ -70,7 +70,7 @@ class LangevinDynamicsVIProcess(object):
             self.scope_name = get_name("ldvi_process", self.counters)
             with tf.variable_scope(self.scope_name):
                 # log p(x, z)
-                y_sigma = .1
+                y_sigma = .2
                 loss_func = lambda z, o, y, beta: - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=y_sigma).log_prob(y-o)) \
                  + beta * tf.reduce_sum(tf.distributions.Normal(loc=0., scale=1.).log_prob(z)))
 
@@ -127,7 +127,7 @@ class LangevinDynamicsVIProcess(object):
                     self.outputs_sqs.append(self.conditional_decoder(self.X_t, z, counters={}))
 
                 self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
-                self.loss_sqs = [loss_func(z, o, self.y_t, .0) for o in self.outputs_sqs]
+                self.loss_sqs = [loss_func(z, o, self.y_t, 1.) for o in self.outputs_sqs]
                 self.mse_sqs = [self.error_func(self.y_t, o) for o in self.outputs_sqs]
                 # if self.task_type == 'classification':
                 #     self.acc_sqs = [accuracy(self.y_t, y_hat) for y_hat in self.y_hat_sqs]
