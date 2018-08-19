@@ -131,6 +131,7 @@ class LangevinDynamicsVIProcess(object):
         return self.nll + beta * self.reg
 
     def predict(self, X_c_value, y_c_value, X_t_value, step=None):
+        step = 0
         feed_dict = {
             self.X_c: X_c_value,
             self.y_c: y_c_value,
@@ -144,6 +145,7 @@ class LangevinDynamicsVIProcess(object):
         return [self.y_hat_sqs[step]], feed_dict
 
     def evaluate_metrics(self, X_c_value, y_c_value, X_t_value, y_t_value, step=None):
+        step = 0
         feed_dict = {
             self.X_c: X_c_value,
             self.y_c: y_c_value,
