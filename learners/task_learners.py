@@ -136,6 +136,6 @@ class LDVI2DLearner(GAVILearner):
             if epoch % save_interval == 0:
                 print("\tsave figure")
                 self.visualise_2d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, epoch)))
-                print("\tsave checkpoint")
-                saver.save(self.session, self.checkpoint_dir + '/params.ckpt')
+                #print("\tsave checkpoint")
+                #saver.save(self.session, self.checkpoint_dir + '/params.ckpt')
             sys.stdout.flush()

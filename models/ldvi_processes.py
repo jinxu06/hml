@@ -70,7 +70,7 @@ class LangevinDynamicsVIProcess(object):
             self.scope_name = get_name("ldvi_process", self.counters)
             with tf.variable_scope(self.scope_name):
                 # log p(x, z)
-                y_sigma = .2
+                y_sigma = .05
                 loss_func = lambda z, o, y, beta: - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=y_sigma).log_prob(y-o)) \
                  + beta * tf.reduce_sum(tf.distributions.Normal(loc=0., scale=1.).log_prob(z)))
 
