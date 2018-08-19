@@ -22,7 +22,7 @@ l2 = loss_func2(preds, targets)
 
 
 initializer = tf.global_variables_initializer()
-saver = tf.train.Saver()
+#saver = tf.train.Saver()
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
