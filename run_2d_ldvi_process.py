@@ -11,7 +11,8 @@ import tensorflow as tf
 from tensorflow.python import debug as tf_debug
 from args import argument_parser, prepare_args
 from data.load_data import load
-from models.ldvi_processes import LangevinDynamicsVIProcess, fc_encoder_2d, aggregator_2d, conditional_decoder_2d
+# from models.ldvi_processes import LangevinDynamicsVIProcess, fc_encoder_2d, aggregator_2d, conditional_decoder_2d
+from models.ldvi_processes import GradientAscentVIProcess, fc_encoder_2d, aggregator_2d, conditional_decoder_2d
 from learners.task_learners import LDVI2DLearner
 from functools import partial
 
@@ -25,7 +26,8 @@ result_dir = "results"
 
 train_set, val_set = load(dataset_name=args.dataset_name)
 
-models = [LangevinDynamicsVIProcess(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
+#models = [LangevinDynamicsVIProcess(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
+models = [GradientAscentVIProcess(counters={}, user_mode=args.user_mode) for i in range(args.nr_model)]
 
 model_opt = {
     "sample_encoder": fc_encoder_2d,
@@ -47,7 +49,8 @@ model_opt = {
 }
 
 
-model = tf.make_template('model', LangevinDynamicsVIProcess.construct)
+# model = tf.make_template('model', LangevinDynamicsVIProcess.construct)
+model = tf.make_template('model', GradientAscentVIProcess.construct)
 
 for i in range(args.nr_model):
     with tf.device('/'+ args.device_type +':%d' % (i%args.nr_gpu)):
