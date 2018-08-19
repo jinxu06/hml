@@ -27,8 +27,7 @@ initializer = tf.global_variables_initializer()
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 with tf.Session(config=config) as sess:
-    if args.debug:
-        sess = tf_debug.LocalCLIDebugWrapperSession(sess)
+
     sess.run(initializer)
 
     feed_dict = {
