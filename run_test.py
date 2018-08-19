@@ -32,7 +32,7 @@ with tf.Session(config=config) as sess:
     sess.run(initializer)
 
     feed_dict = {
-        targets: np.random.normal(size=(32, 1))
+        targets: np.random.normal(size=(32, 1)),
         preds: np.random.normal(size=(32, 1))
     }
     print(sess.run(l1, feed_dict=feed_dict))
