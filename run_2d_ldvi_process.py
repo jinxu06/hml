@@ -12,7 +12,7 @@ from tensorflow.python import debug as tf_debug
 from args import argument_parser, prepare_args
 from data.load_data import load
 # from models.ldvi_processes import LangevinDynamicsVIProcess, fc_encoder_2d, aggregator_2d, conditional_decoder_2d
-from models.ldvi_processes import GradientAscentVIProcess, fc_encoder_2d, aggregator_2d, conditional_decoder_2d
+from models.gavi_processes import GradientAscentVIProcess, fc_encoder_2d, aggregator_2d, conditional_decoder_2d
 from learners.task_learners import LDVI2DLearner
 from functools import partial
 
