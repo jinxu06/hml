@@ -34,5 +34,7 @@ with tf.Session(config=config) as sess:
         targets: np.random.normal(size=(32, 1)),
         preds: np.random.normal(size=(32, 1))
     }
-    print(sess.run(l1, feed_dict=feed_dict))
-    print(sess.run(l2, feed_dict=feed_dict))
+    r1 = sess.run(l1, feed_dict=feed_dict)
+    r2 = sess.run(l2, feed_dict=feed_dict)
+    print(r1, r2)
+    print(r2/r1)
