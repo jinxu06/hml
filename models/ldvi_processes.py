@@ -70,7 +70,7 @@ class LangevinDynamicsVIProcess(object):
             self.scope_name = get_name("ldvi_process", self.counters)
             with tf.variable_scope(self.scope_name):
                 # log p(x, z)
-                y_sigma = .2
+                y_sigma = .1
                 loss_func = lambda z, o, y, beta: - (tf.reduce_sum(tf.distributions.Normal(loc=0., scale=y_sigma).log_prob(y-o)) \
                  + beta * tf.reduce_sum(tf.distributions.Normal(loc=0., scale=1.).log_prob(z)))
 
@@ -89,8 +89,8 @@ class LangevinDynamicsVIProcess(object):
                 # z = (1-self.use_z_pr) * z + self.use_z_pr * z_pr
 
                 outputs_pr = self.conditional_decoder(self.X_c, z_pr, counters={})
-                outputs_pos = self.conditional_decoder(X_ct, z_pos, counters={})
-                # outputs_pos = self.conditional_decoder(self.X_c, z_pos, counters={})
+                # outputs_pos = self.conditional_decoder(X_ct, z_pos, counters={})
+                outputs_pos = self.conditional_decoder(self.X_c, z_pos, counters={})
 
                 z = (1-self.use_z_pr) * z_pos + self.use_z_pr * z_pr
                 self.outputs_sqs.append(self.conditional_decoder(self.X_t, z, counters={}))
@@ -105,20 +105,20 @@ class LangevinDynamicsVIProcess(object):
                     z_pr -= self.alpha * grad_z_pr + eta
                     self.z_samples_pr.append(z_pr)
                     outputs_pr = self.conditional_decoder(self.X_c, z_pr, counters={})
-                    # posterior
-                    loss_pos = loss_func(z_pos, outputs_pos, y_ct, 1.)
-                    grad_z_pos = tf.gradients(loss_pos, z_pos, colocate_gradients_with_ops=True)[0]
-                    eta = tf.distributions.Normal(loc=0., scale=2*self.alpha).sample(sample_shape=int_shape(z))
-                    z_pos -= self.alpha * grad_z_pos + eta
-                    self.z_samples_pos.append(z_pos)
-                    outputs_pos = self.conditional_decoder(X_ct, z_pos, counters={})
-                    # # posterior *
-                    # loss_pos = loss_func(z_pos, outputs_pos, self.y_c, 1.)
+                    # # posterior
+                    # loss_pos = loss_func(z_pos, outputs_pos, y_ct, 1.)
                     # grad_z_pos = tf.gradients(loss_pos, z_pos, colocate_gradients_with_ops=True)[0]
                     # eta = tf.distributions.Normal(loc=0., scale=2*self.alpha).sample(sample_shape=int_shape(z))
                     # z_pos -= self.alpha * grad_z_pos + eta
                     # self.z_samples_pos.append(z_pos)
-                    # outputs_pos = self.conditional_decoder(self.X_c, z_pos, counters={})
+                    # outputs_pos = self.conditional_decoder(X_ct, z_pos, counters={})
+                    # posterior *
+                    loss_pos = loss_func(z_pos, outputs_pos, self.y_c, 1.)
+                    grad_z_pos = tf.gradients(loss_pos, z_pos, colocate_gradients_with_ops=True)[0]
+                    eta = tf.distributions.Normal(loc=0., scale=2*self.alpha).sample(sample_shape=int_shape(z))
+                    z_pos -= self.alpha * grad_z_pos + eta
+                    self.z_samples_pos.append(z_pos)
+                    outputs_pos = self.conditional_decoder(self.X_c, z_pos, counters={})
 
                     z_log_sigma_sq_noise = 2*tf.log(2*self.alpha) * tf.ones_like(grad_z_pos)
                     self.cond_kls.append(compute_2gaussian_kld(self.alpha*grad_z_c, z_log_sigma_sq_noise, self.alpha*grad_z_pos, z_log_sigma_sq_noise))
