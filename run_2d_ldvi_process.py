@@ -40,8 +40,8 @@ model_opt = {
     "alpha": 0.01,
     "r_dim": 256,
     "z_dim": 128,
-    "inner_iters": 1,
-    "eval_iters": 1,
+    "inner_iters": 3,
+    "eval_iters": 3,
     "nonlinearity": tf.nn.relu,
     "bn": False,
     "kernel_initializer": tf.contrib.layers.xavier_initializer(uniform=False),
@@ -57,7 +57,7 @@ for i in range(args.nr_model):
         model(models[i], **model_opt)
 
 #tags = ["test", 'small-period']
-tags = ["langevin", "ldvi", "2d", "regression"]
+tags = ["langevin", "ldvi", "2d", "regression", "more", "iters"]
 learner = LDVI2DLearner(session=None, parallel_models=models, optimize_op=None, train_set=train_set, eval_set=val_set, variables=tf.trainable_variables(), lr=args.learning_rate, device_type=args.device_type, tags=tags, cdir=checkpoint_dir, rdir=result_dir)
 
 initializer = tf.global_variables_initializer()
