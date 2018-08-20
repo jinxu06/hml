@@ -7,8 +7,10 @@ flatten = tf.contrib.layers.flatten
 
 
 @add_arg_scope
-def mean_squared_error(labels, outputs, sigma):
+def mean_squared_error(labels, outputs, sigma=None):
     l = tf.reduce_sum(tf.pow((labels - predictions), 2), axis=0)
+    if sigma is None:
+        return l
     return l / (2*sigma**2)
 
 @add_arg_scope

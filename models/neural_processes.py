@@ -27,7 +27,7 @@ class NeuralProcess(object):
             self.error_func = tf.losses.softmax_cross_entropy
             self.pred_func = lambda x: tf.nn.softmax(x)
         elif task_type == 'regression':
-            self.error_func = tf.losses.mean_squared_error
+            self.error_func = mean_squared_error #tf.losses.mean_squared_error
             self.pred_func = lambda x: x
         else:
             raise Exception("Unknown task type")
@@ -50,7 +50,7 @@ class NeuralProcess(object):
         self.use_z_pr = tf.cast(tf.placeholder_with_default(False, shape=()), dtype=tf.float32)
 
         self._model()
-        self.loss = self._loss(beta=1.0, y_sigma=0.01) # y_sigma=0.2)
+        self.loss = self._loss(beta=1.0, y_sigma=0.2) # y_sigma=0.2)
         self.grads = tf.gradients(self.loss, tf.trainable_variables(), colocate_gradients_with_ops=True)
 
         #
