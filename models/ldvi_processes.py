@@ -103,7 +103,7 @@ class LangevinDynamicsVIProcess(object):
                     loss_pr = loss_func(z_pr, outputs_pr, self.y_c, 1.)
                     grad_z_pr = tf.gradients(loss_pr, z_pr, colocate_gradients_with_ops=True)[0]
                     eta = tf.distributions.Normal(loc=0., scale=2*self.alpha).sample(sample_shape=int_shape(z))
-                    z_pr -= self.alpha * grad_z_pr + eta
+                    z_pr -= self.alpha * grad_z_pr + 0.0 #eta
                     self.z_samples_pr.append(z_pr)
                     outputs_pr = self.conditional_decoder(self.X_c, z_pr, counters={})
                     # # posterior
