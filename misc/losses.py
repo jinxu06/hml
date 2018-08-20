@@ -8,7 +8,11 @@ flatten = tf.contrib.layers.flatten
 
 @add_arg_scope
 def mean_squared_error(labels, outputs, sigma=None):
-    l = tf.reduce_sum(tf.pow((labels - predictions), 2), axis=0)
+    s = int_shape(labels)
+    if len(s) == 2:
+        l = tf.reduce_sum(tf.reduce_mean(tf.pow((labels - outputs), 2), axis=-1), axis=0)
+    else:
+        l = tf.reduce_sum(tf.pow((labels - outputs), 2), axis=0)
     if sigma is None:
         return l
     return l / (2*sigma**2)
