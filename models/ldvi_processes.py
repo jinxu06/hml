@@ -130,6 +130,7 @@ class LangevinDynamicsVIProcess(object):
                 self.y_hat_sqs = [self.pred_func(o) for o in self.outputs_sqs]
                 self.loss_sqs = [loss_func(z, o, self.y_t, 0.) for o in self.outputs_sqs]
                 self.mse_sqs = [self.error_func(self.y_t, o) for o in self.outputs_sqs]
+                self.nll_sqs = [tf.losses.mean_squared_error(self.y_t, o)/(2*y_sigma**2) for o in self.outputs_sqs]
                 # if self.task_type == 'classification':
                 #     self.acc_sqs = [accuracy(self.y_t, y_hat) for y_hat in self.y_hat_sqs]
 
@@ -164,7 +165,7 @@ class LangevinDynamicsVIProcess(object):
             step = self.eval_iters
         if self.task_type == 'classification':
             return [self.loss_sqs[step], self.acc_sqs[step]], feed_dict
-        return [self.loss_sqs[step], self.mse_sqs[step]], feed_dict
+        return [self.loss_sqs[step], self.mse_sqs[step], self.nll_sqs[step]], feed_dict
 
 
 @add_arg_scope
