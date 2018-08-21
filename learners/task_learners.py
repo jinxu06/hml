@@ -125,6 +125,7 @@ class LDVI2DLearner(GAVILearner):
 
         v = self.evaluate(eval_samples, gen_num_shots, gen_test_shots)
         print("    Eval Loss: ", v)
+        quit()
 
         for epoch in range(1, num_epoch+1):
             self.qclock()
