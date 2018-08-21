@@ -55,6 +55,10 @@ class NP2DRegressionLearner(NPLearner):
             saver.restore(self.session, ckpt_file)
         self.visualise_2d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, 0)))
 
+        v = self.evaluate(eval_samples, gen_num_shots, gen_test_shots)
+        print("    Eval Loss: ", v)
+        quit()
+
         for epoch in range(1, num_epoch+1):
             self.qclock()
             for k in range(1000):
@@ -123,9 +127,9 @@ class LDVI2DLearner(GAVILearner):
             saver.restore(self.session, ckpt_file)
         self.visualise_2d(os.path.join(self.result_dir, "{0}-{1}.pdf".format(self.eval_set.dataset_name, 0)))
 
-        v = self.evaluate(eval_samples, gen_num_shots, gen_test_shots)
-        print("    Eval Loss: ", v)
-        quit()
+        # v = self.evaluate(eval_samples, gen_num_shots, gen_test_shots)
+        # print("    Eval Loss: ", v)
+        # quit()
 
         for epoch in range(1, num_epoch+1):
             self.qclock()
